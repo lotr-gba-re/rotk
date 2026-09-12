@@ -15,38 +15,7 @@ Using an otherwise patched ROM as the base is also unsupported.
 - Select the original ROM and the BPS file
 - Click "Apply patch" and save the patched ROM
 
-## Save Game Information
-
-This mod changes the save backend from EEPROM (512B or 8KiB) to SRAM (32KiB).
-This allows expanding the save game contents beyond vanilla (512B) and the original SavSlotPages mod by SuperSaiyajinStackZ (8KiB).
-
-Because of this, you might need to configure your emulator or flashcart to use SRAM saves.
-While the patched ROM is changed to replace the EEPROM marker with the `SRAM_V113` marker (allowing some emulators to correctly auto-detect SRAM save type), some emulators or devices might not detect that.
-The ROM tries to check on startup if the SRAM save backend is available.
-However, this check is performed on a best-effort basis.
-If you have saving issues, start by looking at your emulator/flashcart configuration.
-
-You can use your existing save games from the following ROMs:
-
-- Vanilla RotK
-- SavSlotPages mod by SuperSaiyajinStackZ
-
-If one of these save types is detected on startup, the save will be converted to the new format (which I'll call `ROTKRCM` format) automatically.
-This works for EEPROM saves in both the block-reversed "VBA-compatible" format and the non-reversed format.
-If you use any other mod that does not change the save header, the save type may be misdetected.
-
-> [!warning]
-> **Make a backup of your existing save before converting it!**
->
-> Saves converted to this mod are **incompatible** with vanilla or SavSlotPages ROMs as well as other ROM hacks.
-> **Incompatible** in this case means that the magic bytes in the header are changed and other ROMs will interpret the save as corrupted data and immediately wipe it.
->
-> Furthermore, the conversion feature may cause data loss depending on your emulator or a flashcart.
-> Please make backups.
-
-The conversion screen looks like this:
-
-![Save migration screen for migrating a SavSlotPages save](./img/save_migration_savslotpages_2x.png)
+If you run into save game issues, read the [save game information](#save-game-information) in this document.
 
 ## Features
 
@@ -170,3 +139,36 @@ In this version, the game skips the intro logos and directly launches to the mai
     - Item duplication is trivial anyway, denying unique drops is not fun
     - Alternative: Roll another not-yet-dropped unique instead of dropping an orc head/drum or gems. Then clear once the full set has dropped
 - Change the GCN link feature to a toggle for Sam and the ancient items
+
+## Save Game Information
+
+This mod changes the save backend from EEPROM (512B or 8KiB) to SRAM (32KiB).
+This allows expanding the save game contents beyond vanilla (512B) and the original SavSlotPages mod by SuperSaiyajinStackZ (8KiB).
+
+Because of this, you might need to configure your emulator or flashcart to use SRAM saves.
+While the patched ROM is changed to replace the EEPROM marker with the `SRAM_V113` marker (allowing some emulators to correctly auto-detect SRAM save type), some emulators or devices might not detect that.
+The ROM tries to check on startup if the SRAM save backend is available.
+However, this check is performed on a best-effort basis.
+If you have saving issues, start by looking at your emulator/flashcart configuration.
+
+You can use your existing save games from the following ROMs:
+
+- Vanilla RotK
+- SavSlotPages mod by SuperSaiyajinStackZ
+
+If one of these save types is detected on startup, the save will be converted to the new format (which I'll call `ROTKRCM` format) automatically.
+This works for EEPROM saves in both the block-reversed "VBA-compatible" format and the non-reversed format.
+If you use any other mod that does not change the save header, the save type may be misdetected.
+
+> [!warning]
+> **Make a backup of your existing save before converting it!**
+>
+> Saves converted to this mod are **incompatible** with vanilla or SavSlotPages ROMs as well as other ROM hacks.
+> **Incompatible** in this case means that the magic bytes in the header are changed and other ROMs will interpret the save as corrupted data and immediately wipe it.
+>
+> Furthermore, the conversion feature may cause data loss depending on your emulator or a flashcart.
+> Please make backups.
+
+The conversion screen looks like this:
+
+![Save migration screen for migrating a SavSlotPages save](./img/save_migration_savslotpages_2x.png)
