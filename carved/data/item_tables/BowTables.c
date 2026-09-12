@@ -1,5 +1,4 @@
 #include "item.h"
-#include "libc.h"
 #include "loot.h"
 #include "stats.h"
 #include "text_ids.h"

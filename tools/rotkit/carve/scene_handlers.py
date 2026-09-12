@@ -49,7 +49,6 @@ def emit_scene_handlers(rom: bytes, names_by_addr: dict[int, str]) -> tuple[int,
     )
     lines = [
         '#include "scene.h"',
-        '#include "libc.h"',
         *scene_headers,
         "",
         "// clang-format off",

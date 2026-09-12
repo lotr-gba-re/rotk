@@ -783,7 +783,7 @@ def emit_item_gfx(
         lines.append(f"    {entry_comment(i, names.get(i, ''))}")
         lines.append(f"    {_gfx_row(row, ctx, where, loot_type_names)},")
     lines += ["};"]
-    return Section(table.addr, ["item.h", "libc.h", "loot.h", "variables.h"], lines)
+    return Section(table.addr, ["item.h", "loot.h", "variables.h"], lines)
 
 
 # --- Affix index enums (affix_ids.h) -----------------------------------------

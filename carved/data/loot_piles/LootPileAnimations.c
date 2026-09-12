@@ -1,4 +1,3 @@
-#include "libc.h"
 #include "spriteAnimation.h"
 #include "variables.h"
 

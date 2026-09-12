@@ -292,7 +292,6 @@ def _emit_animations(piles: list[LootPile]) -> tuple[int, str]:
         for t, label in zip(pile.loot_types, pile.labels)
     }
     lines = [
-        '#include "libc.h"',
         '#include "spriteAnimation.h"',
         '#include "variables.h"',
         "",

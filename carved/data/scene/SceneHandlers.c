@@ -1,4 +1,3 @@
-#include "libc.h"
 #include "scene.h"
 #include "scene/artifacts.h"
 #include "scene/backpack.h"
