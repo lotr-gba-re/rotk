@@ -1,11 +1,6 @@
 #pragma once
 
-// Fixed-width base types. Every module header includes this; types are typedef'd at their
-// definition in the owning module header.
-//
-// Vocabulary: u8/u16/u32/u64 + s8/s16/s32/s64 for scalars, `bool` for booleans, `void *` for an
-// unknown pointer, and `u8 field_0xNN[n]` for a not-yet-decoded region (the field_0xNN name is the
-// "undecoded" marker; a byte array also has alignment 1, so it never shifts later offsets).
+#include <stddef.h>
 
 typedef unsigned char u8;
 typedef unsigned short u16;
