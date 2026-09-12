@@ -27,4 +27,4 @@ void input_update(void);
 void input_init(void);
 void input_enable(void);
 void input_disable(void);
-u8 input_getPlayerDpadDirection(u8 playerIndex);
+u8 input_getPlayerDpadDirection8(u8 playerIndex);

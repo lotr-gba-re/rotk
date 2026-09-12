@@ -67,13 +67,13 @@ bool vector2_equals(const Vector2Fp16 *a, const Vector2Fp16 *b)
 }
 
 /**
- * Classify a vector into an 8-way Direction (e.g. attacker->victim for knockback/impact
+ * Classify a vector into a Direction8 (e.g. attacker->victim for knockback/impact
  * facing). Uses sign and dominant axis of (v.x, v.y); +y is south. Scale-invariant:
  * callers pass both fp16_16 and integer vectors.
  *
  * @romaddress 0x08032970
  */
-Direction vector2_direction8(Vector2Int v)
+Direction8 vector2_direction8(Vector2Int v)
 {
     u8 flags = 0;
 
@@ -95,7 +95,7 @@ Direction vector2_direction8(Vector2Int v)
     {
         flags |= 8;
     }
-    return g_DirectionsFromVectors[flags];
+    return g_Direction8sFromVectors[flags];
 }
 
 /**
@@ -103,7 +103,7 @@ Direction vector2_direction8(Vector2Int v)
  *
  * @romaddress 0x080329b4
  */
-u8 vector2_direction32(Vector2Fp16 v)
+Direction32 vector2_direction32(Vector2Fp16 v)
 {
     s16 x16;
     s16 y16;
@@ -118,11 +118,11 @@ u8 vector2_direction32(Vector2Fp16 v)
     angle = bios_arcTan2(x16, y16);
 
     angle16 = (u16)angle;
-    // 32 sectors over the 0..0xffff angle; 0x800 rounds the sector, +8 and & 0x1f
-    // shift and wrap the 8-offset direction grid.
-    dir = (angle16 * 0x20 + 0x800) >> 16;
-    dir += 8;
-    return dir & 0x1f;
+    // 32 sectors over the 0..0xffff angle, 0x800 rounding the sector. ArcTan2's origin is
+    // east, so rotating by that sector puts sector 0 on north.
+    dir = (angle16 * DIRECTION32_COUNT + 0x800) >> 16;
+    dir += DIRECTION32_EAST;
+    return dir & (DIRECTION32_COUNT - 1);
 }
 
 /**
@@ -141,4 +141,35 @@ u32 vector2_distance(Vector2Int a, Vector2Int b)
         return ((absDiff.x * 3) >> 3) + absDiff.y;
     }
     return ((absDiff.y * 3) >> 3) + absDiff.x;
+}
+
+/**
+ * Rotate a 32-way direction one sector toward target, taking the shorter way around the circle.
+ *
+ * @param outStep receives the step that was taken (+1 or -1)
+ *
+ * @romaddress 0x08032a1c
+ */
+Direction32 vector2_stepDirection32(Direction32 current, Direction32 target, s8 *outStep)
+{
+    if (((current - target) & (DIRECTION32_COUNT - 1)) <= DIRECTION32_COUNT / 2)
+    {
+        *outStep = -1;
+    }
+    else
+    {
+        *outStep = 1;
+    }
+    current += *outStep;
+    // the step wrapped the u8: DIRECTION32_COUNT stepped up past the last sector, anything
+    // else stepped down below the first
+    if (current < DIRECTION32_COUNT)
+    {
+        return current;
+    }
+    if (current == DIRECTION32_COUNT)
+    {
+        return DIRECTION32_NORTH;
+    }
+    return DIRECTION32_COUNT - 1;
 }

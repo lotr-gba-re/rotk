@@ -946,13 +946,13 @@ bool combat_isBackstab(Actor *attacker, Actor *victim)
 
     switch (attackerFacing)
     {
-    case DIRECTION_NORTH:
-        prev = DIRECTION_NORTHWEST;
-        next = DIRECTION_NORTHEAST;
+    case DIRECTION8_NORTH:
+        prev = DIRECTION8_NORTHWEST;
+        next = DIRECTION8_NORTHEAST;
         break;
-    case DIRECTION_NORTHWEST:
-        prev = DIRECTION_WEST;
-        next = DIRECTION_NORTH;
+    case DIRECTION8_NORTHWEST:
+        prev = DIRECTION8_WEST;
+        next = DIRECTION8_NORTH;
         break;
     default:
         prev = attackerFacing - 1;

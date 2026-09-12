@@ -184,13 +184,13 @@ void input_disable(void)
 }
 
 /**
- * The 8-way Direction the player is currently holding on the dpad, or DIRECTION_NONE when
- * nothing or an opposing pair is held (DirectionsFromDpad). Reads the held keys, not the
+ * The Direction8 the player is currently holding on the dpad, or DIRECTION8_NONE when
+ * nothing or an opposing pair is held (Direction8sFromDpad). Reads the held keys, not the
  * press edge.
  *
  * @romaddress 0x08029df0
  */
-u8 input_getPlayerDpadDirection(u8 playerIndex)
+u8 input_getPlayerDpadDirection8(u8 playerIndex)
 {
-    return DirectionsFromDpad[(PLAYER_KEYS_CURRENT(playerIndex) & DPAD_ANY) >> 4];
+    return Direction8sFromDpad[(PLAYER_KEYS_CURRENT(playerIndex) & DPAD_ANY) >> 4];
 }

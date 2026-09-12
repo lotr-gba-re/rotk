@@ -600,7 +600,7 @@ struct Actor
 
     /**
      * 2-word displacement velocity (16.16 fixed px/frame); written by
-     * actor_setVelocityFromDirection, zeroed on KNOCKED_DOWN entry (0x08027434)
+     * actor_setVelocityFromDirection8, zeroed on KNOCKED_DOWN entry (0x08027434)
      */
     Vector2Fp16 velocity;
 
@@ -656,7 +656,7 @@ struct Actor
 
     u8 field_0xf4[2];
     u8 field_0xf6[2]; // per-kind bytes (combat/FX)
-    Direction facing;
+    Direction8 facing;
 
     /** spawn-group record backreference (group/index), set by mission_script_spawnGroup */
     u8 recordGroup;
@@ -764,8 +764,8 @@ bool actor_isStunnable(Actor *actor);
  * into `out` and return the frame's gfx id.
  */
 u16 actor_getAnimationFrame(Actor *actor, u32 *out);
-/** Direction (0..7) from actor `from` toward actor `to`. */
-s32 actor_directionToward(Actor *from, Actor *to);
+/** Direction8 from actor `from` toward actor `to`. */
+s32 actor_direction8Toward(Actor *from, Actor *to);
 
 /** Get the distance between two actors. */
 static inline s32 actor_distance(Actor *a, Actor *b)
@@ -777,10 +777,10 @@ static inline s32 actor_distance(Actor *a, Actor *b)
     return vector2_distance(posA, posB);
 }
 /**
- * Set a 2-word velocity vector (Actor.velocity) from DirectionMoveVectors[direction] * speed;
- * flags bit 24 (1 << 24) selects DirectionMoveVectorsSteep instead.
+ * Set a 2-word velocity vector (Actor.velocity) from Direction8MoveVectors[direction] * speed;
+ * flags bit 24 (1 << 24) selects Direction8MoveVectorsSteep instead.
  */
-void actor_setVelocityFromDirection(Vector2Fp16 *velocityOut, u32 flags, s32 direction, s32 speed);
+void actor_setVelocityFromDirection8(Vector2Fp16 *velocityOut, u32 flags, s32 direction, s32 speed);
 /** Apply knockback to `victim` away from `attacker` for `duration` frames. */
 void actor_applyKnockback(Actor *victim, Actor *attacker, u32 duration);
 /**

@@ -227,9 +227,9 @@ s32 combat_resolvePveAttack(Actor *attacker, Actor *victim)
                         victim->actionState = ACTOR_STATE_KNOCKED_DOWN;
                         victim->field_0x64[0] |= 2;
                         {
-                            u8 direction = (u8)actor_directionToward(attacker, victim);
-                            actor_setVelocityFromDirection(&victim->velocity, victim->flags.p,
-                                                           direction, victim->moveSpeed);
+                            u8 direction = (u8)actor_direction8Toward(attacker, victim);
+                            actor_setVelocityFromDirection8(&victim->velocity, victim->flags.p,
+                                                            direction, victim->moveSpeed);
                         }
                     }
                     else
@@ -475,10 +475,10 @@ bool combat_resolvePvpAttack(Actor *attacker, Actor *victim)
                         victim->actionState = ACTOR_STATE_KNOCKED_DOWN;
                         victim->field_0x64[0] |= 2;
                         {
-                            u8 direction = (u8)actor_directionToward(attacker, victim);
+                            u8 direction = (u8)actor_direction8Toward(attacker, victim);
                             Vector2Fp16 *velocity = &victim->velocity;
-                            actor_setVelocityFromDirection(velocity, victim->flags.p, direction,
-                                                           victim->moveSpeed);
+                            actor_setVelocityFromDirection8(velocity, victim->flags.p, direction,
+                                                            victim->moveSpeed);
                         }
                     }
                     player_subtractHp(playerIndex, damage, FALSE);
@@ -657,9 +657,9 @@ bool combat_resolveEnemyAttackOnPlayer(Actor *attacker, Actor *victim)
                     victim->actionState = ACTOR_STATE_KNOCKED_DOWN;
                     victim->field_0x64[0] |= 2;
                     {
-                        u8 direction = (u8)actor_directionToward(attacker, victim);
-                        actor_setVelocityFromDirection(&victim->velocity, victim->flags.p,
-                                                       direction, victim->moveSpeed);
+                        u8 direction = (u8)actor_direction8Toward(attacker, victim);
+                        actor_setVelocityFromDirection8(&victim->velocity, victim->flags.p,
+                                                        direction, victim->moveSpeed);
                     }
                 }
                 player_subtractHp(playerIndex, damage, FALSE);
@@ -727,9 +727,9 @@ bool combat_resolveEnemyAttackOnNpc(Actor *attacker, Actor *victim)
 
                 victim->actionState = ACTOR_STATE_KNOCKED_DOWN;
                 victim->field_0x64[0] |= 2;
-                direction = (u8)actor_directionToward(attacker, victim);
-                actor_setVelocityFromDirection(&victim->velocity, victim->flags.p, direction,
-                                               victim->moveSpeed);
+                direction = (u8)actor_direction8Toward(attacker, victim);
+                actor_setVelocityFromDirection8(&victim->velocity, victim->flags.p, direction,
+                                                victim->moveSpeed);
                 victim->flags.p |= ACTOR_FLAG_23 | ACTOR_FLAG_5;
                 sfx_play(NpcSfxSets[victim->variant].hitSfx);
                 return TRUE;

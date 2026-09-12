@@ -125,7 +125,7 @@ Hack module names must never reuse a game module name, so it is always clear whe
 ### Globals and Tables
 
 - Data symbols in the ROM are PascalCase.
-    - Arrays get plural names (`EnemyTypes`, `WeaponPrefixes`, `DirectionMoveVectors`)
+    - Arrays get plural names (`EnemyTypes`, `WeaponPrefixes`, `Direction8MoveVectors`)
     - Singular values get a descriptive singular name (`SaveHeaderTemplate`).
 - RAM globals carry a `g_` prefix (`g_PlayerGlobals`, `g_SaveSlots`).
 - ROM data constants never use the `g_` prefix.
