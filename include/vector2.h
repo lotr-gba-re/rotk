@@ -65,6 +65,8 @@ Direction8 vector2_direction8(Vector2Int v);
 Direction32 vector2_direction32(Vector2Fp16 v);
 Direction32 vector2_stepDirection32(Direction32 current, Direction32 target, s8 *outStep);
 
+u32 vector2_length(Vector2Int v);
+void vector2_add(const Vector2Fp16 *a, const Vector2Fp16 *b, Vector2Fp16 *out);
 void vector2_subtract(const Vector2Fp16 *a, const Vector2Fp16 *b, Vector2Fp16 *out);
 void vector2_copy(const Vector2Fp16 *src, Vector2Fp16 *dst);
 void vector2_fromFp16(const Vector2Fp16 *src, Vector2Int *dst);

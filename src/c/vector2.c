@@ -2,6 +2,41 @@
 #include "gba.h"
 #include "variables.h"
 
+// Octagonal length approximation of a component pair: the longer one plus 3/8 of the shorter.
+#define OCTAGONAL_LENGTH(shorter, longer) ((((shorter) * 3) >> 3) + (longer))
+
+/**
+ * Returns the octagonal length approximation of the given vector.
+ *
+ * @romaddress 0x080328bc
+ */
+u32 vector2_length(Vector2Int v)
+{
+    Vector2Int absV = vector2_abs(v);
+    u32 result;
+
+    if (absV.x <= absV.y)
+    {
+        result = OCTAGONAL_LENGTH(absV.x, absV.y);
+    }
+    else
+    {
+        result = OCTAGONAL_LENGTH(absV.y, absV.x);
+    }
+    return result;
+}
+
+/**
+ * Componentwise addition: out = a + b.
+ *
+ * @romaddress 0x080328f0
+ */
+void vector2_add(const Vector2Fp16 *a, const Vector2Fp16 *b, Vector2Fp16 *out)
+{
+    out->x = a->x + b->x;
+    out->y = a->y + b->y;
+}
+
 /**
  * Componentwise subtraction: out = a - b.
  *
@@ -135,12 +170,11 @@ u32 vector2_distance(Vector2Int a, Vector2Int b)
 {
     Vector2Int absDiff = vector2_abs(vector2_diff(a, b));
 
-    // min is the shorter component: max + 3/8 * min
     if (absDiff.x <= absDiff.y)
     {
-        return ((absDiff.x * 3) >> 3) + absDiff.y;
+        return OCTAGONAL_LENGTH(absDiff.x, absDiff.y);
     }
-    return ((absDiff.y * 3) >> 3) + absDiff.x;
+    return OCTAGONAL_LENGTH(absDiff.y, absDiff.x);
 }
 
 /**
