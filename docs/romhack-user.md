@@ -10,7 +10,7 @@ You need a ROM dump of the EU/US version of the game (SHA1: `ec3d126d37ea6e2ad70
 The Japanese version is unsupported.
 Using an otherwise patched ROM as the base is also unsupported.
 
-- Get the latest BPS file from the GitHub releases
+- Get the latest BPS file from the [latest GitHub release](https://github.com/lotr-gba-re/rotk/releases/latest)
 - Go to [https://www.marcrobledo.com/RomPatcher.js/](https://www.marcrobledo.com/RomPatcher.js/)
 - Select the original ROM and the BPS file
 - Click "Apply patch" and save the patched ROM
