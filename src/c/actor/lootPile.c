@@ -5,10 +5,10 @@
 #include "gba_io.h"
 #include "input.h"
 #include "item.h"
-#include "libc.h"
 #include "loot.h"
 #include "match_hacks.h"
 #include "math.h"
+#include "memory.h"
 #include "mission.h"
 #include "player.h"
 #include "rng.h"
@@ -231,7 +231,8 @@ static inline void setHudTextGemsOrFood(Actor *drop, Item item, u32 playerIndex)
 /** HUD text of an item drop (variant >= LOOT_TYPE_ITEM_MIN): the item's affixed name. */
 static inline void setHudTextItem(Item item, u32 playerIndex)
 {
-    memset(g_PlayerHuds[playerIndex].textBuffer, 0, sizeof(g_PlayerHuds[playerIndex].textBuffer));
+    memory_memset(g_PlayerHuds[playerIndex].textBuffer, 0,
+                  sizeof(g_PlayerHuds[playerIndex].textBuffer));
     g_PlayerHuds[playerIndex].text =
         item_affix_formatName(g_PlayerHuds[playerIndex].textBuffer, item, 0xbf);
 }

@@ -13,7 +13,7 @@
 
 #include "save_sram.h"
 
-#include "libc.h"
+#include "memory.h"
 #include "save.h"
 #include "save_layout.h"
 #include "types.h"
@@ -62,7 +62,7 @@ void modSave_copy(u8 *dst, const u8 *src, u32 numBytes)
     u32 code[(u32)(ModSaveCopyArmEnd - ModSaveCopyArm)];
     CopyFn copyFunction = (CopyFn)(u32)code;
 
-    memcpy(code, ModSaveCopyArm, sizeof(code));
+    memory_memcpy(code, ModSaveCopyArm, sizeof(code));
     copyFunction(dst, src, numBytes);
 }
 
@@ -73,7 +73,7 @@ void modSave_fill(u32 byteOffset, u32 numBytes, u8 value)
     // per byte.
     u8 chunk[256];
 
-    memset(chunk, value, sizeof(chunk));
+    memory_memset(chunk, value, sizeof(chunk));
 
     while (numBytes != 0)
     {

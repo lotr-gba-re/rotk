@@ -12,7 +12,7 @@
 #include "gfx.h"
 #include "input.h"
 #include "lib/hex.h"
-#include "libc.h"
+#include "memory.h"
 #include "patches/mod_startup/mod_startup.h"
 #include "save_layout.h"
 #include "save_migrate.h"
@@ -363,7 +363,7 @@ void modSave_migrateSceneEnter(void)
 
     // Classify once, before anything can write the chip: after a run the image reads as
     // current, so a later pass would report a different save than the one on screen.
-    g_SceneCurrent.args[0] = (u32)zalloc(sizeof(SaveMigrateInfo));
+    g_SceneCurrent.args[0] = (u32)memory_zalloc(sizeof(SaveMigrateInfo));
     modSave_classify(SCENE_INFO);
 
     // BG0 = language-select background layer 1 (LanguageSelectBg3Asset), on the menus'
@@ -555,5 +555,5 @@ void modSave_migrateSceneExit(void)
     gfx_commitBgs();
     gfx_clearPaletteAnims();
     sfx_stopAllOnExit();
-    free(SCENE_INFO);
+    memory_free(SCENE_INFO);
 }

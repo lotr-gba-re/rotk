@@ -137,8 +137,8 @@ Compile with `-mlong-calls` and gcc emits `ldr rN,=target ; bl _call_via_rN` (th
 Game addresses come from `build/game_symbols.ld` (`PROVIDE(name = addr|1)`).
 The C `#include`s the relevant subsystem header (e.g. `combat.h`) for prototypes and calls by name.
 
-**libc is the ROM's.** `memcpy`, `malloc` and friends come from `include/libc.h` like any other game function, so the modcode links `-nodefaultlibs`: a `PROVIDE` only binds a symbol still undefined after the input files, so otherwise the host newlib claims those names and links a second copy into the modcode.
-Compiler helpers still come from the host (`-lgcc`), since the ROM's set is agbcc's and lacks the unsigned division this compiler emits.
+**We don't bring in libc for now**. For memory management you might want to use the functions in `include/memory.h` like any other game function.
+Compiler helpers (libgcc) still come from the host (`-lgcc`), since the ROM's set is agbcc's and lacks the unsigned division this compiler emits.
 
 **Variables.**
 

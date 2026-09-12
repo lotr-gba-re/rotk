@@ -4,8 +4,8 @@
 #include "gba_io.h"
 #include "gfx.h"
 #include "input.h"
-#include "libc.h"
 #include "match_hacks.h"
+#include "memory.h"
 #include "menu.h"
 #include "multiplayer.h"
 #include "player.h"
@@ -49,7 +49,7 @@ void scene_mainMenu_enter(void)
 
     g_CoopUnlockFlags.p = 0;
     g_GameFlags.p &= 0xfdbfbfff;
-    memset(&g_PlayerGlobals, 0, 0x35c);
+    memory_memset(&g_PlayerGlobals, 0, 0x35c);
     scene_clearStateBytes();
     g_PlayerGlobals.activePlayerCount = 1;
     player_clearInventory(0);

@@ -1,5 +1,6 @@
 #include "save.h"
 #include "game.h"
+#include "memory.h"
 #include "scene.h"
 #include "text.h"
 #include "types.h"
@@ -13,7 +14,7 @@
  */
 void save_initEmptySlot(SaveSlot *slot)
 {
-    memset(slot, 0, sizeof(SaveSlot));
+    memory_memset(slot, 0, sizeof(SaveSlot));
     slot->d.mission = SLOT_MISSION_EMPTY;
 
     slot->d.checksum = 0; // redundant after the memset, but the ROM stores it
@@ -210,7 +211,7 @@ bool save_validateHeader(void)
 
 /**
  * Reset the global save header to SaveHeaderTemplate and write it to EEPROM: copy the template
- * into g_SaveGlobals, calculate the checksum, zalloc a staging buffer the size of the
+ * into g_SaveGlobals, calculate the checksum, allocate a zeroed staging buffer the size of the
  * EEPROM, copy the header into it, and write the full image to block 0.
  *
  * @romaddress 0x0803ceb8
@@ -219,14 +220,14 @@ void save_formatHeader(void)
 {
     void *buf;
 
-    memcpy(&g_SaveGlobals, &SaveHeaderTemplate, sizeof(SaveGlobals));
+    memory_memcpy(&g_SaveGlobals, &SaveHeaderTemplate, sizeof(SaveGlobals));
 
     g_SaveGlobals.d.checksum = -checksum16Inline(g_SaveGlobals.halfwords, sizeof(g_SaveGlobals));
 
-    buf = zalloc(EEPROM_SIZE_BYTES);
-    memcpy(buf, &g_SaveGlobals, sizeof(SaveGlobals));
+    buf = memory_zalloc(EEPROM_SIZE_BYTES);
+    memory_memcpy(buf, &g_SaveGlobals, sizeof(SaveGlobals));
     save_eeprom_writeBlocks(0, EEPROM_TOTAL_BLOCKS, buf);
-    free(buf);
+    memory_free(buf);
 }
 
 /**

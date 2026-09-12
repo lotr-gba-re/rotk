@@ -7,7 +7,7 @@
 
 #include "save_format.h"
 
-#include "libc.h"
+#include "memory.h"
 #include "save_layout.h"
 #include "save_sram.h"
 #include "variables.h"
@@ -116,7 +116,7 @@ bool modSave_isHeaderBlank(const SaveGlobals *header, u8 *fill)
  */
 void modSave_stampHeaderMirror(void)
 {
-    memcpy(g_SaveGlobals.d.header, SAVE_HEADER_MAGIC, SAVE_HEADER_MAGIC_LEN);
+    memory_memcpy(g_SaveGlobals.d.header, SAVE_HEADER_MAGIC, SAVE_HEADER_MAGIC_LEN);
     g_SaveGlobals.d.header[SAVE_HEADER_MAGIC_LEN] = SAVE_HEADER_VERSION;
     // zero the checksum field first so the negated sum over the whole header is zero
     g_SaveGlobals.d.checksum = 0;
@@ -126,6 +126,6 @@ void modSave_stampHeaderMirror(void)
 
 void modSave_loadHeaderTemplate(void)
 {
-    memcpy(&g_SaveGlobals, SaveHeaderTemplate, sizeof(g_SaveGlobals));
+    memory_memcpy(&g_SaveGlobals, SaveHeaderTemplate, sizeof(g_SaveGlobals));
     modSave_stampHeaderMirror();
 }

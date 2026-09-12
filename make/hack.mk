@@ -72,10 +72,8 @@ hack: $(if $(SKIP_ROM_CHECK),,check-base-rom) build/game_symbols.inc build/game_
 	@mkdir -p build/hack_obj
 	@set -e; for f in hacks/hack.c $(C_SRCS); do \
 	   arm-none-eabi-gcc $(MODCODE_CFLAGS) $$f -o build/hack_obj/`basename $${f%.c}`.o; done
-	@# -nodefaultlibs: the ROM's own libc is what game_symbols.ld PROVIDEs, and a PROVIDE
-	@# only binds a symbol still undefined after the input files - without this the host
-	@# newlib satisfies malloc/memcpy/... first and links a second copy into the modcode
-	@# (malloc even drags in _sbrk and fails outright). -lgcc keeps the compiler helpers.
+	@# -nodefaultlibs: use the ROM libc as far as it exists
+	@# -lgcc: Do emit libgcc as the ROM used a different compiler
 	arm-none-eabi-gcc -nostartfiles -nodefaultlibs -mthumb -mthumb-interwork -T hacks/hack.ld \
 	  -Wl,-L,build -o build/hack.elf $(C_OBJS) -lgcc
 	arm-none-eabi-objcopy -O binary -j .text -j .rodata build/hack.elf build/modcode.bin

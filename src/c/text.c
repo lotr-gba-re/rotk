@@ -1,5 +1,5 @@
 #include "text.h"
-#include "libc.h"
+#include "memory.h"
 #include "text_ids.h"
 #include "variables.h"
 
@@ -92,7 +92,7 @@ char *text_formatInt(s32 value, char *dst)
 void text_init(void)
 {
     text_setLanguage(LANGUAGE_EN);
-    g_TextStringBuffer = malloc(TEXT_STRING_BUFFER_SIZE);
+    g_TextStringBuffer = memory_malloc(TEXT_STRING_BUFFER_SIZE);
 }
 
 /**

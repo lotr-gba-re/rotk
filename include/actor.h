@@ -720,7 +720,7 @@ void actor_clearFlagsAll(u32 mask);
 #define ACTOR_POOL_MAIN_CAPACITY 0x100
 #define ACTOR_POOL_OVERLAY_CAPACITY 0x28
 
-/** zalloc'd pool storage backing g_ActorListMain / g_ActorListOverlay. */
+/** memory_zalloc'd pool storage backing g_ActorListMain / g_ActorListOverlay. */
 typedef Actor ActorPoolMain[ACTOR_POOL_MAIN_CAPACITY];
 typedef Actor ActorPoolOverlay[ACTOR_POOL_OVERLAY_CAPACITY];
 

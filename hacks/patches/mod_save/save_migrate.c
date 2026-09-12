@@ -4,7 +4,7 @@
 
 #include "save_migrate.h"
 
-#include "libc.h"
+#include "memory.h"
 #if HACK_ranger_hollow_pages
 #include "patches/ranger_hollow_pages/ranger_hollow_pages.h"
 #endif
@@ -121,7 +121,7 @@ void modSave_classify(SaveMigrateInfo *out)
     bool reversed;
 
     // every path below sets only the fields its type defines; the rest read zero
-    memset(out, 0, sizeof(*out));
+    memory_memset(out, 0, sizeof(*out));
 
     if (!modSave_isChipPresent())
     {
