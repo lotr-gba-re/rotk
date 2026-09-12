@@ -637,7 +637,7 @@ void actor_lootPile_eatFood(u32 playerIndex, u16 healPercent)
 {
     u32 heal = math_percentOf(PLAYER_STAT(playerIndex, STAT_MAX_HP), healPercent);
 
-    heal += math_percentOf(heal, (u16)PLAYER_STAT(playerIndex, STAT_EXTRA_HP_FROM_FOOD_PERCENT));
+    heal += math_percentOf(heal, PLAYER_STAT(playerIndex, STAT_EXTRA_HP_FROM_FOOD_PERCENT));
     player_addHp(playerIndex, heal, FALSE);
     sfx_play(SFX_EAT_FOOD);
 }

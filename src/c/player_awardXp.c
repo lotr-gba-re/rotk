@@ -87,7 +87,7 @@ void player_awardXp(s16 initialXp)
                 bonus = sum;
             }
             xp += bonus;
-            extra = math_percentOf(xp, (u16)PLAYER_STAT(playerIndex, STAT_EXTRA_EXP_PERCENT));
+            extra = math_percentOf(xp, PLAYER_STAT(playerIndex, STAT_EXTRA_EXP_PERCENT));
             xp += PLAYER(playerIndex).experience + (s16)extra;
             while ((u32)xp >= XpThresholds[PLAYER(playerIndex).level])
             {

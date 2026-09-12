@@ -398,7 +398,7 @@ void loot_rollPrefix(Item *item, s16 extraTreasurePercent, u8 heroId, u8 unitTyp
             roll = rng_rollRange(1, 100);
             threshold = g_LootTier + PREFIX_BASE_CHANCE;
         }
-        bonus = math_percentOf(threshold, (u16)extraTreasurePercent);
+        bonus = math_percentOf(threshold, extraTreasurePercent);
         threshold += bonus;
         if (roll > 100)
         {
@@ -483,7 +483,7 @@ void loot_rollSuffix(Item *item, s16 extraTreasurePercent)
             }
         }
 
-        bonus = math_percentOf(chance, (u16)extraTreasurePercent);
+        bonus = math_percentOf(chance, extraTreasurePercent);
         chance += bonus;
 
         if (roll <= chance)
@@ -635,7 +635,7 @@ s32 loot_scaleGemDrop(s32 baseValue, s32 playerIndex)
     s32 gems = PLAYER_STAT(playerIndex, STAT_EXTRA_GEMS_PERCENT);
     s32 gemfinder = PLAYER_STAT(playerIndex, STAT_GEMFINDER);
     gems += gemfinder * 10;
-    gems = math_percentOf(baseValue, (u16)gems);
+    gems = math_percentOf(baseValue, gems);
     return gems;
 }
 

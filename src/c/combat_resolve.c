@@ -931,7 +931,7 @@ bool combat_applyPveRangedHit(Actor *attacker, Actor *victim, u16 baseDamage)
             if (PLAYER_STAT(playerIndex, STAT_HP_PERCENT_PER_KILL) != 0)
             {
                 u32 heal =
-                    math_percentOf(damage, (u16)PLAYER_STAT(playerIndex, STAT_HP_PERCENT_PER_KILL));
+                    math_percentOf(damage, PLAYER_STAT(playerIndex, STAT_HP_PERCENT_PER_KILL));
                 if (heal == 0)
                 {
                     heal = 1;
