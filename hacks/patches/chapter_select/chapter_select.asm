@@ -1,0 +1,14 @@
+.thumb
+
+hookReplace scene_bonusMapMenu_enter, chapterSelect_enter
+hookReplace scene_bonusMapMenu_tick, chapterSelect_tick
+
+; Replace functions that shouldn't be used anymore with traps to ensure we didn't forget anything
+hookTrap scene_bonusMapMenu_setupSprites
+hookTrap scene_bonusMapMenu_setupCursor
+hookTrap scene_bonusMapMenu_onConfirm
+hookTrap scene_bonusMapMenu_moveCursor
+hookTrap scene_bonusMapMenu_onBack
+hookTrap scene_bonusMapMenu_drawEntryLabel
+hookTrap scene_bonusMapMenu_drawSubEntry
+hookTrap scene_bonusMapMenu_subEntryCount

@@ -1,0 +1,28 @@
+# Environment manifest for the Python tooling (the repo itself is a ROM RE project; this only
+# pins the tools' deps and installs the rotkit package editable). All tooling is one CLI:
+#     uv run rotkit                # lists every command
+#     uv run rotkit carve all      # etc. - run from inside the repo; uv syncs automatically
+[project]
+name = "rotkit"
+version = "0"
+requires-python = ">=3.11,<3.13"   # <3.13: jpype (pyghidra) lags new CPython
+dependencies = [
+    "clang",            # clang.cindex bindings for rotkit's enum-reading carvers; needs a system libclang.so
+    "pillow>=12.3.0",   # indexed PNG read/write for the carved graphics (rotkit png)
+    "pyghidra",        # rotkit ghidra *
+    "typer",           # the rotkit CLI (parsers/--help generated from run() signatures)
+]
+
+[project.scripts]
+rotkit = "rotkit.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.9,<0.12"]
+build-backend = "uv_build"
+
+[tool.uv]
+exclude-newer = "7 days"
+
+[tool.uv.build-backend]
+module-name = "rotkit"
+module-root = "tools"

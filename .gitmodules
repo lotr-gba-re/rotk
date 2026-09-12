@@ -1,0 +1,4 @@
+[submodule "agbcc"]
+	path = agbcc
+	url = https://github.com/lotr-gba-re/agbcc.git
+	branch = lotr-re

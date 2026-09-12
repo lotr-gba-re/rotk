@@ -1,0 +1,2 @@
+# ignore agbcc for in tools like fd/rg
+agbcc/

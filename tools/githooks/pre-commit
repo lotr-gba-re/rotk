@@ -1,0 +1,43 @@
+#!/bin/sh
+# Pre-commit gate. Install once: make install-hooks. Bypass for a WIP commit: git commit --no-verify.
+#
+#   1. Staged C sources must be clang-format-clean (checks the STAGED content, non-destructive -
+#      run `make format` to fix).
+#   2. If the stores or source changed, `make check` (check-stores + verify) must pass. Note this
+#      validates the WORKING TREE, not the staged snapshot; verify skips if the ROM is absent.
+#   3. If hacks or the stores/headers they consume changed, `make check-hacks` must pass (builds
+#      every patch, ROM-free).
+
+# --- 1. clang-format check (staged content) ---
+files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.[ch]$')
+if [ -n "$files" ]; then
+	bad=""
+	for f in $files; do
+		git show ":$f" | clang-format --assume-filename="$f" --dry-run --Werror >/dev/null 2>&1 \
+			|| bad="$bad $f"
+	done
+	if [ -n "$bad" ]; then
+		echo "pre-commit: these staged files need formatting:" >&2
+		for f in $bad; do echo "  $f" >&2; done
+		echo "fix with:  make format   (then re-stage with git add)" >&2
+		exit 1
+	fi
+fi
+
+# --- 2. store consistency + byte-match, only when stores/source changed (skip pure-docs commits) ---
+if git diff --cached --name-only --diff-filter=ACM | grep -qE '^(config/|include/|src/|carved/)'; then
+	echo "pre-commit: make check (check-stores + verify)..." >&2
+	make check >&2 || {
+		echo "pre-commit: make check failed - fix it, or commit WIP with: git commit --no-verify" >&2
+		exit 1
+	}
+fi
+# --- 3. hacks must compile (ROM-free: builds every patch with the base-ROM sha gate skipped) ---
+if git diff --cached --name-only --diff-filter=ACM | grep -qE '^(hacks/|config/|include/|carved/)'; then
+	echo "pre-commit: make check-hacks..." >&2
+	make check-hacks >&2 || {
+		echo "pre-commit: hacks failed to build - fix it, or commit WIP with: git commit --no-verify" >&2
+		exit 1
+	}
+fi
+exit 0

@@ -1,0 +1,10 @@
+# We have lots of hairy and long conditionals, which (in my opinion)
+# look more readable with the Microsoft style of bracing
+BasedOnStyle: Microsoft
+
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 100
+InsertBraces: true  # always brace if/else/for/while bodies, even single statements
+ReflowComments: Always
