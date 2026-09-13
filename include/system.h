@@ -103,5 +103,6 @@ void system_nullCallback(void);
  * commit the sfx channel masks.
  */
 void system_endFrame(void);
+void system_clearRam(void);
 void system_initEngine(void);
 void system_initInterrupts(void);

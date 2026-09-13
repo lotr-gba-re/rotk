@@ -5,6 +5,9 @@
 #define EWRAM_BASE ((u8 *)0x02000000u)
 #define EWRAM_SIZE 0x40000u
 
+#define IWRAM_BASE ((u8 *)0x03000000u)
+#define IWRAM_SIZE 0x8000u
+
 #define SRAM_BASE ((u8 *)0x0E000000u)
 #define SRAM_SIZE 0x8000u
 
@@ -250,6 +253,17 @@
     }
 #define DMA3_FILL16(src, dst, count) DMA_FILL16(REG_ADDR_DMA3SAD, src, dst, count)
 
+/** 32-bit fill: `count` words of the value at `src` (source address held fixed) to `dst`. */
+#define DMA_FILL32(sad, src, dst, count)                                                           \
+    {                                                                                              \
+        volatile u32 *dma_ = (volatile u32 *)(sad);                                                \
+        dma_[0] = (u32)(src);                                                                      \
+        dma_[1] = (u32)(dst);                                                                      \
+        dma_[2] = DMA_ENABLE | DMA_32BIT | DMA_SRC_FIXED | (count);                                \
+        dma_[2];                                                                                   \
+    }
+#define DMA3_FILL32(src, dst, count) DMA_FILL32(REG_ADDR_DMA3SAD, src, dst, count)
+
 // Timers 0-3: counter value (RO) / reload (WO) + control.
 #define REG_OFFSET_TM0CNT_L 0x100u
 #define REG_ADDR_TM0CNT_L (REG_BASE + REG_OFFSET_TM0CNT_L)
@@ -384,14 +398,17 @@
 
 // Palette RAM: the 256-entry BG and OBJ palettes.
 #define PALETTE_RAM 0x05000000u
+#define PALETTE_RAM_SIZE 0x400u
 #define BG_PALETTE_RAM PALETTE_RAM
 #define OBJ_PALETTE_RAM 0x05000200u
 
 /** OAM (object attribute memory). */
 #define OAM 0x07000000u
+#define OAM_SIZE 0x400u
 
 // VRAM block layout.
 #define VRAM 0x06000000u
+#define VRAM_SIZE 0x18000u
 #define BG_VRAM VRAM
 #define BG_CHAR_SIZE 0x4000u
 #define BG_SCREEN_SIZE 0x800u
