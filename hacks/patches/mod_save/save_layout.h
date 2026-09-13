@@ -53,7 +53,7 @@ _Static_assert(HOLLOW_REGION_END <= SRAM_SIZE, "save regions overrun the save ch
 
 /**
  * The global mod options area's offset map. A type only, never instantiated: tenants
- * keep their state in their own RAM bytes (layout.cfg) and reach the chip through
+ * keep their state in their own globals and reach the chip through
  * GLOBAL_MOD_OPTIONS_READ/WRITE (save_sram.h).
  */
 union GlobalModOptionsArea {

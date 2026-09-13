@@ -143,9 +143,10 @@ Compiler helpers (libgcc) still come from the host (`-lgcc`), since the ROM's se
 **Variables.**
 
 - Locals on the stack and `const`/string literals in `.rodata` (ROM): both fine.
-- Mutable globals (`.bss`) are **disabled**: the only candidate region (EWRAM top) is unverified for gameplay, so `MODCODE_BSS` is commented out in `layout.cfg` and `hack.ld` fails the build if a patch adds a global.
-  Find free RAM, re-enable `MODCODE_BSS` before using it.
-  `menu_text` avoids it by drawing idempotently.
+- Mutable globals (`.bss`): plain C globals, placed by `hack.ld` in `MODCODE_BSS` (`layout.cfg`) at the top of EWRAM.
+  `mod_ram` takes that slice off the game heap; `system_clearRam` zeroes it at boot before any hook runs, so they start at zero like in a normal program.
+  Grow the region in `layout.cfg` if the link reports an overflow.
+  Make a global `static` unless another patch or asm needs it by name.
 - Initialized globals (`.data`) are forbidden: no ROM-to-RAM copy exists, and `hack.ld` `ASSERT`s `.data` is empty.
 
 ## Cooperating Patches

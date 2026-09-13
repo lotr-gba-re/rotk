@@ -36,8 +36,8 @@
 #include "sprite.h"
 #include "variables.h"
 
-/** Holds the current page persistently in memory even when the hollow is closed. */
-extern u8 g_RangerHollowPage;
+/** The current page. Kept while the hollow is closed for convenience when re-opening. */
+static u8 g_RangerHollowPage;
 
 #define HOLLOW_PAGE_LABEL_X 10
 #define HOLLOW_INDICATOR_X 40

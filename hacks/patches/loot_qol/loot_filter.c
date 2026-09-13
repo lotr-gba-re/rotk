@@ -7,9 +7,9 @@
 // always bypass it. Arrows can roll neither affix, so the affix requirement would always
 // reject them; the "Suppress Arrows" toggle alone decides them.
 //
-// The filter state lives in the LOOT_QOL_STATE RAM byte (hacks/layout.cfg, see
-// loot_qol.h), accessed via lootQol_getState and persisted to the global mod options save
-// area: loaded at boot (lootQol_loadState), written through by the option accessors below.
+// The filter state lives in g_LootQolState (loot_qol.h), accessed via lootQol_getState and
+// persisted to the global mod options save area: loaded at boot (lootQol_loadState), written
+// through by the option accessors below.
 #include "patches/loot_qol/loot_filter.h"
 #include "item.h"
 #include "loot.h"

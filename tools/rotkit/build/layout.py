@@ -4,16 +4,13 @@ One memory map, three language fragments, so injected code carries NO hardcoded
 addresses:
   build/memmap.inc               armips :  MEM_<NAME> equ 0x...   (+ _END)
   build/hack_include/memmap.h    C      :  #define MEM_<NAME> 0x...u
-  build/memmap.ld                ld     :  MEM_<NAME> = 0x... ;  (+ PROVIDE aliases)
+  build/memmap.ld                ld     :  MEM_<NAME> = 0x... ;
 
 The C header lands in build/hack_include/ (C-headers-only) so the hack compiler's
 include path (-Ibuild/hack_include) never sees the rest of build/ (ROM, .o, linker
 fragments).
 
-Each table row `NAME  SPACE  START  END  [CSYM]` emits MEM_<NAME> (start) and
-MEM_<NAME>_END. The optional CSYM is a C global name (e.g. g_SaveSlotPage): rows with one
-also emit `PROVIDE(<CSYM> = MEM_<NAME>);` in memmap.ld, so the C bodies access the byte
-as a plain extern global while asm keeps using MEM_<NAME>.
+Each table row `NAME  SPACE  START  END` emits MEM_<NAME> (start) and MEM_<NAME>_END.
 """
 
 import os
@@ -28,9 +25,7 @@ OUT_INC = BUILD / "memmap.inc"
 OUT_H = BUILD / "hack_include" / "memmap.h"
 OUT_LD = BUILD / "memmap.ld"
 
-ROW = re.compile(
-    r"^(\w+)\s+(rom|ram)\s+(0x[0-9a-fA-F]+)\s+(0x[0-9a-fA-F]+)(?:\s+(\w+))?\b"
-)
+ROW = re.compile(r"^(\w+)\s+(rom|ram)\s+(0x[0-9a-fA-F]+)\s+(0x[0-9a-fA-F]+)\b")
 
 
 def run() -> None:
@@ -42,8 +37,8 @@ def run() -> None:
                 continue
             match = ROW.match(stripped)
             if match:
-                name, space, start, end, csym = match.groups()
-                rows.append((name, space, int(start, 16), int(end, 16), csym))
+                name, space, start, end = match.groups()
+                rows.append((name, space, int(start, 16), int(end, 16)))
     if not rows:
         sys.exit("layout: no MEM rows parsed from hacks/layout.cfg")
 
@@ -53,23 +48,21 @@ def run() -> None:
 
     with open(OUT_INC, "w") as fh:
         fh.write(f"; {banner}\n\n")
-        for name, space, start, end, _csym in rows:
+        for name, space, start, end in rows:
             fh.write(f"MEM_{name:<16} equ 0x{start:08x}   ; {space}\n")
             fh.write(f"MEM_{name + '_END':<16} equ 0x{end:08x}\n")
 
     with open(OUT_H, "w") as fh:
         fh.write(f"/* {banner} */\n#pragma once\n\n")
-        for name, space, start, end, _csym in rows:
+        for name, space, start, end in rows:
             fh.write(f"#define MEM_{name:<16} 0x{start:08x}u  /* {space} */\n")
             fh.write(f"#define MEM_{name + '_END':<16} 0x{end:08x}u\n")
 
     with open(OUT_LD, "w") as fh:
         fh.write(f"/* {banner} */\n")
-        for name, _space, start, end, csym in rows:
+        for name, _space, start, end in rows:
             fh.write(f"MEM_{name} = 0x{start:08x};\n")
             fh.write(f"MEM_{name}_END = 0x{end:08x};\n")
-            if csym:
-                fh.write(f"PROVIDE({csym} = MEM_{name});\n")
 
     print(
         f"wrote build/memmap.{{inc,ld}} + build/hack_include/memmap.h: {len(rows)} region(s)"

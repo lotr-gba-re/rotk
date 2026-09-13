@@ -6,6 +6,8 @@
 #include "patches/loot_qol/loot_filter.h"
 #include "patches/mod_save/save_sram.h"
 
+struct LootQolState g_LootQolState;
+
 struct LootQolState lootQol_getState(void)
 {
     struct LootQolState state = g_LootQolState;

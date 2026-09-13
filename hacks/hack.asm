@@ -60,6 +60,9 @@
 .if HACK_fast_fade
     .include "hacks/patches/fast_fade/fast_fade.asm"
 .endif
+.if HACK_mod_ram                         ; required: every build, see hacks/hack.c
+    .include "hacks/patches/mod_ram/mod_ram.asm"
+.endif
 .if HACK_mod_scenes                      ; required: mod_save, see save_migrate.h
     .include "hacks/patches/mod_scenes/mod_scenes.asm"
 .endif

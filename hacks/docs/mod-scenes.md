@@ -28,6 +28,5 @@ Model a mod scene on `scene_mainMenu_*` or `scene_languageSelect_*`, not the opt
 
 ## Scene State
 
-The modcode has no `.bss` (see the README), so a mod scene keeps nothing in globals.
-`g_SceneCurrent.args` is five words that persist for the scene's life, zeroed by `game_requestSceneChange` on the way in.
+`g_SceneCurrent.args` is five words that persist for the scene's life, zeroed by `game_requestSceneChange` on the way in, so a scene's per-visit state fits there without a global.
 State too big for that goes on the game heap: allocate in `enter`, keep the pointer in an arg slot, release in `exit`.

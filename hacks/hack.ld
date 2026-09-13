@@ -3,7 +3,7 @@
  * (objcopy -j .text -j .rodata) is .incbin'd by hack.asm at MEM_MODCODE. */
 
 INCLUDE game_symbols.ld          /* PROVIDE(game funcs/globals) - from the stores */
-INCLUDE memmap.ld                /* MEM_* + PROVIDE(hack state globals) - from hacks/layout.cfg */
+INCLUDE memmap.ld                /* MEM_* - from hacks/layout.cfg */
 
 SECTIONS
 {
@@ -17,13 +17,10 @@ SECTIONS
     .data : { *(.data .data.*) }
     ASSERT(SIZEOF(.data) == 0, "initialised .data unsupported (no crt0 to copy ROM->RAM)")
 
-    /* Injected .bss is DISABLED: MODCODE_BSS (top of EWRAM) is only confirmed free on the main
-     * menu, gameplay-unverified, so it is commented out in hacks/layout.cfg. An empty .bss links
-     * fine; adding a mutable global fails here. To enable: find free RAM, re-add MODCODE_BSS in
-     * hacks/layout.cfg, and place this section at MEM_MODCODE_BSS again. */
+    /* Mutable globals in the RAM slice mod_ram takes off the game heap (zeroed at boot by system_clearRam). */
+    . = MEM_MODCODE_BSS;
     .bss (NOLOAD) : { *(.bss .bss.* COMMON) }
-    ASSERT(SIZEOF(.bss) == 0,
-           "injected .bss is disabled: MODCODE_BSS is unverified for gameplay -- find free RAM and re-enable it in hacks/layout.cfg")
+    ASSERT(. <= MEM_MODCODE_BSS_END + 1, "modcode .bss overflowed MEM_MODCODE_BSS (hacks/layout.cfg)")
 
     /DISCARD/ : { *(.ARM.exidx*) *(.comment) *(.note*) *(.ARM.attributes) }
 }

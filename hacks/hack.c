@@ -9,6 +9,12 @@
 #error "hack build requires the mod_save patch (stock EEPROM save breaks past 16 MiB)"
 #endif
 
+// hack.ld places every patch's mutable globals in the MODCODE_BSS slice at the top of EWRAM.
+// mod_ram is required for that slice of EWRAM to be free instead of part of the game's heap.
+#if !HACK_mod_ram
+#error "hack build requires the mod_ram patch"
+#endif
+
 void __hack_anchor(void)
 {
 }

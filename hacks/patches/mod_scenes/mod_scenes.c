@@ -17,9 +17,7 @@
 #endif
 
 /**
- * One row per enabled mod scene (enum ModSceneRow in hacks/mod_scenes.h). .rodata: the
- * modcode has no .data/.bss, so rows are bound at compile time, not registered at run
- * time.
+ * One row per enabled mod scene (enum ModSceneRow in hacks/mod_scenes.h), bound at compile time.
  */
 const SceneEntry ModSceneHandlers[MOD_SCENE_ROW_COUNT] = {
 #if HACK_mod_save

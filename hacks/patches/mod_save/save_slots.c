@@ -13,6 +13,8 @@
 #include "save_sram.h"
 #include "variables.h"
 
+u8 g_SaveSlotPage;
+
 /**
  * First EEPROM block index for (page, on-page slot): globals header, then
  * SAVE_SLOT_BLOCK_COUNT blocks per slot.

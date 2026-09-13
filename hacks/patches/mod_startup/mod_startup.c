@@ -1,6 +1,5 @@
 // Owner of the boot entry point: replaces game_initBoot so exactly one patch decides where
-// boot goes. This is also the only place a patch can initialize state at boot, since the
-// modcode has no crt0 and hack.ld forbids .data and .bss.
+// boot goes, and where a patch's once-per-boot work runs (runTasks).
 
 #include "mod_startup.h"
 

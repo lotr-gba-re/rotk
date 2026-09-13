@@ -36,6 +36,5 @@ void modSave_loadState(void)
     text_setLanguage(g_SaveGlobals.d.language);
     save_refreshSlots();
     g_LastSaveSlot = 0;
-    // hack RAM, so nothing clears it at power-on
     g_SaveSlotPage = 0;
 }

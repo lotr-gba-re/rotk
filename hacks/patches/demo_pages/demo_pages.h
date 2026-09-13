@@ -6,12 +6,6 @@
 
 #include "types.h"
 
-// The dummy option bytes, absolute symbols over the DEMO_PAGES_* RAM bytes
-// (layout.cfg).
-extern u8 g_DemoPagesChoice;
-extern u8 g_DemoPagesToggleA;
-extern u8 g_DemoPagesToggleB;
-
 // The patch's mod_options page entries (compiled when HACK_mod_options).
 #include "patches/mod_options/mod_options.h"
 

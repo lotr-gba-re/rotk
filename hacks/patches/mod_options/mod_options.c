@@ -34,10 +34,8 @@
 #define MOD_OPTIONS_MODE_STOCK 0
 #define MOD_OPTIONS_MODE_MOD 1
 
-// The state bytes, absolute symbols over the MOD_OPTIONS_STATE / MOD_OPTIONS_PAGE RAM
-// bytes (layout.cfg).
-extern u8 g_ModOptionsMode;
-extern u8 g_ModOptionsPage;
+static u8 g_ModOptionsMode;
+static u8 g_ModOptionsPage;
 
 // Glyph-tile base of the "Mod Options" label: past the rows' tile budget (8 rows x 0x19
 // from 0xf6), so drawing it never collides with row glyphs regardless of draw order. The

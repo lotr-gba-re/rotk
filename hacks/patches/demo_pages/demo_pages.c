@@ -1,9 +1,14 @@
 #include "patches/demo_pages/demo_pages.h"
 
 #if HACK_mod_options
+// The dummy option bytes.
+static u8 g_DemoPagesChoice;
+static u8 g_DemoPagesToggleA;
+static u8 g_DemoPagesToggleB;
+
 /**
  * The mod_options row accessors (the ModOptionEntry get/set signatures). Out-of-range
- * bytes (uninitialized RAM) read as the first value.
+ * bytes read as the first value.
  */
 static u8 getChoice(void)
 {

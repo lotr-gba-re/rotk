@@ -3,7 +3,7 @@
 //
 // Registering a patch's page (see loot_qol):
 //   - in the patch: a `const struct ModOptionEntry <Name>_Options[]` (ROM-resident:
-//     strings + get/set function pointers, no .data/.bss), guarded by #if HACK_mod_options,
+//     strings + get/set function pointers), guarded by #if HACK_mod_options,
 //     and a <NAME>_OPTION_COUNT define + extern declaration in the patch's header;
 //   - in mod_options.c: one ModOptionsPages entry per page under #if HACK_<name> (a patch
 //     may register several pages, like demo_pages); the page count is inferred from the

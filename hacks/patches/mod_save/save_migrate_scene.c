@@ -65,9 +65,7 @@ enum SaveMigratePhase
     PHASE_BLOCKED = 3,
 };
 
-// Scene state lives in g_SceneCurrent.args because the modcode has no RAM of its own
-// (hack.ld forbids .data and .bss). args[0] holds the SaveMigrateInfo SceneInit allocates
-// and SceneExit frees; game_requestSceneChange zeroed all five words on the way in.
+// Scene state is stored in g_SceneCurrent.args, which game_requestSceneChange has zeroed before.
 #define SCENE_INFO ((SaveMigrateInfo *)g_SceneCurrent.args[0])
 #define ARG_PHASE g_SceneCurrent.args[1]
 #define ARG_CURSOR g_SceneCurrent.args[2]

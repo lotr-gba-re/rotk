@@ -26,9 +26,8 @@ struct LootQolState
 #define LOOT_QOL_TAG 0 // written bytes read tag 0; the 0xFF blank fill reads tag 1
 
 /**
- * The state byte, an absolute symbol over the LOOT_QOL_STATE RAM byte (layout.cfg).
- * Persisted to the global mod options save area: loaded at boot by lootQol_loadState,
- * written through by the option setters.
+ * The state byte. Persisted to the global mod options save area: loaded at boot by
+ * lootQol_loadState, written through by the option setters.
  */
 extern struct LootQolState g_LootQolState;
 
