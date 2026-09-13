@@ -2,6 +2,9 @@
 
 #include "types.h"
 
+#define EWRAM_BASE ((u8 *)0x02000000u)
+#define EWRAM_SIZE 0x40000u
+
 #define SRAM_BASE ((u8 *)0x0E000000u)
 #define SRAM_SIZE 0x8000u
 

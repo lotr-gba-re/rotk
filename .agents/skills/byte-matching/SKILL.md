@@ -87,6 +87,7 @@ The fused `s16 x16 = v >> 16;` diverges.
 
 Signed div/mod by 2^k emit the round-up shape `cmp #0; bge; add #(2^k - 1); asr #k` (mod subtracts back).
 Non-power-of-two `/` and `%` are `bl __divsi3`/`__udivsi3` libcalls (the `movs #K` right before is the divisor); agbcc never emits reciprocal-multiply magic.
+Unsigned `n / 4` and `n >> 2` are interchangeable, and so are `n % 4` and `n & 3` into an unsigned local; `n % 4` into a SIGNED local adds a register copy after the `ands` (the mod result is a separate pseudo from the converted store) that `n & 3` does not.
 
 cse associates nested shifts: `(lshiftrt (lshiftrt X 16) k)` composes to `(lshiftrt X 16+k)` whenever the outer operand's class holds a same-code shift, so a u16 return fed to `>> 1` normally emits the fused count.
 A ROM keeping them separate means the shifted operand carries its own narrowing; adding a redundant cast on that operand is free (cse folds the second narrowing away) and splits the quantity.
@@ -241,7 +242,7 @@ A different-mode read of the stored word (bitfield/byte view) does survive but c
   gcc 2.95 has NO dead-store elimination for memory: dead local stores stay; keep the ROM's useless-looking stores.
 - A volatile asm anywhere forces by-value struct params into callee-saved regs.
 
-**Single-use static inline helpers are codegen-neutral, with traps**: scalar (s32) params can reorder the caller's expansion where a macro with the same body matches (prefer macros for tail arithmetic); an incoming array/pointer arg materializes its address at body entry, not at the use (declare buffers inside the helper); a call result returned through a pinned local value-numbers back to r0 (put MATCH_BARRIER between assignment and return so each arm keeps its copy).
+**Single-use static inline helpers are codegen-neutral, with traps**: scalar (s32) params can reorder the caller's expansion where a macro with the same body matches (prefer macros for tail arithmetic); an incoming array/pointer arg materializes its address at body entry, not at the use (declare buffers inside the helper, and give pointer params the caller's own pointer type: a `void *` caller arg passed as a `u8 *` param adds a boundary copy that reshuffles the prologue, while a `void *` param with the `u8 *` local cast inside the body is neutral); a call result returned through a pinned local value-numbers back to r0 (put MATCH_BARRIER between assignment and return so each arm keeps its copy).
 
 ## Multiplies
 

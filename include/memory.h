@@ -1,24 +1,40 @@
 #pragma once
 
-// The game's memory management functions. This TU likely spans the region 0x08032aa8..0x08032fff.
+#include "types.h"
 
-#include <stddef.h>
+/**
+ * Header of one heap block, immediately followed by its payload.
+ *
+ * Blocks form two doubly-linked lists: next/prev in ascending address order over every block of
+ * a heap, and link.freeNext/freePrev over the free ones only.
+ */
+typedef struct HeapBlock
+{
+    struct HeapBlock *next; // next block by address, NULL for the topmost one
+    struct HeapBlock *prev;
+    union {
+        struct HeapBlock *freeNext; // while free: next block on the heap's free list
+        u32 heapIndex;              // while allocated: index of the owning heap
+    } link;
+    struct HeapBlock *freePrev; // while free: previous block on the free list; -1 while allocated
+} HeapBlock;
 
-/** Allocate `size` bytes (rounded up to 16) from the game heap, uninitialized. Returns NULL on
- * failure. */
+/** One registered heap region. */
+typedef struct Heap
+{
+    HeapBlock *firstBlock; // lowest block, head of the address-ordered list
+    HeapBlock *freeList;
+    u32 size;  // end - firstBlock
+    void *end; // one past the last byte of the region
+} Heap;
+
+void memory_init(void);
+void memory_addHeap(u32 heapIndex, u8 *base, u8 *end);
 void *memory_malloc(size_t size);
-
-/** memory_malloc plus a zero fill. */
 void *memory_zalloc(size_t size);
-
-/** Free a heap block previously returned by memory_malloc or memory_zalloc. */
 void memory_free(void *ptr);
-
-/** Fill the first count bytes of dest with value. Returns dest. */
-void *memory_memset(void *dest, int value, size_t count);
-
-/** Copy n bytes from src to dest (4-byte aligned fast path). Returns dest. */
+void *memory_realloc(void *ptr, size_t size);
+void *memory_memset(void *dest, u32 value, size_t count);
 void *memory_memcpy(void *dest, const void *src, size_t n);
-
-/** Copy n bytes from src to dest, correct when the two overlap. Returns dest. */
 void *memory_memmove(void *dest, const void *src, size_t n);
+bool memory_stubReturnTrue(void);
