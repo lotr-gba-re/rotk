@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gfx.h"
 #include "types.h"
 #include "vector2.h"
 
@@ -175,11 +176,15 @@ typedef enum RegionId
     REGION_WEATHERTOP = 26,
     REGION_WHITE_MOUNTAINS = 27,
 } __attribute__((packed)) RegionId;
-/** MissionTable @0x0806c0f4 row; only the block pointer is decoded. */
+/**
+ * MissionTable @0x0806c0f0 row.
+ * 12-byte stride: the u8 tail carries 3 padding bytes.
+ */
 typedef struct MissionTableEntry
 {
+    const PaletteCycleList *paletteCycles; // shared between missions, often NULL
     const u8 *block; // mission block (header, spawn records, variant table, chunks)
-    u8 field_0x4[8];
+    u8 field_0x8;
 } MissionTableEntry;
 /**
  * Mission-id range selecting one region; RegionMissionRanges @0x0806d20c, scanned by

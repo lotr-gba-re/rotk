@@ -4,7 +4,7 @@ Layout reverse-engineered from the mission loader (mission_script_loadMissionBlo
 the script VM (mission_script_runStream, stream copier mission_script_copyStream, section
 parser mission_script_loadStreams):
 
-- MissionTable @0x0806c0f4, 130 entries of 0xc bytes; field 0 = mission block ptr.
+- MissionTable @0x0806c0f0, 130 entries of 0xc bytes; mission block ptr @+4.
 - Mission block: u16 @+0 = header size, u16 @+2 = spawn-record count, then
   8-byte spawn records ({s16 x, s16 y, u8 spawnPointId, u8 playerIndex, ...}).
   At block+headerSize: the variant table: u8 @+0 = chunk-record count,
@@ -33,8 +33,9 @@ from struct import unpack_from
 from rotkit.compression.chunk import decompress_chunk
 from rotkit.rom import ROMBASE
 
-MISSION_TABLE_ADDR = 0x0806C0F4
+MISSION_TABLE_ADDR = 0x0806C0F0
 MISSION_TABLE_STRIDE = 0xC
+MISSION_TABLE_BLOCK_OFF = 4
 MISSION_COUNT = 130
 
 OPCODE_LENGTH_TABLE_ADDR = 0x08058210
@@ -190,7 +191,7 @@ class MissionBlock:
         self.rom = rom
         self.mission_id = mission_id
         table_off = MISSION_TABLE_ADDR - ROMBASE + mission_id * MISSION_TABLE_STRIDE
-        self.addr = unpack_from("<I", rom, table_off)[0]
+        self.addr = unpack_from("<I", rom, table_off + MISSION_TABLE_BLOCK_OFF)[0]
         off = self.addr - ROMBASE
         self.header_size = _u16(rom, off)
         st = off + self.header_size

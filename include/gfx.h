@@ -143,14 +143,59 @@ typedef struct BlendCoefficient
 
 /*
  * Palette animations run from two slot tables: 12 palette cycles (rotate a range of palette
- * entries by one step every framesPerStep frames, flags bit 0x10 = ping-pong) and 4 palette
- * fades (lerp a range toward a target palette, optionally stepping through keyframe
- * palettes). Each stepped slot is committed to palette RAM from the vblank handler.
+ * entries by one step every framesPerStep frames) and 4 palette fades (lerp a range toward a
+ * target palette, optionally stepping through keyframe palettes). Each stepped slot is
+ * committed to palette RAM from the vblank handler.
  */
+
+/** union PaletteCycleFlags bits (the mask view the code tests). */
+enum PaletteCycleFlag
+{
+    PALETTE_CYCLE_FLAG_ACTIVE = 1 << 0,
+    PALETTE_CYCLE_FLAG_COMMIT_PENDING = 1 << 1,
+    PALETTE_CYCLE_FLAG_OBJ_PALETTE = 1 << 2,
+    PALETTE_CYCLE_FLAG_PING_PONG = 1 << 4,
+    PALETTE_CYCLE_FLAG_BACKWARD = 1 << 5,
+};
+
 /**
- * Register palette cycles from a counted table: u16 entry count at offset 0, then 4-byte
- * entries {firstIndex, count, framesPerStep, flags} from offset 4.
+ * PaletteCycle.flags. Bits 1 and 5 are stepper state, not authored in the tables.
+ * Packed (union and bitfield struct): agbcc would otherwise pad the union to 4-byte
+ * size/alignment and shift the PaletteCycle layout.
  */
+typedef union PaletteCycleFlags {
+    u8 p;
+
+    struct
+    {
+        u8 active : 1;        // 1 << 0
+        u8 commitPending : 1; // 1 << 1: set when a step lands, cleared once committed
+        u8 objPalette : 1;    // 1 << 2: rotate the OBJ palette instead of the BG palette
+        u8 field_bit_3 : 1;   // 1 << 3
+        u8 pingPong : 1;      // 1 << 4: reverse at each end instead of wrapping around
+        u8 backward : 1;      // 1 << 5: current ping-pong direction
+        u8 field_bit_6 : 1;   // 1 << 6
+        u8 field_bit_7 : 1;   // 1 << 7
+    } __attribute__((packed)) d;
+} __attribute__((packed)) PaletteCycleFlags;
+
+/** One rotating range of palette entries. */
+typedef struct PaletteCycle
+{
+    u8 firstIndex; // first entry of the range in the 256-entry palette buffer
+    u8 count;      // entries in the range
+    u8 framesPerStep;
+    PaletteCycleFlags flags;
+} PaletteCycle;
+
+/** Counted palette-cycle table */
+typedef struct PaletteCycleList
+{
+    u32 count;
+    PaletteCycle cycles[0]; // runtime size is count
+} PaletteCycleList;
+
+/** Register every cycle of a PaletteCycleList into the palette-cycle slots. */
 void gfx_registerPaletteCycles(const void *table);
 /** Stop every palette cycle and fade and drop the queued palette writes. */
 void gfx_clearPaletteAnims(void);
