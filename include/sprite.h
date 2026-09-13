@@ -156,7 +156,7 @@ void sprite_commitGfx(Actor *actor, bool commit);
  * angle 0..0xffff = 0..360 deg. Enables the sprite's OAM rotation/scaling +
  * double-size bits.
  */
-void sprite_setScale(Actor *actor, s16 scaleX, s16 scaleY, u16 angle);
+void sprite_setScale(Actor *actor, s16 scaleX, s16 scaleY, Angle16 angle);
 /**
  * Start a linear x/y scale-over-time run: from (startX, startY) to (targetX, targetY)
  * over the given frame count (16.16 fixed-point texture-step divisors, 0x10000 = 1:1 -

@@ -61,6 +61,8 @@ typedef struct Vector2Fp16
     fp16_16 x;
     fp16_16 y;
 } Vector2Fp16;
+
+void vector2_init(void);
 Direction8 vector2_direction8(Vector2Int v);
 Direction32 vector2_direction32(Vector2Fp16 v);
 Direction32 vector2_stepDirection32(Direction32 current, Direction32 target, s8 *outStep);

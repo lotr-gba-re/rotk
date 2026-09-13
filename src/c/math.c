@@ -6,7 +6,7 @@
  *
  * @romaddress 0x08032a5c
  */
-u32 math_percentOf(s32 base, u16 percent)
+s32 math_percentOf(s32 base, u16 percent)
 {
     return bios_div(base * percent, 100);
 }
@@ -16,13 +16,14 @@ u32 math_percentOf(s32 base, u16 percent)
  *
  * @romaddress 0x08032a70
  */
-u32 math_percentage(s32 value, s32 total)
+s32 math_percentage(s32 value, s32 total)
 {
     return bios_div(value * 100, total);
 }
 
 /**
- * Returns the given 8.8 sign-magnitude value as fp16_16.
+ * Returns the given sign-magnitude value as fp16_16: bit 15 is the sign, the low 15 bits
+ * are the magnitude in 7.8 format.
  *
  * @romaddress 0x08032a80
  */
@@ -38,12 +39,12 @@ fp16_16 math_signMagnitudeToFp16(s16 value)
 }
 
 /**
- * Returns numerator / denominator as fp16_16, truncated toward zero. Correct for plain integer
- * and fp16_16 operands alike.
+ * Returns numerator / denominator as fp16_16, truncated toward zero. Overflows once
+ * |numerator| reaches 32768.
  *
  * @romaddress 0x08032a9c
  */
-fp16_16 math_divideFp16(s32 numerator, s32 denominator)
+fp16_16 math_divideIntToFp16(s32 numerator, s32 denominator)
 {
     return (numerator << 16) / denominator;
 }

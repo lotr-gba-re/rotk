@@ -60,8 +60,8 @@ void vector2_copy(const Vector2Fp16 *src, Vector2Fp16 *dst)
 }
 
 /**
- * fp16_16 -> integer conversion, componentwise (>> 16). The integer part is truncated
- * to s16: values beyond +-32767 wrap.
+ * fp16_16 -> integer conversion, componentwise (>> 16, so negatives floor). The result is
+ * narrowed to s16: integer parts outside -32768..32767 wrap.
  *
  * @param src the fp16_16 coordinates (e.g. &Actor.coords)
  * @param dst receives the integer coordinates
@@ -144,7 +144,7 @@ Direction32 vector2_direction32(Vector2Fp16 v)
     s16 y16;
     s32 angle;
     u32 angle16;
-    u32 dir;
+    u32 sector;
 
     v.x >>= 16;
     v.y >>= 16;
@@ -153,11 +153,12 @@ Direction32 vector2_direction32(Vector2Fp16 v)
     angle = bios_arcTan2(x16, y16);
 
     angle16 = (u16)angle;
-    // 32 sectors over the 0..0xffff angle, 0x800 rounding the sector. ArcTan2's origin is
-    // east, so rotating by that sector puts sector 0 on north.
-    dir = (angle16 * DIRECTION32_COUNT + 0x800) >> 16;
-    dir += DIRECTION32_EAST;
-    return dir & (DIRECTION32_COUNT - 1);
+    // 32 sectors over the 0..0xffff angle; the +0x800 pulls each sector boundary down by 64
+    // angle units, a 32nd of a sector. ArcTan2's origin is east, so adding DIRECTION32_EAST
+    // puts sector 0 on north.
+    sector = (angle16 * DIRECTION32_COUNT + 0x800) >> 16;
+    sector += DIRECTION32_EAST;
+    return sector & (DIRECTION32_COUNT - 1);
 }
 
 /**

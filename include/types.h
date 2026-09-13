@@ -16,6 +16,24 @@ typedef long long s64;
  * documents the format.
  */
 typedef s32 fp16_16;
+
+/** 8.8 fixed point. Plain s16 for codegen; the typedef documents the format. */
+typedef s16 fp8_8;
+
+#define FP8_8_SHIFT 8
+#define FP16_16_SHIFT 16
+#define FP8_8_ONE (1 << FP8_8_SHIFT)
+#define FP16_16_ONE (1 << FP16_16_SHIFT)
+
+/** Angle, 256 units per full turn. */
+typedef u8 Angle8;
+
+#define ANGLE8_QUARTER_TURN 64
+#define ANGLE8_HALF_TURN 128
+
+/** Angle, 65536 units per full turn. */
+typedef u16 Angle16;
+
 #ifndef __cplusplus
 typedef unsigned char bool;
 #endif
