@@ -29,7 +29,7 @@ typedef struct Heap
 } Heap;
 
 void memory_init(void);
-void memory_addHeap(u32 heapIndex, u8 *base, u8 *end);
+void memory_addHeap(u32 heapIndex, void *base, void *end);
 void *memory_malloc(size_t size);
 void *memory_zalloc(size_t size);
 void memory_free(void *ptr);

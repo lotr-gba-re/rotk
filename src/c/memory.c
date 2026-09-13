@@ -378,10 +378,12 @@ bool memory_stubReturnTrue(void)
  *
  * @romaddress 0x08032e74
  */
-void memory_addHeap(u32 heapIndex, u8 *base, u8 *end)
+void memory_addHeap(u32 heapIndex, void *base, void *end)
 {
-    HeapBlock *firstBlock = (HeapBlock *)(base + HEAP_ALIGN);
-    u32 size = end - base - HEAP_ALIGN;
+    u8 *first = base;
+    u8 *last = end;
+    HeapBlock *firstBlock = (HeapBlock *)(first + HEAP_ALIGN);
+    u32 size = last - first - HEAP_ALIGN;
     HeapBlock *block;
 
     g_Heaps[heapIndex].firstBlock = firstBlock;
