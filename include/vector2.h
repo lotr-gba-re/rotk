@@ -61,35 +61,3 @@ typedef struct Vector2Fp16
     fp16_16 x;
     fp16_16 y;
 } Vector2Fp16;
-
-void vector2_init(void);
-Direction8 vector2_direction8(Vector2Int v);
-Direction32 vector2_direction32(Vector2Fp16 v);
-Direction32 vector2_stepDirection32(Direction32 current, Direction32 target, s8 *outStep);
-
-u32 vector2_length(Vector2Int v);
-void vector2_add(const Vector2Fp16 *a, const Vector2Fp16 *b, Vector2Fp16 *out);
-void vector2_subtract(const Vector2Fp16 *a, const Vector2Fp16 *b, Vector2Fp16 *out);
-void vector2_copy(const Vector2Fp16 *src, Vector2Fp16 *dst);
-void vector2_fromFp16(const Vector2Fp16 *src, Vector2Int *dst);
-void vector2_toFp16(const Vector2Int *src, Vector2Fp16 *dst);
-bool vector2_equals(const Vector2Fp16 *a, const Vector2Fp16 *b);
-u32 vector2_distance(Vector2Int a, Vector2Int b);
-
-/** Componentwise a - b. */
-static inline Vector2Int vector2_diff(Vector2Int a, Vector2Int b)
-{
-    Vector2Int d = a;
-
-    d.x -= b.x;
-    d.y -= b.y;
-    return d;
-}
-
-/** Componentwise absolute value. */
-static inline Vector2Int vector2_abs(Vector2Int v)
-{
-    v.x = ABS(v.x);
-    v.y = ABS(v.y);
-    return v;
-}

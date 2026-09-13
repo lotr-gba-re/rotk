@@ -220,8 +220,8 @@ void actor_proximityLinkTrigger(Actor *self, Actor *player)
     if (player->recordType == 0)
     {
         u32 radius = (u32)self->interactionRadius << 16;
-        if (vector2_distance(*(Vector2Int *)&self->renderCoords,
-                             *(Vector2Int *)&player->renderCoords) <= radius)
+        if (math_vector2_distance(*(Vector2Int *)&self->renderCoords,
+                                  *(Vector2Int *)&player->renderCoords) <= radius)
         {
             if (self->behaviorState != 6)
             {

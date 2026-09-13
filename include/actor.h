@@ -12,6 +12,7 @@
 #include "actor/shieldBubble.h"
 #include "actor/switch.h"
 #include "gba.h"
+#include "math.h"
 #include "mission.h"
 #include "spriteAnimation.h"
 #include "types.h"
@@ -772,9 +773,9 @@ static inline s32 actor_distance(Actor *a, Actor *b)
 {
     Vector2Int posA;
     Vector2Int posB;
-    vector2_fromFp16(&a->coords, &posA);
-    vector2_fromFp16(&b->coords, &posB);
-    return vector2_distance(posA, posB);
+    math_vector2_fromFp16(&a->coords, &posA);
+    math_vector2_fromFp16(&b->coords, &posB);
+    return math_vector2_distance(posA, posB);
 }
 /**
  * Set a 2-word velocity vector (Actor.velocity) from Direction8MoveVectors[direction] * speed;

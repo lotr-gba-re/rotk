@@ -320,7 +320,7 @@ s32 combat_resolvePveAttack(Actor *attacker, Actor *victim)
     {
         diff.x = victim->coords.x - attacker->coords.x;
         diff.y = victim->coords.y - attacker->coords.y;
-        emitter->field_0x37 = vector2_direction8(diff);
+        emitter->field_0x37 = math_vector2_direction8(diff);
     }
     emitter->field_0x2e |= 0x6086;
     return 0;
@@ -381,7 +381,7 @@ bool combat_resolvePvpAttack(Actor *attacker, Actor *victim)
             emitter->field_0x20 = 0x10000;
             diff2.x = victim->coords.x - attacker->coords.x;
             diff2.y = victim->coords.y - attacker->coords.y;
-            emitter->field_0x37 = vector2_direction8(diff2);
+            emitter->field_0x37 = math_vector2_direction8(diff2);
             emitter->field_0x2e |= 0x6086;
             return FALSE;
         }
@@ -508,7 +508,7 @@ bool combat_resolvePvpAttack(Actor *attacker, Actor *victim)
         emitter->field_0x20 = 0x10000;
         diff.x = victim->coords.x - attacker->coords.x;
         diff.y = victim->coords.y - attacker->coords.y;
-        emitter->field_0x37 = vector2_direction8(diff);
+        emitter->field_0x37 = math_vector2_direction8(diff);
         emitter->field_0x2e |= 0x6086;
         return FALSE;
     }
@@ -573,7 +573,7 @@ bool combat_resolveEnemyAttackOnPlayer(Actor *attacker, Actor *victim)
                     emitter->field_0x20 = 0x10000;
                     diff.x = victim->coords.x - attacker->coords.x;
                     diff.y = victim->coords.y - attacker->coords.y;
-                    emitter->field_0x37 = vector2_direction8(diff);
+                    emitter->field_0x37 = math_vector2_direction8(diff);
                     emitter->field_0x2e |= 0x6086;
                 }
                 return FALSE;
