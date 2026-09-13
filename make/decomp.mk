@@ -3,7 +3,7 @@
 # `rotkit carve` commands - NOT part of the build. The build only checks the invariant: compile
 # the committed carved/data/*.c listed in config/split.cfg, splice them over the base ROM, and assert
 # the reconstruction's SHA == base.
-.PHONY: verify coverage diff objdiff
+.PHONY: verify coverage diff objdiff check-bugfixes
 
 # -fno-toplevel-reorder: a merged carved file holds several ROM-adjacent tables; keep their
 # .rodata emission in source (address) order, not gcc's default reverse varpool order.
@@ -60,6 +60,18 @@ verify: $(SPLIT_BIN) clangd
 	@got=$$(sha1sum build/rom.gba | cut -d' ' -f1); base=$$(cut -d' ' -f1 $(SHA1FILE)); \
 	 if [ "$$got" = "$$base" ]; then echo "verify: whole-ROM SHA-1 OK ($$got) == base"; \
 	 else echo "verify: whole-ROM MISMATCH $$got != $$base (see per-region report above)"; exit 1; fi
+
+# Compile every src/c TU with -DBUGFIX through the same agbcc pipeline as verify (see
+# tools/rotkit/compile.py). No build turns the fixes on yet; this only keeps the fix arms
+# from rotting. Bytes are not compared.
+AGBCC ?= tools/agbcc/bin/agbcc
+check-bugfixes: build/include/variables.h
+	@fail=0; for f in $$(find src/c -name '*.c' | sort); do \
+	   arm-none-eabi-cpp -nostdinc -DBUGFIX -Iinclude -Icarved/include -Ibuild/include \
+	     -Itools/agbcc/include $$f -o build/bugfix.i \
+	   && $(AGBCC) build/bugfix.i -o /dev/null -O2 -mthumb-interwork -Wall -W -Wmissing-prototypes -Werror \
+	   || { echo "check-bugfixes: $$f fails with -DBUGFIX"; fail=1; }; done; \
+	 rm -f build/bugfix.i; [ $$fail = 0 ] && echo "check-bugfixes: every src/c fix arm compiles with -DBUGFIX"
 
 # Per-region (per-function) byte-match report vs the base ROM. `make diff` for the full table;
 # `make diff FUNC=<substr>` adds a hex window around the first diff for that region.

@@ -224,6 +224,21 @@ union SaveSlot
 - Use placeholder `u8[]` members named by offset (e.g. `field_0x31`) for spans whose purpose is not yet known.
 - Bitfields use the same idiom with a packed view and a decoded bitfield `d` view (`union UnlockFlags`, `union ItemFlags`); see [Bitfields and Bit Constants](#bitfields-and-bit-constants).
 
+### Bug Fixes
+
+Game bugs should be marked with a `// BUG:` comment.
+If possible, the fixed code should be included behind an `#ifdef BUGFIX` check with the original in the `#else` arm:
+
+```c
+#ifdef BUGFIX
+    // fixed code here
+#else
+    // original, buggy code here
+#endif
+```
+
+This will allow us to easily compile a fixed build later on.
+
 ## Glossary
 
 This is a list of recurring or non-obvious names for concepts.

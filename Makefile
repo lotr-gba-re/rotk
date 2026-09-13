@@ -40,6 +40,7 @@ help:
 	@echo ""
 	@echo "  DECOMP  (does the committed source still rebuild the ROM?)"
 	@echo "    verify             rebuild the whole ROM from source; SHA must match the base ROM"
+	@echo "    check-bugfixes     compile every src/c fix arm with -DBUGFIX (no byte compare)"
 	@echo "    coverage           carved code vs the base-ROM remainder"
 	@echo "    diff [FUNC=x]      per-region byte-match vs base ROM; FUNC=<substr> adds a hex window"
 	@echo "    objdiff            build objdiff ELF pairs for the interactive GUI diff"
@@ -99,9 +100,9 @@ ghidra: check-base-rom
 check-stores:
 	uv run rotkit check stores
 
-# The everyday gate after any edit: the cheap store lint first (fail fast), then the byte-match
+# The everyday gate after any edit: the cheap lints first (fail fast), then the byte-match
 # reconstruction. `verify` skips itself if the ROM is absent, so `check` still lints without a dump.
-check: check-stores verify
+check: check-stores check-bugfixes verify
 
 # One-stop regenerate of every stores-derived generated file (the incremental file rules for the
 # hack build inputs live in make/hack.mk; this forces all three at once, incl. variables.h).
