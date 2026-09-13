@@ -144,6 +144,9 @@ void sfx_driverResumeMusic(u32 arg1);
 void sfx_driverPauseMusic(void);
 u32 sfx_driverIsMusicPlaying(void);
 
+void sfx_init(void);
+void sfx_initDriver(void);
+
 /**
  * Arm the sound engine's mixer timer (Timer 0 source + Timer 1 IRQ) and set
  * the mixer-active flag. Pairs with sfx_disableAudio; the two are called
