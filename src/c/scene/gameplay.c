@@ -67,6 +67,11 @@ void scene_gameplay_exit(void)
     {
         g_MpMessageMask &= ~(MP_MSG_FLAG_MENU_OPEN_PLAYER0 | MP_MSG_FLAG_MENU_OPEN_PLAYER1);
     }
+    // HACK: 0x3000 words are 48 KiB (char blocks 0-2) into a 32 KiB block, so the copy runs
+    // 16 KiB into the next block: over its header and into the scratch buffer allocated right
+    // after g_VramCapture. scene_gameplay_enter copies the same span back on resume.
+    // TODO: investigate whether anything depends on the overrun; the next block's header is
+    // left holding VRAM data, which only stays harmless while neither block is ever freed.
     bios_cpuFastSet((const void *)VRAM, g_VramCapture, 0x3000);
     sceneArg0 = g_SceneCurrent.args[0];
     if (sceneArg0 == GAMEPLAY_MODE_START)
