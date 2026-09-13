@@ -1,7 +1,6 @@
 #include "math.h"
 #include "gba.h"
 #include "libc.h"
-#include "match_hacks.h"
 #include "variables.h"
 
 // Octagonal length approximation of a component pair: the longer one plus 3/8 of the shorter.
@@ -94,17 +93,11 @@ fp8_8 math_cosFp8(Angle8 angle)
  */
 fp8_8 math_multiplyFp8(fp8_8 a, fp8_8 b)
 {
-    s32 product = a * b;
-    s32 biased;
+    fp16_16 product = a * b;
 
-    // The bias makes the shift truncate toward zero like a signed divide; MATCH_FRESH keeps
-    // it in its own register, as the ROM sign-tests the unbiased product.
-    MATCH_FRESH(biased, product);
-    if (product < 0)
-    {
-        biased += FP8_8_ONE - 1;
-    }
-    return biased >> FP8_8_SHIFT;
+    // 8.8 * 8.8 is 16.16. Divide to narrow it back to 8.8.
+    product /= FP8_8_ONE;
+    return product;
 }
 
 /**
