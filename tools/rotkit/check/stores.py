@@ -92,11 +92,18 @@ def _decomp_protos() -> dict[str, tuple[str, str]]:
 
 
 def _check_decomp(rel) -> int:
-    """Every src/c function is declared in an include/*.h header with a prototype matching the
-    .c definition. Returns the count checked."""
+    """Every non-static src/c function is declared in an include/*.h header with a prototype
+    matching the .c definition. Returns the count checked.
+
+    A `static` definition is file-local: its forward declaration belongs in its own .c, and a
+    static prototype in a shared header makes agbcc reject every other TU that includes it
+    ("declared `static' but never defined", fatal under -Werror). It still needs its
+    functions.cfg row and @romaddress tag, which _check_romaddr_binding enforces."""
     sigs = signatures_in_c()  # name -> .c signature (the matched truth)
     headers = _decomp_protos()  # name -> (header proto, file)
     for name, sig in sorted(sigs.items()):
+        if sig.split()[:1] == ["static"]:
+            continue
         if name not in headers:
             errors.append(
                 f"decompiled {name!r} (src/c) has no hand-written include/ declaration - "
@@ -218,6 +225,6 @@ def run() -> None:
         sys.exit(1)
     print(
         f"check-stores: OK - {n_funcs} functions, {n_data} data symbols, "
-        f"{n_decomp} decompiled (each declared in a hand-written include/ header), "
+        f"{n_decomp} decompiled (each non-static one declared in a hand-written include/ header), "
         f"{n_split} sources in the split manifest, no conflicts"
     )
