@@ -19,13 +19,10 @@
 #include "variables.h"
 
 #if HACK_mod_options
-/**
- * The mod_options row accessors (the ModOptionEntry get/set signatures). The menu always
- * gets before it sets, so the byte is tagged by the time a setter runs.
- */
+/** The mod_options row accessors (the ModOptionEntry get/set signatures). */
 u8 autoLoot_getGems(void)
 {
-    return lootQol_getState().autoLootGems;
+    return g_LootQolState.autoLootGems;
 }
 
 void autoLoot_setGems(u8 value)
@@ -49,7 +46,7 @@ void autoLoot_onDropUpdate(Actor *drop)
     {
         return;
     }
-    if (!lootQol_getState().autoLootGems)
+    if (!g_LootQolState.autoLootGems)
     {
         return;
     }

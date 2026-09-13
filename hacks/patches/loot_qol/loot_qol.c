@@ -8,25 +8,16 @@
 
 struct LootQolState g_LootQolState;
 
-struct LootQolState lootQol_getState(void)
-{
-    struct LootQolState state = g_LootQolState;
-
-    if (state.tag != LOOT_QOL_TAG)
-    {
-        state = (struct LootQolState){.affix = LOOT_FILTER_AFFIX_OFF,
-                                      .arrows = FALSE,
-                                      .autoLootGems = TRUE,
-                                      .tag = LOOT_QOL_TAG};
-        g_LootQolState = state;
-    }
-    return state;
-}
-
 void lootQol_loadState(void)
 {
-    // a blank/unwritten area reads untagged, so the defaults above still apply
     GLOBAL_MOD_OPTIONS_READ(lootQolState, &g_LootQolState);
+    if (g_LootQolState.tag != LOOT_QOL_TAG)
+    {
+        g_LootQolState = (struct LootQolState){.affix = LOOT_FILTER_AFFIX_OFF,
+                                               .arrows = FALSE,
+                                               .autoLootGems = TRUE,
+                                               .tag = LOOT_QOL_TAG};
+    }
 }
 
 #if HACK_mod_options

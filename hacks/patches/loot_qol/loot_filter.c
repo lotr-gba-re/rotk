@@ -7,9 +7,9 @@
 // always bypass it. Arrows can roll neither affix, so the affix requirement would always
 // reject them; the "Suppress Arrows" toggle alone decides them.
 //
-// The filter state lives in g_LootQolState (loot_qol.h), accessed via lootQol_getState and
-// persisted to the global mod options save area: loaded at boot (lootQol_loadState), written
-// through by the option accessors below.
+// The filter state lives in g_LootQolState (loot_qol.h), persisted to the global mod
+// options save area: loaded at boot (lootQol_loadState), written through by the option
+// accessors below.
 #include "patches/loot_qol/loot_filter.h"
 #include "item.h"
 #include "loot.h"
@@ -22,13 +22,10 @@ const char *const LootFilterAffixNames[LOOT_FILTER_AFFIX_COUNT] = {
 };
 
 #if HACK_mod_options
-/**
- * The mod_options row accessors (the ModOptionEntry get/set signatures). The menu always
- * gets before it sets, so the byte is tagged by the time a setter runs.
- */
+/** The mod_options row accessors (the ModOptionEntry get/set signatures). */
 u8 lootFilter_getAffix(void)
 {
-    return lootQol_getState().affix;
+    return g_LootQolState.affix;
 }
 
 void lootFilter_setAffix(u8 value)
@@ -39,7 +36,7 @@ void lootFilter_setAffix(u8 value)
 
 u8 lootFilter_getSuppressArrows(void)
 {
-    return lootQol_getState().arrows;
+    return g_LootQolState.arrows;
 }
 
 void lootFilter_setSuppressArrows(u8 value)
@@ -52,8 +49,6 @@ void lootFilter_setSuppressArrows(u8 value)
 /** Returns nonzero when the drop fails the active filter settings and must not spawn. */
 bool lootFilter_shouldVoid(u8 lootType, Item item)
 {
-    struct LootQolState state = lootQol_getState();
-
     // bypass: gem stacks, health drops, artifact pickups and the no-drop kind (below
     // LOOT_TYPE_ITEM_MIN), the Ent Water / Dwarf Rune specials (above LOOT_TYPE_ITEM_MAX)
     if (lootType < LOOT_TYPE_ITEM_MIN || lootType > LOOT_TYPE_ITEM_MAX)
@@ -64,7 +59,7 @@ bool lootFilter_shouldVoid(u8 lootType, Item item)
     // arrows ignore the affix requirement; the Suppress Arrows toggle alone decides them
     if (item.d.itemType == ITEM_TYPE_ARROW)
     {
-        return state.arrows;
+        return g_LootQolState.arrows;
     }
 
     // category bypasses: carried-passive backpack items and uniques
@@ -85,7 +80,7 @@ bool lootFilter_shouldVoid(u8 lootType, Item item)
     //     return TRUE;
     // }
 
-    switch (state.affix)
+    switch (g_LootQolState.affix)
     {
     case LOOT_FILTER_AFFIX_ANY:
         return !ITEM_HAS_PREFIX(item) && !ITEM_HAS_SUFFIX(item);

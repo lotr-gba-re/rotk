@@ -27,19 +27,13 @@ struct LootQolState
 
 /**
  * The state byte. Persisted to the global mod options save area: loaded at boot by
- * lootQol_loadState, written through by the option setters.
+ * lootQol_loadState, written through by the option setters. Valid from that load on.
  */
 extern struct LootQolState g_LootQolState;
 
 /**
- * The effective state; an untagged byte (blank/unwritten save area) is initialized to the
- * defaults on first read.
- */
-struct LootQolState lootQol_getState(void);
-
-/**
- * Boot task (runTasks): load the persisted state byte from the global mod
- * options save area.
+ * Boot task (runTasks): load the persisted state byte from the global mod options save
+ * area; an untagged byte (blank/unwritten area) becomes the defaults.
  */
 void lootQol_loadState(void);
 
