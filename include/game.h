@@ -12,6 +12,8 @@ enum GameFlag
     // in-game dialog overlay active; game_dispatchSceneExit skips the scene exit handler
     // while set (set by scene_requestInGameDialog, cleared by scene_inGameDialog_tick)
     GAME_FLAG_IN_GAME_DIALOG = 1 << 0,
+    // while set, active-skill casts skip the spirit check and cost nothing
+    GAME_FLAG_2 = 1 << 2,
     // gameplay world parked: the main actor list is stashed in g_ActorListParked while
     // a non-gameplay scene runs; set by scene_gameplay_parkWorld, cleared by scene_gameplay_enter
     // on resume and by scene_gameplay_discardParkedWorld on quit-to-menu

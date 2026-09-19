@@ -250,12 +250,13 @@ Keep table entries to one line where possible.
 
 ### General
 
-| concept                     | canonical name | meaning                                                                                                      | notes                                                                             |
-| --------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
-| scene                       | scene          | A scene or screen of the game, e.g. the main menu, the pause menu, the backpack, or the main gameplay scene. | each scene has its own header and `.c` file                                       |
-| passive skill (stat bonus)  | passive skill  | Passive, non castable skills from the left side of the skill tree.                                           | see `passiveSkill.h` (`PASSIVE_SKILL_*`); levels in `Player.passiveSkillLevels[]` |
-| active skill (move / spell) | active skill   | Castable active skills from the right side of the skill tree.                                                | see `activeSkill.h`; `ACTIVE_SKILL_HERBAL_HEALING` = 5 on every hero              |
-| melee weapon damage type    | slash / impale | melee attacks are either slash damage (most weapons) or impale damage (e.g. daggers)                         |                                                                                   |
+| concept                                           | canonical name  | meaning                                                                                                      | notes                                       |
+| ------------------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
+| scene                                             | scene           | A scene or screen of the game, e.g. the main menu, the pause menu, the backpack, or the main gameplay scene. | each scene has its own header and `.c` file |
+| passive skill (stat bonus)                        | passive skill   | Passive, non castable skills from the left side of the skill tree.                                           |                                             |
+| active skill (move / spell)                       | active skill    | Castable active skills from the right side of the skill tree.                                                |                                             |
+| skill level added without being purchased        | temporary level | A skill level added to the gameplay-used count without increasing the purchased count.                      |                                             |
+| melee weapon damage type                          | slash / impale  | melee attacks are either slash damage (most weapons) or impale damage (e.g. daggers)                         |                                             |
 
 ### Missions, Regions, and Maps
 

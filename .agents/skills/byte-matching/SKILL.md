@@ -77,6 +77,7 @@ A shift-pair over low bits means a cast or a shift+mask, never a constant AND:
 
 1. Casts of register values: `(u16)x` -> `lsls #16; lsrs #16`, `(s8)x` -> `lsls #24; asrs #24` (conversion expands are exempt from constant forcing).
    Memory operands are free (`ldrb`/`ldrh`/`ldrsb`/`ldrsh`).
+   A sub-word narrowing of a value whose last operation is a left shift composes the two counts into the pair: a u16 narrowing of `(x << 1)` emits `lsls #17; lsrs #16` (`lsl #1` + the cast's `lsl #16` fuse in combine), not a plain 16/16 pair.
 2. `(x >> k) & (2^n - 1)`: combine composes the counts into `lsls #(32-n-k); lsrs #(32-n)`.
 3. `(x << k) >> k` stays a literal pair (`asrs` signed, `lsrs` unsigned).
 4. A decrement-and-test re-extending after the store (`ldrh; subs; strh; lsls #16; asrs #16; cmp`) does not imply an unsigned field plus cast: a signed field emits the same instructions (combine defers the load's extend past the sub), differing only in gcse-time insn count (see spill-slot buckets).
@@ -108,6 +109,7 @@ A ROM keeping them separate means the shifted operand carries its own narrowing;
 - fold rewrites `x < C` / `x >= C` (positive C) to `x <= C-1` / `x > C-1` at the tree level, so a literal bound always emits `cmp #(C-1); bls/bhi`.
   A ROM `cmp #C; bcc/bcs` means the bound reached RTL unfolded: assign it to a local in the SAME basic block right before the test (cse substitutes the constant into the compare; combine leaves LTU/GEU alone).
   A function-scope init behind a tablejump stays a register compare.
+- A range guard on a sub-word value has two byte-equal source forms: `level > 0 && level < CAP` and `(u8)(level - 1) < CAP - 1` (fold rewrites both to the same unsigned wrap compare). Pick the idiomatic one.
 - `(x & M) != 0` as a value, M a single bit: do_store_flag's bit-extract path emits `lsrs #n; ands #1`, and the `#1` pseudo CSEs with other `& 1` sites (inviting cross-jumps between arms).
   The ROM's `ands; negs; lsrs #31` is `-(x & M) >> 31`.
 - A ROM `cmp #C; b<cc>; movs #1; b; movs #0; cmp #0; b<cc>` materializes a flag and immediately re-tests it.
@@ -140,6 +142,7 @@ A ROM keeping them separate means the shifted operand carries its own narrowing;
 
 - Count-only induction variables reverse into down-counters (`check_dbra_loop`): `for (i = 0; i < n; i++)` becomes decrement-n with a bottom `cmp #0; bne` plus one top guard.
   Keep the source loop; trace-loop names a failed precondition.
+- A count-up loop whose body update is spelled through a single-use `static inline` helper can stay unreversed where the direct statement (or a macro with the same body) is dbra-reversed: the argument boundary decides, the helper body's spelling does not (both body spellings match). Reach for it when a ROM count-up loop resists counter and structure variation.
 - Address induction variables get their own register, initialized before the loop, stepped by the element size (strength reduction); givs stepping together merge.
 - LICM hoists invariant pool loads; a global MEM load hoists only when the loop has no calls (or the load is RTX_UNCHANGING).
   Calls, multiple exits, tablejumps, or volatile refs disable invariants/strength reduction and change allocation.
@@ -218,6 +221,9 @@ A different-mode read of the stored word (bitfield/byte view) does survive but c
 - Arg-copy POSITION reveals the caller LOCAL's width: a u8 local's arg-0 copy lands after all other args (its promote is free); a u32 local converts at precompute time and lands before them.
   Signature: only the arg-0 copy moved across other setup, instructions identical.
   Fix by widening the local (transitively inside static inline helpers too), never by pinning.
+- A named sub-word local initialized from a wider memory read narrows for free: `u8 v = u16arr[i]; f(v);` emits the ROM's single `ldrb` with no cast, byte-identical to an explicit `(u8)` cast, while passing the bare u16 expression DIFFs.
+- Repeating one memory expression in a guard and call argument can produce one physical load plus an argument-register copy: GCSE replaces the second read with the guard's value after the two source reads expanded into separate blocks, but leaves the copy. A local instead creates one pseudo that global allocation can put directly in the argument register, deleting the ROM copy.
+- In a plain `if` arm, a negated sub-word argument may keep the callee's promote pair only through a sub-word local: `s16 delta = -value; f(delta);` keeps `lsls/asrs #16`; a `u16` local of the same wrapped value can match too (the promote's extend of the wrapped bits is semantically free), while a plain `-value` argument or `s32`/`u8` intermediates flip the allocation. Before retaining the local, try a two-arm `switch`: its compare-tree blocks shorten the competing live ranges and can make direct `-value` allocate exactly like the ROM.
 - **A constant materialised in a CALLEE-SAVED register before a call, consumed after it, comes from a function-scope local with an initialiser.** C89 declaration initialisers expand at block entry, ahead of the call, so the pseudo has `calls_crossed != 0` and is barred from r0-r3; a literal at the use site instead gets a short-lived pseudo in r0 after the call.
   Signature: the `push` gains a callee-saved reg and the `movs rN, #K` sits above the `bl` with its only use below.
   The local's type is free (u8/u16/u32 all promote to one SImode pseudo), but it must not be reassigned before that use: a promoted sub-word variable with a second def takes a real `lsls/lsrs` extend at the reassignment that combine will not fold away.
@@ -287,6 +293,8 @@ Read the inverse too: a ROM `lsls #16; asrs #16; add; lsls #16; lsrs #16` around
   Splitting the blob into plain sibling fields also works.
   u32-word unions need no packing.
 - `char` is unsigned (plain `ldrb`, no cast needed for codegen), but the build is -Werror and -Wchar-subscripts fires: index with `arr[(u8)*str]`.
+- A member read of a typed indexed array (`rows[i].f`) read in VALUE context expands table-load first, then the index scale; assigning the same address to a pointer (`p = &rows[i]`) expands the address chain first and swaps the final `adds` operands.
+  The address-taken form still works when assigned AFTER a first value-context read of the same row (gcse folds the second chain into the first) and fails as a block-entry initializer.
 
 ## Register Allocation
 - **cse cannot keep two live copies of one value in the same mode.** `insert_regs` merges a copy's dest into the source's quantity and `make_regs_eqv` promotes whichever register lives longest past `cse_basic_block_end` to `qty_first_reg`; `canon_reg` then rewrites every in-block use to it.

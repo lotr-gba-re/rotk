@@ -583,12 +583,11 @@ struct Actor
 
     u8 field_0x73; // mostly unused
 
-    /**
-     * combat attack/recovery cooldown pair (s16); also cleared by the
-     * loot constructors and saved across a proximity-trigger align
-     */
-    u16 field_0x74;
-    u16 field_0x76;
+    // Combat attack cooldown.
+    s16 attackCooldown;
+
+    // Combat recovery cooldown.
+    s16 recoveryCooldown;
     u8 field_0x78[12];
 
     /**
@@ -730,6 +729,8 @@ enum ActorActionState
 {
     ACTOR_STATE_HURT = 0x06,    // set by player_addHp flinch (from states 1/2/5)
     ACTOR_STATE_STUNNED = 0x1a, // victim takes double melee damage; set by Immobilize hits
+    // Start an active skill cast. A nonzero castTriggerFrame defers the callback to state 0x32.
+    ACTOR_STATE_ACTIVE_SKILL_CAST = 0x23,
     ACTOR_STATE_KNOCKBACK =
         0x25, // victim pushed away at 2.0 px/frame velocity; set by actor_applyKnockback
     ACTOR_STATE_FX_ATTACHED = 0x2b,

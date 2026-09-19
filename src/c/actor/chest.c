@@ -215,7 +215,7 @@ void actor_chest_trigger(Actor *chest, Actor *touching)
  */
 void actor_proximityLinkTrigger(Actor *self, Actor *player)
 {
-    u16 savedCooldown;
+    s16 savedCooldown;
 
     if (player->recordType == 0)
     {
@@ -236,8 +236,8 @@ void actor_proximityLinkTrigger(Actor *self, Actor *player)
                 mission_script_spawnGroupAndStartStream(self->behaviorLinkGroup,
                                                         self->behaviorLinkStream);
             }
-            savedCooldown = self->field_0x74;
-            self->field_0x76 = savedCooldown;
+            savedCooldown = self->attackCooldown;
+            self->recoveryCooldown = savedCooldown;
             actor_alignTouching(self, player);
         }
     }

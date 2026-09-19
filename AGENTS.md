@@ -59,8 +59,15 @@ Prefer making the code and data structures speak for themselves (good names, typ
 
 Do not use em-dashes anywhere in repository files.
 Aim for code comments and docstrings to be on the terse side, LLM docs tend to be too verbose rather than too terse.
+Do not add struct member offset annotations such as `// +0x08`.
 Don't document things that can easily be learned from reading the code.
-Do not append parenthetical consumer references to comments (e.g. `(combat_rollVictimEvade, combat.h)`); consumers are greppable.
+Field comments describe the field's meaning and valid values, not its readers or writers.
+Give each documented struct field its own comment immediately above the declaration or on the same line.
+Trailing field comments must fit on a single line.
+Do not use one comment to describe multiple fields because LSPs show field comments individually.
+Do not add references such as `read by foo`, `set by bar`, or `known consumer: foo`.
+Do not use semicolon-separated addendums in comments.
+Write direct, self-contained sentences instead of `main description; extra fact` constructions.
 Avoid absence claims like "no writer found in the ROM" or "dead code"; these assumptions can change and xrefs can be hard to find.
 
 Comments are used to explain the current state of the code, not argue or defend the approach taken.

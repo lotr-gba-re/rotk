@@ -178,7 +178,7 @@ void scene_shop_drawConfirmOption(u8 optionIndex, u8 selectedIndex);
  */
 u8 scene_shop_itemCursorAnimation(Item item, u8 playerIndex);
 
-// Shop service costs in gems.
-u32 scene_shop_attributePointCost(u8 playerIndex);
-u32 scene_shop_skillPointCost(u8 playerIndex);
-u32 scene_shop_bargainCost(u8 playerIndex);
+// Shop service costs in gems. All three leave the player index unnarrowed, so it is word-sized.
+u32 scene_shop_attributePointCost(u32 playerIndex);
+u32 scene_shop_skillPointCost(u32 playerIndex);
+u32 scene_shop_bargainCost(u32 playerIndex);

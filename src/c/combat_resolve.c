@@ -1,4 +1,3 @@
-#include "activeSkill.h"
 #include "combat.h"
 #include "enemy.h"
 #include "fx.h"
@@ -7,6 +6,7 @@
 #include "math.h"
 #include "rng.h"
 #include "sfx.h"
+#include "skill.h"
 #include "variables.h"
 
 /**
@@ -19,8 +19,8 @@ static inline void applyStun(Actor *attacker, Actor *victim, u32 playerIndex, u8
 {
     victim->field_0x64[0] |= 2;
     {
-        s32 duration = activeSkill_getLeveledValue(playerIndex, ACTIVE_SKILL_UNKNOWN_3, 1,
-                                                   PLAYER(playerIndex).activeSkillLevels[3]);
+        s32 duration = skill_active_getLeveledValue(playerIndex, ACTIVE_SKILL_UNKNOWN_3, 1,
+                                                    PLAYER(playerIndex).activeSkillLevels[3]);
         s32 stunDuration = (s16)duration;
         victim->actionStateTimer = stunDuration;
         fx_attachStatusEffect(attacker, victim, (u16)stunDuration, 0xc, 8, fxArg5, 8);

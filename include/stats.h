@@ -98,7 +98,7 @@ enum StatIndex
     // chance when struck to spawn a triple-damage buff bubble (The Precious)
     STAT_TRIPLE_DAMAGE_PROC_PERCENT = 82,
     STAT_UNKNOWN_83 = 83,
-    // activeSkill_getLeveledValue uses one extra level while > 0 (Servant of the Secret Fire)
+    // skill_active_getLeveledValue uses one extra level while > 0 (Servant of the Secret Fire)
     STAT_ACTIVE_SKILL_LEVEL_BONUS = 84,
     STAT_UNKNOWN_85 = 85,
     STAT_UNKNOWN_86 = 86,

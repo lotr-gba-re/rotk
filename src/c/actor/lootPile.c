@@ -19,7 +19,7 @@
 #include "variables.h"
 #include "vector2.h"
 
-/** Animation pulse period step in frames; the period is rng_rollRange(1, 3) times this. */
+// Animation pulse step in frames. The period is this value times a random 1..3.
 #define LOOT_PULSE_PERIOD_STEP 30
 
 /**
@@ -121,7 +121,7 @@ Actor *actor_lootPile_createFromMission(u8 groupIndex, u8 actorIndex)
             actor->behaviorState = LOOT_DROP_IDLE;
         }
         actor->interactionRadius = LOOT_PICKUP_DISTANCE;
-        actor->field_0x74 = 0;
+        actor->attackCooldown = 0;
         sprite_setAnimation(actor, &LootPileAnimations[lootType]);
         if (lootType == LOOT_TYPE_SPOON || lootType >= LOOT_TYPE_UNIQUE_WEAPON_MIN)
         {
@@ -154,7 +154,7 @@ Actor *actor_lootPile_create(Vector2Fp16 pos, u32 lootType, Item item, s32 despa
 {
     Actor *actor = actor_allocMain();
     u32 frameSize[2];
-    MATCH_PIN(Item *, actorItem, "r6");
+    Item *actorItem;
 
     if (actor != NULL)
     {
@@ -174,7 +174,7 @@ Actor *actor_lootPile_create(Vector2Fp16 pos, u32 lootType, Item item, s32 despa
         actor->tickCallback = actor_lootPile_tick;
         actor->triggerCallbacks[0] = actor_lootPile_trigger;
         actor->interactionRadius = LOOT_PICKUP_DISTANCE;
-        actor->field_0x74 = 0;
+        actor->attackCooldown = 0;
         *actorItem = item;
         actor->as.lootPile.despawnTimer = despawnTimer;
         actor->actionStateTimer = despawnTimer;

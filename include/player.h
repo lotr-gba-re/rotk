@@ -3,7 +3,7 @@
 #include "actor.h"
 #include "fx.h"
 #include "item.h"
-#include "passiveSkill.h"
+#include "skill.h"
 #include "stats.h"
 #include "types.h"
 #include "vector2.h"
@@ -140,6 +140,13 @@ typedef union {
     } __attribute__((packed)) d;
 } __attribute__((packed)) PlayerOptionFlags;
 
+// Player.activeSkillStateFlags bits.
+enum ActiveSkillStateFlag
+{
+    // An active skill cast is in progress. Active skill input is blocked until the actor idles.
+    ACTIVE_SKILL_STATE_CASTING = 1 << 0,
+};
+
 /**
  * A hero's base primary stats, the saved source stats[] is rebuilt from (SaveSlot low bytes;
  * attribute points raise these). Passed by value to the max HP / spirit formulas.
@@ -238,10 +245,10 @@ typedef struct Player
      */
     const u8 *passiveSkillIds;
 
-    /** this player's active skill data table (per heroId; see active skill.h) */
-    void *activeSkillTable;
+    // This player's active skills.
+    const struct ActiveSkill *activeSkills;
 
-    /** the hero's 6 LZ77 active skill icon assets, one per activeSkillTable row */
+    // The hero's six LZ77 active skill icon assets, one per active skill.
     const void *const *activeSkillIcons;
 
     /** emitter following the actor; shown while walking on terrain type 3 (wading) */
@@ -277,15 +284,13 @@ typedef struct Player
      * bought level (0-5) of each passiveSkillIds slot; saved 3-bit-packed into
      * SaveSlot.skillLevelData
      */
-    u8 passiveSkillLevels[HERO_PASSIVE_SKILL_COUNT];
+    s8 passiveSkillLevels[HERO_PASSIVE_SKILL_COUNT];
 
-    /**
-     * levels whose PassiveSkill stat records are applied to stats[]; copied from passiveSkillLevels
-     * and re-applied by player_initHeroLoadout. BUG: passiveSkill_applyAllLevels walks 10 slots, so
-     * passiveSkillIds[9] (a pad byte, PASSIVE_SKILL_FEARLESS) is also applied
-     * activeSkillLevelsPurchased[0] times.
-     */
-    u8 passiveSkillLevelsApplied[HERO_PASSIVE_SKILL_COUNT];
+    // Skill levels whose passive stat bonuses are included in stats[].
+    // BUG: the load-time loop includes slot 9, aliasing activeSkillLevelsPurchased[0].
+    // Its skill ID is a zero padding byte, or the following direction table's first byte for
+    // Gimli. Both select Fearless.
+    s8 passiveSkillLevelsApplied[HERO_PASSIVE_SKILL_COUNT];
 
     /**
      * bought level of each active skill row, mirrored into activeSkillLevels; [0..4] saved
@@ -386,13 +391,12 @@ typedef struct Player
 
     u8 field_0x1a0[3];
 
-    /** activeSkillTable row being cast (set by activeSkill_cast, read by the cast states) */
+    // Active skill row currently being cast.
     u8 castingActiveSkill;
 
     u8 field_0x1a4;
 
-    /** bit 0: an active skill cast is in progress; blocks active skill input until the actor idles
-     * again */
+    // ACTIVE_SKILL_STATE_* bits.
     u8 activeSkillStateFlags;
 
     /**
@@ -445,8 +449,16 @@ enum PlayerHudFlag
 {
     PLAYERHUD_FLAG_0 = 1 << 0,            // loot-pile HUD text shown
     PLAYERHUD_FLAG_1 = 1 << 1,            // loot-pile HUD text (re)draw
-    PLAYERHUD_FLAG_HP_DIRTY = 1 << 3,     // set by player_addHp on any HP change
-    PLAYERHUD_FLAG_SPIRIT_DIRTY = 1 << 4, // set by player_addSpirit on any spirit change
+    PLAYERHUD_FLAG_HP_DIRTY = 1 << 3,     // HP changed
+    PLAYERHUD_FLAG_SPIRIT_DIRTY = 1 << 4, // spirit changed
+    PLAYERHUD_FLAG_XP_DIRTY = 1 << 5,     // XP changed
+
+    // Refresh the skill panel's content and restart its display timer.
+    PLAYERHUD_FLAG_SKILL_PANEL_DIRTY = 1 << 7,
+
+    // The skill panel displays the unspent-points graphic instead of an active skill icon.
+    PLAYERHUD_FLAG_UNSPENT_POINTS = 1 << 8,
+
     PLAYERHUD_FLAG_POISON = 1 << 10,
     PLAYERHUD_FLAG_FEAR = 1 << 11,
     PLAYERHUD_FLAG_12 = 1 << 12, // set together with POISON/FEAR on status application
@@ -458,44 +470,52 @@ typedef union PlayerHudFlags {
 
     struct
     {
-        u32 field_bit_0 : 1;  // 1 << 0: loot-pile HUD text shown
-        u32 field_bit_1 : 1;  // 1 << 1: loot-pile HUD text (re)draw
-        u32 field_bit_2 : 1;  // 1 << 2
-        u32 hpDirty : 1;      // 1 << 3: set by player_addHp on any HP change
-        u32 spiritDirty : 1;  // 1 << 4: set by player_addSpirit on any spirit change
-        u32 field_bit_5 : 1;  // 1 << 5
-        u32 field_bit_6 : 1;  // 1 << 6
-        u32 field_bit_7 : 1;  // 1 << 7
-        u32 field_bit_8 : 1;  // 1 << 8
-        u32 field_bit_9 : 1;  // 1 << 9
-        u32 poison : 1;       // 1 << 10
-        u32 fear : 1;         // 1 << 11
-        u32 field_bit_12 : 1; // 1 << 12: set together with poison/fear on status application
-        u32 field_bit_13 : 1; // 1 << 13
-        u32 field_bit_14 : 1; // 1 << 14
-        u32 field_bit_15 : 1; // 1 << 15
-        u32 field_bit_16 : 1; // 1 << 16
-        u32 field_bit_17 : 1; // 1 << 17
-        u32 field_bit_18 : 1; // 1 << 18
-        u32 field_bit_19 : 1; // 1 << 19
-        u32 field_bit_20 : 1; // 1 << 20
-        u32 field_bit_21 : 1; // 1 << 21
-        u32 field_bit_22 : 1; // 1 << 22
-        u32 field_bit_23 : 1; // 1 << 23
-        u32 field_bit_24 : 1; // 1 << 24
-        u32 field_bit_25 : 1; // 1 << 25
-        u32 field_bit_26 : 1; // 1 << 26
-        u32 field_bit_27 : 1; // 1 << 27
-        u32 field_bit_28 : 1; // 1 << 28
-        u32 field_bit_29 : 1; // 1 << 29
-        u32 field_bit_30 : 1; // 1 << 30
-        u32 field_bit_31 : 1; // 1 << 31
+        u32 field_bit_0 : 1;     // 1 << 0: loot-pile HUD text shown
+        u32 field_bit_1 : 1;     // 1 << 1: loot-pile HUD text (re)draw
+        u32 field_bit_2 : 1;     // 1 << 2
+        u32 hpDirty : 1;         // 1 << 3: HP changed
+        u32 spiritDirty : 1;     // 1 << 4: spirit changed
+        u32 xpDirty : 1;         // 1 << 5: XP changed
+        u32 field_bit_6 : 1;     // 1 << 6
+        u32 skillPanelDirty : 1; // 1 << 7: refresh skill panel content and timer
+        u32 unspentPoints : 1;   // 1 << 8: skill panel shows unspent points
+        u32 field_bit_9 : 1;     // 1 << 9
+        u32 poison : 1;          // 1 << 10
+        u32 fear : 1;            // 1 << 11
+        u32 field_bit_12 : 1;    // 1 << 12: set together with poison/fear on status application
+        u32 field_bit_13 : 1;    // 1 << 13
+        u32 field_bit_14 : 1;    // 1 << 14
+        u32 field_bit_15 : 1;    // 1 << 15
+        u32 field_bit_16 : 1;    // 1 << 16
+        u32 field_bit_17 : 1;    // 1 << 17
+        u32 field_bit_18 : 1;    // 1 << 18
+        u32 field_bit_19 : 1;    // 1 << 19
+        u32 field_bit_20 : 1;    // 1 << 20
+        u32 field_bit_21 : 1;    // 1 << 21
+        u32 field_bit_22 : 1;    // 1 << 22
+        u32 field_bit_23 : 1;    // 1 << 23
+        u32 field_bit_24 : 1;    // 1 << 24
+        u32 field_bit_25 : 1;    // 1 << 25
+        u32 field_bit_26 : 1;    // 1 << 26
+        u32 field_bit_27 : 1;    // 1 << 27
+        u32 field_bit_28 : 1;    // 1 << 28
+        u32 field_bit_29 : 1;    // 1 << 29
+        u32 field_bit_30 : 1;    // 1 << 30
+        u32 field_bit_31 : 1;    // 1 << 31
     } d;
 } PlayerHudFlags;
-/**
- * Per-player in-game HUD/status block (provisional identification - only the text head
- * and .flags are decoded).
- */
+
+typedef enum PlayerHudSkillPanelState
+{
+    PLAYERHUD_SKILL_PANEL_IDLE = 0,
+    PLAYERHUD_SKILL_PANEL_REVEALING = 1,
+    PLAYERHUD_SKILL_PANEL_SHOWING = 2,
+    PLAYERHUD_SKILL_PANEL_RETRACTING = 3,
+    // Draw the unspent-points graphic, then return to idle.
+    PLAYERHUD_SKILL_PANEL_DRAW_UNSPENT_POINTS = 4,
+} __attribute__((packed)) PlayerHudSkillPanelState;
+
+// Per-player HUD state, including loot text and the active skill panel.
 typedef struct PlayerHud
 {
     u8 field_0x0[4];
@@ -514,9 +534,14 @@ typedef struct PlayerHud
     /** PlayerHudFlags (mask view: .p & PLAYERHUD_FLAG_*) */
     PlayerHudFlags flags;
 
-    u8 field_0x74[2];
-    u8 field_0x76;
-    u8 field_0x77;
+    // Skill panel countdown in frames. Starts at 150 while showing or 1..2 between animation
+    // steps. A decrement to -1 advances the phase or animation.
+    s16 skillPanelTimer;
+
+    PlayerHudSkillPanelState skillPanelState;
+
+    // Skill panel animation step, 0 hidden through 4 revealed.
+    u8 skillPanelFrame;
 
     /** HUD text color (HUD_TEXT_COLOR_*, also set by item_affix_formatName) */
     u8 textColor;
@@ -562,6 +587,12 @@ static inline void player_subtractHp(u8 playerIndex, s32 damage, bool flinchOnDa
  * display dirty.
  */
 void player_addSpirit(u8 playerIndex, s16 delta);
+
+/** Subtract spirit cost from a player's current spirit. */
+static inline void player_subtractSpirit(u8 playerIndex, s32 cost)
+{
+    player_addSpirit(playerIndex, -cost);
+}
 
 /**
  * Add delta to a player's corruption meter (clamped to [0, 100]) and re-evaluate the global
@@ -619,6 +650,7 @@ void player_clearInventory(u32 playerIndex);
 bool player_addItemToInventory(Item item, u8 playerIndex);
 /** Reset the active skill lists/levels of both players. */
 void player_resetActiveSkills(void);
+void player_resetActiveSkillControls(void);
 /** Clear the PlayerHud tail bytes of both players. */
 void player_resetHuds(void);
 
@@ -639,8 +671,17 @@ void player_applyFrodoSamSwap(u32 playerIndex);
 /** Max HP from the base stats: 4 * health + courage + strength. */
 s16 player_computeMaxHp(u8 playerIndex, HeroBaseStats baseStats);
 
+/**
+ * Maximum HP bonus independent of primary stats, including direct passive-skill and equipment
+ * bonuses.
+ */
+s16 player_getMaxHpBonus(u8 playerIndex);
+
 /** Max spirit from the base stats: 4 * courage + health. */
 s16 player_computeMaxSpirit(u8 playerIndex, HeroBaseStats baseStats);
+
+/** The STAT_MAX_SPIRIT counterpart of player_getMaxHpBonus. */
+s16 player_getMaxSpiritBonus(u8 playerIndex);
 
 /** Copy baseStats into the five primary stats and recompute STAT_MAX_HP / STAT_MAX_SPIRIT. */
 void player_applyBaseStats(u8 playerIndex);
@@ -650,12 +691,6 @@ void player_recomputeBaseStats(u8 playerIndex);
 
 /** Zero stats[] and the per-mission scratch, apply the base stats, then reload the slot state. */
 void player_rebuildStats(u8 playerIndex);
-
-/**
- * Add one PassiveSkill stat record value to stats[]: a primary stat or STAT_ALL_PRIMARY_STATS also
- * recomputes max HP / spirit, STAT_SPEED_PERCENT sets PLAYER_COMBAT_FLAG_MOVE_SPEED_DIRTY.
- */
-void player_addPassiveSkillStat(u8 playerIndex, u8 statIndex, s16 delta);
 
 /** Replace the hand's affix glow emitter (handFxEmitters[hand]) with the one item calls for. */
 void player_setHandFx(u8 playerIndex, u8 hand, Item item);

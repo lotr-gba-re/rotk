@@ -5,6 +5,7 @@ carved-local/ files (the graphics PNGs), then variables.h. Backs `make carve`.
 from rotkit.build import variables
 from rotkit.carve import (
     CaptionsOption,
+    active_skill_tables,
     actor_tables,
     bg_assets,
     enemy_types,
@@ -31,6 +32,7 @@ def run(captions: CaptionsOption = True) -> None:
     enemy_types.run()
     actor_tables.run()
     player_tables.run()
+    active_skill_tables.run()
     mission_tables.run()
     loot_tables.run()
     scene_handlers.run()

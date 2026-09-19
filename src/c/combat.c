@@ -126,7 +126,7 @@ u16 combat_handleEnemyAttackOnPlayerStatusArmorSfx(Actor *attacker, Actor *victi
         {
             g_PlayerHuds[playerIndex].flags.p |= PLAYERHUD_FLAG_FEAR | PLAYERHUD_FLAG_12;
         }
-        player_addSpirit(playerIndex, -3);
+        player_subtractSpirit(playerIndex, 3);
     }
 
     if (EnemyTypes[attackerType].attackFlags.p & ENEMY_ATTACK_FIRE)
@@ -199,7 +199,7 @@ s32 combat_computePveDamage(Actor *attacker, Actor *victim, bool crit)
     case ACTOR_STATE_ATK_ACTIVE_SKILL3: {
         s32 activeSkillLevel = PLAYER(playerIndex).activeSkillLevels[ACTIVE_SKILL_UNKNOWN_3];
         damage =
-            activeSkill_getLeveledValue(playerIndex, ACTIVE_SKILL_UNKNOWN_3, 0, activeSkillLevel);
+            skill_active_getLeveledValue(playerIndex, ACTIVE_SKILL_UNKNOWN_3, 0, activeSkillLevel);
         break;
     }
     }
@@ -356,7 +356,7 @@ s32 combat_computePvpDamage(Actor *attacker, Actor *victim, bool crit)
     case ACTOR_STATE_ATK_ACTIVE_SKILL3: {
         s32 activeSkillLevel = PLAYER(playerIndex).activeSkillLevels[ACTIVE_SKILL_UNKNOWN_3];
         damage =
-            activeSkill_getLeveledValue(playerIndex, ACTIVE_SKILL_UNKNOWN_3, 0, activeSkillLevel);
+            skill_active_getLeveledValue(playerIndex, ACTIVE_SKILL_UNKNOWN_3, 0, activeSkillLevel);
         break;
     }
     }

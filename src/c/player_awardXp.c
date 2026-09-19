@@ -46,9 +46,10 @@ void player_awardXp(s16 initialXp)
                 {
                     player->statusFlags.p |= PLAYER_STATUS_FLAG_UNSPENT_POINTS;
                 }
-                if (g_PlayerHuds[playerIndex].field_0x76 == 0)
+                if (g_PlayerHuds[playerIndex].skillPanelState == PLAYERHUD_SKILL_PANEL_IDLE)
                 {
-                    g_PlayerHuds[playerIndex].field_0x76 = 4;
+                    g_PlayerHuds[playerIndex].skillPanelState =
+                        PLAYERHUD_SKILL_PANEL_DRAW_UNSPENT_POINTS;
                 }
             }
             if (PLAYER(playerIndex).killCount > 1999 &&
@@ -106,14 +107,15 @@ void player_awardXp(s16 initialXp)
                 {
                     PLAYER(playerIndex).statusFlags.p |= PLAYER_STATUS_FLAG_UNSPENT_POINTS;
                 }
-                if (g_PlayerHuds[playerIndex].field_0x76 == 0)
+                if (g_PlayerHuds[playerIndex].skillPanelState == PLAYERHUD_SKILL_PANEL_IDLE)
                 {
-                    g_PlayerHuds[playerIndex].field_0x76 = 4;
+                    g_PlayerHuds[playerIndex].skillPanelState =
+                        PLAYERHUD_SKILL_PANEL_DRAW_UNSPENT_POINTS;
                 }
                 sfx_play(SFX_LEVEL_UP);
             }
             PLAYER(playerIndex).experience = xp;
-            g_PlayerHuds[playerIndex].flags.p |= 1 << 5;
+            g_PlayerHuds[playerIndex].flags.p |= PLAYERHUD_FLAG_XP_DIRTY;
         }
     }
 }
