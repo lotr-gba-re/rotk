@@ -108,6 +108,15 @@ void gfx_setBgOffset(u32 layer, u32 offset);
               .tilesSize = name##_TILES_SIZE,                                                      \
               .tiles = {name##_TILES}}
 
+/** BG asset carrying raw tiles without a palette or tilemap. */
+#define BG_ASSET_TILES_ONLY(name, flags_)                                                          \
+    const struct __attribute__((aligned(4)))                                                       \
+    {                                                                                              \
+        u8 flags, flags2;                                                                          \
+        u16 tilesSize;                                                                             \
+        u8 tiles[name##_TILES_SIZE];                                                               \
+    } name = {.flags = flags_, .tilesSize = name##_TILES_SIZE, .tiles = {name##_TILES}}
+
 void gfx_loadBgAsset(u32 layer, const void *asset, u16 arg3, u16 arg4, u32 arg5, u32 arg6);
 /**
  * Upload a palette asset: a 256-color asset fills palette RAM, a 16-color one lands at

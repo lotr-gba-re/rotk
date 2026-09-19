@@ -1,6 +1,6 @@
 """BG assets, the tile graphics gfx_loadBgAsset reads: parse one from ROM bytes, compose it
-to an indexed image, and rebuild it from an edited image (tile dedup plus the pucrunch
-codec). include/gfx.h documents the byte layout.
+to an indexed image, and rebuild it from an edited image using the codec in its flags.
+include/gfx.h documents the byte layout.
 """
 
 from dataclasses import dataclass
@@ -46,7 +46,7 @@ class BgAsset:
     height: int
     map: tuple[int, ...]  # width * height entries
     tiles: bytes  # decoded character data
-    stream: bytes  # the tiles as stored: pucrunch header word, RLE table, bits
+    stream: bytes  # the tiles as stored, raw or encoded according to flags
 
     @property
     def bpp(self) -> int:
@@ -155,7 +155,8 @@ def rebuild(image: IndexedImage, template: BgAsset, tiles_wide: int = 0) -> BgAs
     """The asset an image encodes to, in the shape of `template` (flags, palette size, map
     size): with a map the tiles are deduplicated (exact and flipped), without one they are
     taken in order. Two tiles of the same pattern in different palette banks stay apart, as
-    the game's own tiler kept them. Raises ValueError on an image the shape cannot hold."""
+    the game's own tiler kept them. The codec bits select raw or pucrunch tile storage.
+    Raises ValueError on an image the shape cannot hold."""
     banked = template.bpp == 4 and len(template.palette) == 256
     tiles_wide = template.width or tiles_wide
     if template.flags & FLAG_MAP:
@@ -213,6 +214,14 @@ def rebuild(image: IndexedImage, template: BgAsset, tiles_wide: int = 0) -> BgAs
                 seen[bytes([bank]) + b"".join(rows)] = index
                 tiles += _pack_tile(rows, template.bpp)
                 entries.append(index | (bank << MAP_BANK_SHIFT))
+    tiles_bytes = bytes(tiles)
+    codec = template.flags & CODEC_MASK
+    if codec == 0:
+        stream = tiles_bytes
+    elif codec == CODEC_PUCRUNCH:
+        stream = pucrunch.encode(tiles_bytes)
+    else:
+        raise ValueError(f"unsupported BG asset codec {codec:#04x}")
     return BgAsset(
         template.flags,
         template.flags2,
@@ -220,8 +229,8 @@ def rebuild(image: IndexedImage, template: BgAsset, tiles_wide: int = 0) -> BgAs
         template.width,
         template.height,
         tuple(entries),
-        bytes(tiles),
-        pucrunch.encode(bytes(tiles)),
+        tiles_bytes,
+        stream,
     )
 
 

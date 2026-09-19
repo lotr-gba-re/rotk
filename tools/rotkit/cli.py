@@ -46,6 +46,7 @@ from rotkit.carve import (
     mission_tables,
     player_tables,
     scene_handlers,
+    skill_icons,
     songs,
     text_ids,
 )
@@ -113,6 +114,11 @@ group(
             "level-icons",
             level_icons.run,
             "level select icons (PNGs + tiles/frame sets/palettes)",
+        ),
+        (
+            "skill-icons",
+            skill_icons.run,
+            "passive and active skill icons (PNGs + raw tile assets)",
         ),
         (
             "bg-assets",

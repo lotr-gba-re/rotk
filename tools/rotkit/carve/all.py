@@ -17,6 +17,7 @@ from rotkit.carve import (
     mission_tables,
     player_tables,
     scene_handlers,
+    skill_icons,
     songs,
     text_ids,
 )
@@ -27,6 +28,7 @@ def run(captions: CaptionsOption = True) -> None:
     item_gfx.run(captions)
     loot_piles.run(captions)
     level_icons.run(captions)
+    skill_icons.run(captions)
     bg_assets.run(captions)
     item_tables.run()
     enemy_types.run()

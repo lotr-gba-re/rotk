@@ -18,7 +18,14 @@ from types import ModuleType
 from typing import Callable
 
 from rotkit import bgasset
-from rotkit.carve import bg_assets, item_gfx, level_icons, loot_piles, write_sheet
+from rotkit.carve import (
+    bg_assets,
+    item_gfx,
+    level_icons,
+    loot_piles,
+    skill_icons,
+    write_sheet,
+)
 from rotkit.compression import lz77
 from rotkit.paths import BUILD, CARVED_DATA, GFX_LOCAL, ROM, ROOT
 from rotkit.png import IndexedImage, read_indexed, rgb_to_bgr555
@@ -69,6 +76,34 @@ def encode_icon(png: Path) -> tuple[str, IndexedImage]:
     return (
         _macro(f"{symbol}_TILES", list(lz), 2, 16)
         + _macro(f"{symbol}_PALETTE", palette, 4, 8),
+        image,
+    )
+
+
+def encode_skill_icon(png: Path) -> tuple[str, IndexedImage]:
+    """One skill icon PNG -> its raw BG tile asset byte list."""
+    rel = os.path.relpath(png, ROOT)
+    name = re.fullmatch(r"\d+_([A-Za-z0-9]+)", png.stem)
+    if name is None:
+        raise SystemExit(f"{rel}: expected <index>_<Symbol>.png")
+    image = _read_4bpp(png)
+    if (image.width, image.height) != (
+        skill_icons.ICON_WIDTH,
+        skill_icons.ICON_HEIGHT,
+    ):
+        raise SystemExit(
+            f"{rel}: {image.width}x{image.height}, skill icons are "
+            f"{skill_icons.ICON_WIDTH}x{skill_icons.ICON_HEIGHT}"
+        )
+    try:
+        image = skill_icons.remap_to_shared_palette(image)
+        tiles = skill_icons.rebuild_tiles(image)
+    except ValueError as e:
+        raise SystemExit(f"{rel}: {e}") from None
+    symbol = name.group(1)
+    return (
+        f"#define {symbol}_TILES_SIZE {len(tiles)}\n"
+        + _macro(f"{symbol}_TILES", list(tiles), 2, 16),
         image,
     )
 
@@ -190,6 +225,7 @@ CARVERS: dict[ModuleType, Encoder] = {
     item_gfx: encode_item_gfx,
     loot_piles: encode_sprite,
     level_icons: encode_sprite,
+    skill_icons: encode_skill_icon,
     bg_assets: encode_bg_asset,
 }
 
@@ -232,8 +268,9 @@ def encode_category(encoder: Encoder, category_dir: Path) -> int:
 _MACRO_REF = re.compile(
     r"\b([A-Za-z0-9]+)_(TILES|TILES_SIZE|PALETTE|MAP|FRAME\d+_(?:LZ77|OFFSET))\b"
 )
-# item icon macros name their symbol once and expand its byte lists internally
+# Asset macros name their symbol once and expand its byte lists internally.
 _ICON_MACRO = re.compile(r"\bITEM_(?:BACKPACK_ICON(?:_BOXED)?|BG_ICON)\((\w+)")
+_TILES_ONLY_MACRO = re.compile(r"\bBG_ASSET_TILES_ONLY\((\w+)")
 
 
 def _placeholders(carver: ModuleType) -> int:
@@ -242,8 +279,8 @@ def _placeholders(carver: ModuleType) -> int:
     for group in carver.GROUPS:
         for src in (CARVED_DATA / group).glob("*.c"):
             text = src.read_text()
-            inc = re.search(r'#include "gfx/([\w/]+)\.inc"', text)
-            if inc is None:
+            includes = re.findall(r'#include "gfx/([\w/]+)\.inc"', text)
+            if not includes:
                 continue
             macros = {
                 f"{symbol}_{suffix}"
@@ -253,14 +290,25 @@ def _placeholders(carver: ModuleType) -> int:
             macros |= {
                 f"{symbol}_{suffix}" for symbol, suffix in _MACRO_REF.findall(text)
             }
-            # a sized tiles array needs at least one element
+            macros |= {
+                f"{symbol}_{suffix}"
+                for symbol in _TILES_ONLY_MACRO.findall(text)
+                for suffix in ("TILES", "TILES_SIZE")
+            }
+            # A sized tiles array needs at least one element. When a TU includes several
+            # categories, the first include can supply all its placeholders and the rest
+            # only need to exist.
             lines = "".join(
                 f"#define {macro} {4 if macro.endswith('_TILES_SIZE') else 0}\n"
                 for macro in sorted(macros)
             )
-            path = BUILD / "gfx" / f"{inc.group(1)}.inc"
-            if not (path.exists() and path.read_text() == lines):  # keep the TU's mtime
-                _write_inc(inc.group(1), lines)
+            for index, include in enumerate(includes):
+                expected = lines if index == 0 else ""
+                path = BUILD / "gfx" / f"{include}.inc"
+                if not (
+                    path.exists() and path.read_text() == expected
+                ):  # keep the TU's mtime
+                    _write_inc(include, expected)
             count += len(macros)
     return count
 

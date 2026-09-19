@@ -85,7 +85,7 @@ def _callback_value(rom: bytes, hero: str, row: int) -> int:
     return unpack_from("<I", rom, hero_rows_addr(hero) - ROMBASE + row * ROW_SIZE)[0]
 
 
-def _skill_labels(rom: bytes) -> dict[str, list[str]]:
+def skill_labels(rom: bytes) -> dict[str, list[str]]:
     """English skill names extracted from the complete active skill descriptions."""
     strings = decode_strings(rom)
     hero_ids = _hero_ids()
@@ -350,7 +350,7 @@ def print_callback_table(rom: bytes, names_by_addr: dict[int, str]) -> None:
 def run() -> None:
     rom = load_rom()
     names_by_addr = {symbol.addr & ~1: symbol.name for symbol in func_symbols()}
-    labels = _skill_labels(rom)
+    labels = skill_labels(rom)
     check_arithmetic()
     print_callback_table(rom, names_by_addr)
     entries = []
