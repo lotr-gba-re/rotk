@@ -33,7 +33,6 @@ from rotkit.build import rom as build_rom
 from rotkit.check import rom as check_rom
 from rotkit.check import stores as check_stores
 from rotkit.carve import (
-    active_skill_tables,
     actor_tables,
     all as carve_all,
     enemy_types,
@@ -47,6 +46,7 @@ from rotkit.carve import (
     player_tables,
     scene_handlers,
     skill_icons,
+    skill_tables,
     songs,
     text_ids,
 )
@@ -128,15 +128,11 @@ group(
         ("item-tables", item_tables.run, "base items, affixes, runes"),
         ("enemy-types", enemy_types.run, "per-enemy-type stat, SFX and loot tables"),
         ("actor-tables", actor_tables.run, "NpcSfxSets"),
+        ("player-tables", player_tables.run, "player XP thresholds"),
         (
-            "player-tables",
-            player_tables.run,
-            "XpThresholds and the passive skill tables",
-        ),
-        (
-            "active-skill-tables",
-            active_skill_tables.run,
-            "the per-hero active skill rows, required levels and name IDs",
+            "skill-tables",
+            skill_tables.run,
+            "passive, active, and per-hero skill tables",
         ),
         ("mission-tables", mission_tables.run, "RegionMissionRanges"),
         ("loot-tables", loot_tables.run, "the loot roll tables"),

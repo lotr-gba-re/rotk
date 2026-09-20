@@ -276,7 +276,7 @@ _TILES_ONLY_MACRO = re.compile(r"\bBG_ASSET_TILES_ONLY\((\w+)")
 def _placeholders(carver: ModuleType) -> int:
     """No ROM, no images: define every macro the carver's committed TUs expand."""
     count = 0
-    for group in carver.GROUPS:
+    for group in getattr(carver, "DATA_GROUPS", carver.GROUPS):
         for src in (CARVED_DATA / group).glob("*.c"):
             text = src.read_text()
             includes = re.findall(r'#include "gfx/([\w/]+)\.inc"', text)

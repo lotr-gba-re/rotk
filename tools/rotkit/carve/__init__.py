@@ -201,14 +201,21 @@ def report_rom_copies(exceptions: dict[str, str], kept: set[str]) -> None:
 
 
 def write_cfg(
-    group: str, command: str, what: str, rows: list[tuple[int, str, str]]
+    group: str,
+    command: str,
+    what: str,
+    rows: list[tuple[int, str, str]],
+    data_dirs: Sequence[str] | None = None,
 ) -> None:
     """Write a graphics group's data store at carved/config/<group>.cfg."""
     path = CARVED_CONFIG / f"{group}.cfg"
     os.makedirs(path.parent, exist_ok=True)
+    locations = ", ".join(
+        f"carved/data/{directory}/" for directory in data_dirs or (group,)
+    )
     header = textwrap.wrap(
         f"Written by `rotkit carve {command}`: data store rows for {what}"
-        f" (carved/data/{group}/), same columns as config/data.cfg:",
+        f" ({locations}), same columns as config/data.cfg:",
         width=88,
     )
     with open(path, "w") as fh:
@@ -283,17 +290,21 @@ class GroupWriter:
         return sections[0].addr, write_table(self.relpath, lines)
 
 
-def upsert_map(entries: list[tuple[int, str]], owned_dirs: Sequence[str] = ()) -> str:
-    """Merge (addr, 'carved/data/...') rows into split.cfg, keyed by path. Rows under
-    owned_dirs that no entry re-creates are stale (merged or renamed files): they are
-    dropped and their source files deleted."""
+def upsert_map(
+    entries: list[tuple[int, str]],
+    owned_dirs: Sequence[str] = (),
+    owned_files: Sequence[str] = (),
+) -> str:
+    """Merge (addr, 'carved/data/...') rows into split.cfg, keyed by path. Owned rows
+    that no entry re-creates are stale (merged or renamed files), so drop their rows and
+    source files. Exact file ownership lets carvers share one output directory."""
     rows = stores.read_split() if os.path.isfile(SPLIT_CFG) else {}
     fresh = {src for _addr, src in entries}
     for src in list(rows):
-        if (
-            any(src.startswith(f"carved/data/{d}/") for d in owned_dirs)
-            and src not in fresh
-        ):
+        owned = src in owned_files or any(
+            src.startswith(f"carved/data/{directory}/") for directory in owned_dirs
+        )
+        if owned and src not in fresh:
             del rows[src]
             (ROOT / src).unlink(missing_ok=True)
     for addr, src in entries:

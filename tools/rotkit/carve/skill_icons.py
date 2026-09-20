@@ -14,8 +14,8 @@ from struct import Struct
 from rotkit import bgasset
 from rotkit.carve import (
     CaptionsOption,
-    active_skill_tables,
     doc_comment,
+    skill_tables,
     upsert_map,
     write_cfg,
     write_sheet,
@@ -33,11 +33,23 @@ from rotkit.png import (
 from rotkit.rom import ROMBASE, load_rom
 from rotkit.textdb import decode_strings
 
-GROUP = "skill_icons"
-GROUPS = (GROUP,)
-GFX_DIR = GFX_LOCAL / GROUP
+DATA_DIR = "skills"
+GFX_GROUP = "skills/icons"
+CONFIG_GROUP = "skill_icons"
+GROUPS = (GFX_GROUP,)
+DATA_GROUPS = (DATA_DIR,)
+GFX_DIR = GFX_LOCAL / GFX_GROUP
 PASSIVE_DIR = "passive"
 ACTIVE_DIR = "active"
+_OUTPUT_FILES = (
+    f"carved/data/{DATA_DIR}/SkillIcons.c",
+    f"carved/data/{DATA_DIR}/SkillIconAssets.c",
+)
+_OWNED_FILES = [
+    *_OUTPUT_FILES,
+    "carved/data/skill_icons/SkillIcons.c",
+    "carved/data/skill_icons/SkillIconAssets.c",
+]
 PASSIVE_POINTERS_ADDR = 0x082876B0
 ACTIVE_POINTERS_ADDR = 0x0828773C
 SKILL_TREE_FRAME_POINTERS_ADDR = 0x08282B94
@@ -91,7 +103,7 @@ class SkillIcon:
     @property
     def file_stem(self) -> str:
         directory = PASSIVE_DIR if self.hero is None else ACTIVE_DIR
-        return f"{GROUP}/{directory}/{self.file_index:02d}_{self.symbol}"
+        return f"{GFX_GROUP}/{directory}/{self.file_index:02d}_{self.symbol}"
 
 
 @dataclass(frozen=True)
@@ -124,7 +136,7 @@ def _read_tiles(rom: bytes, addr: int, where: str) -> bytes:
 def _check_shared_palette(rom: bytes) -> None:
     """Check the palette embedded in each hero's skill-tree frame asset."""
     expected_flags = bgasset.FLAG_PALETTE_16 | bgasset.FLAG_MAP | bgasset.FLAG_TILES
-    for hero_id in range(len(active_skill_tables.HEROES_MEMORY_ORDER)):
+    for hero_id in range(len(skill_tables.HEROES_MEMORY_ORDER)):
         addr = _pointer(rom, SKILL_TREE_FRAME_POINTERS_ADDR, hero_id)
         offset = addr - ROMBASE
         flags, flags2 = rom[offset : offset + 2]
@@ -172,12 +184,12 @@ def load(rom: bytes) -> Carve:
         records.append(icon)
 
     active = {}
-    labels = active_skill_tables.skill_labels(rom)
+    labels = skill_tables.skill_labels(rom)
     by_addr: dict[int, SkillIcon] = {}
-    for hero_index, hero in enumerate(active_skill_tables.HEROES_MEMORY_ORDER):
+    for hero_index, hero in enumerate(skill_tables.HEROES_MEMORY_ORDER):
         active[hero] = []
         for row, label in enumerate(labels[hero]):
-            pointer_index = hero_index * active_skill_tables.ROW_COUNT + row
+            pointer_index = hero_index * skill_tables.ROW_COUNT + row
             addr = _pointer(rom, ACTIVE_POINTERS_ADDR, pointer_index)
             icon = by_addr.get(addr)
             if icon is None:
@@ -270,10 +282,12 @@ def rebuild_tiles(image: IndexedImage) -> bytes:
 
 
 def extract(rom: bytes, captions: bool = True) -> Carve:
-    """Replace carved-local/gfx/skill_icons with the ROM's PNGs and sheets."""
+    """Replace carved-local/gfx/skills/icons with the ROM's PNGs and sheets."""
     carve = load(rom)
+    shutil.rmtree(GFX_LOCAL / "skill_icons", ignore_errors=True)
+    shutil.rmtree(GFX_SHEETS / "skill_icons", ignore_errors=True)
     shutil.rmtree(GFX_DIR, ignore_errors=True)
-    shutil.rmtree(GFX_SHEETS / GROUP, ignore_errors=True)
+    shutil.rmtree(GFX_SHEETS / GFX_GROUP, ignore_errors=True)
     images = {icon.addr: _image(icon) for icon in carve.records}
     for icon in carve.records:
         image = images[icon.addr]
@@ -292,7 +306,7 @@ def extract(rom: bytes, captions: bool = True) -> Carve:
     ):
         names = [icon.file_stem.split("/")[-1] for icon in icons]
         write_sheet(
-            f"{GROUP}/{directory}",
+            f"{GFX_GROUP}/{directory}",
             [images[icon.addr] for icon in icons],
             names if captions else None,
         )
@@ -340,7 +354,7 @@ def _emit_records(carve: Carve) -> tuple[int, str]:
             f"BG_ASSET_TILES_ONLY({icon.symbol}, BG_ASSET_TILES | BG_ASSET_CODEC_RAW);",
         ]
     return carve.records[0].addr, write_table(
-        os.path.join(GROUP, "SkillIcons.c"), lines
+        os.path.join(DATA_DIR, "SkillIcons.c"), lines
     )
 
 
@@ -378,7 +392,7 @@ def _emit_tables(carve: Carve) -> tuple[int, str]:
         lines.append("    {" + ", ".join(icon.symbol for icon in icons) + "},")
     lines.append("};")
     return PASSIVE_POINTERS_ADDR, write_table(
-        os.path.join(GROUP, "SkillIconAssets.c"), lines
+        os.path.join(DATA_DIR, "SkillIconAssets.c"), lines
     )
 
 
@@ -395,10 +409,16 @@ def _write_cfg(carve: Carve) -> None:
         (
             ACTIVE_POINTERS_ADDR,
             ACTIVE_POINTERS,
-            f"void *const [{len(carve.active)}][{active_skill_tables.ROW_COUNT}]",
+            f"void *const [{len(carve.active)}][{skill_tables.ROW_COUNT}]",
         ),
     ]
-    write_cfg(GROUP, "skill-icons", "the passive and active skill icons", rows)
+    write_cfg(
+        CONFIG_GROUP,
+        "skill-icons",
+        "the passive and active skill icons",
+        rows,
+        data_dirs=[DATA_DIR],
+    )
 
 
 def run(captions: CaptionsOption = True) -> None:
@@ -407,5 +427,5 @@ def run(captions: CaptionsOption = True) -> None:
     for _addr, src in entries:
         print(f"  carved {src}")
     _write_cfg(carve)
-    upsert_map(entries, owned_dirs=list(GROUPS))
+    upsert_map(entries, owned_files=_OWNED_FILES)
     print("  updated config/split.cfg. Now run: make verify")

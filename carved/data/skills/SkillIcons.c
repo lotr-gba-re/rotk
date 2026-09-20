@@ -1,6 +1,6 @@
 #include "gfx.h"
-#include "gfx/skill_icons/active.inc"
-#include "gfx/skill_icons/passive.inc"
+#include "gfx/skills/icons/active.inc"
+#include "gfx/skills/icons/passive.inc"
 
 // clang-format off
 

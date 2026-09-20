@@ -1,23 +1,16 @@
-"""Carves the active skill tables: the per-hero skill data stream (ActiveSkillHeroSkills,
-0x0806e94c), ActiveSkillRequiredLevels (0x0828758e) and
-ActiveSkillDescriptionBaseTextIds (0x082874a4).
-
-Per hero the stream holds two adjacent objects in ROM order: its 6 active skills
-(ActiveSkills<Hero>, the array Player.activeSkills points at) and its 9 passiveSkillIds
-(HeroSkillIds<Hero>, what Player.passiveSkillIds points at). The row arrays need 4-byte alignment,
-which is what spaces the heroes 0xfc apart while each hero's data is only 0xf9 bytes. The ROM has
-no such gap after the last hero, so the stream ends at 0x0806f129.
-"""
+"""Carves the passive, active, and per-hero skill tables."""
 
 import os
 from functools import cache
 from struct import unpack_from
 
 from rotkit.carve import (
+    TableSymbol,
     bit_indices,
     d_init,
     doc_comment,
     flags_d_members,
+    table_symbols,
     upsert_map,
     write_table,
 )
@@ -28,6 +21,7 @@ from rotkit.textdb import decode_strings
 
 # --- layout ------------------------------------------------------------------------------------
 
+DATA_DIR = "skills"
 HERO_COUNT = 8
 HERO_ROWS_ADDR = 0x0806E94C
 ROW_SIZE = 0x28
@@ -46,6 +40,28 @@ REQUIRED_LEVELS_ROWS = 6
 REQUIRED_LEVELS_COLUMNS = 6
 DESCRIPTION_BASE_TEXT_IDS_ADDR = 0x082874A4
 
+_PASSIVE_STAT_COUNT = 3
+_PASSIVE_RECORD_SIZE = 0xC
+_PASSIVE_SKILL_SIZE = 0x28
+_PASSIVE_SKILL_LEVELS = 6
+
+_OUTPUT_FILES = (
+    "HeroSkills.c",
+    "PassiveSkills.c",
+    "PassiveSkillRequiredLevels.c",
+    "ActiveSkillRequiredLevels.c",
+    "ActiveSkillDescriptionBaseTextIds.c",
+)
+_OWNED_FILES = [f"carved/data/{DATA_DIR}/{name}" for name in _OUTPUT_FILES]
+_OWNED_FILES += [
+    "carved/data/player_tables/HeroSkills.c",
+    "carved/data/player_tables/PassiveSkills.c",
+    "carved/data/player_tables/PassiveSkillRequiredLevels.c",
+    "carved/data/active_skill_tables/ActiveSkillHeroSkills.c",
+    "carved/data/active_skill_tables/ActiveSkillRequiredLevels.c",
+    "carved/data/active_skill_tables/ActiveSkillDescriptionBaseTextIds.c",
+]
+
 # ROM order of the hero blocks. This is not HeroId order.
 HEROES_MEMORY_ORDER = [
     "Frodo",
@@ -57,6 +73,110 @@ HEROES_MEMORY_ORDER = [
     "Eowyn",
     "Gimli",
 ]
+
+
+def _passive_skill_label(skill_ids: dict[int, str], index: int) -> str:
+    return skill_ids.get(index, f"PASSIVE_SKILL_{index}").removeprefix("PASSIVE_SKILL_")
+
+
+def emit_passive_skills(name: str, addr: int, count: int, rom: bytes) -> str:
+    f_records, f_tier, f_req, f_max = extract_struct_fields(
+        "include/skill.h", "PassiveSkill"
+    )
+    r_stat, r_values = extract_struct_fields(
+        "include/skill.h", "PassiveSkillStatRecord"
+    )
+    stats_enum = extract_enum("include/stats.h", "StatIndex")
+    stats = invert_enum(stats_enum)
+    stat_none = stats_enum["STAT_NONE"]
+    skill_ids = invert_enum(extract_enum("include/skill.h", "PassiveSkillId"))
+    tiers = invert_enum(extract_enum("include/skill.h", "PassiveSkillTier"))
+    base = addr - ROMBASE
+    lines = [
+        '#include "types.h"',
+        '#include "stats.h"',
+        '#include "skill.h"',
+        "",
+        "// clang-format off",
+        "",
+        *doc_comment(
+            addr,
+            [
+                "One row per PassiveSkillId. STAT_NONE marks an unused stat record.",
+            ],
+        ),
+        f"const PassiveSkill {name}[{count}] = {{",
+    ]
+    for index in range(count):
+        row = rom[
+            base + index * _PASSIVE_SKILL_SIZE : base
+            + (index + 1) * _PASSIVE_SKILL_SIZE
+        ]
+        lines.append(f"    // [{index}] {_passive_skill_label(skill_ids, index)}")
+        lines.append(f"    {{ .{f_records} = {{")
+        for record in range(_PASSIVE_STAT_COUNT):
+            offset = record * _PASSIVE_RECORD_SIZE
+            stat_index = row[offset]
+            if stat_index == stat_none:
+                lines.append(f"             {{ .{r_stat} = STAT_NONE }},")
+                continue
+            values = unpack_from("<5H", row, offset + 2)
+            stat = stats.get(stat_index, f"STAT_UNKNOWN_{stat_index}")
+            joined = ", ".join(str(value) for value in values)
+            lines.append(
+                f"             {{ .{r_stat} = {stat}, .{r_values} = {{ {joined} }} }},"
+            )
+        lines += [
+            "         },",
+            f"      .{f_tier} = {tiers.get(row[0x24], row[0x24])},",
+            f"      .{f_req} = {row[0x25]},",
+            f"      .{f_max} = {row[0x26]} }},",
+            "",
+        ]
+    lines[-1] = "};"
+    return write_table(os.path.join(DATA_DIR, f"{name}.c"), lines)
+
+
+def _owned_table(name: str, type_prefix: str) -> TableSymbol:
+    """Return one table owned by this carver, failing if its config symbol is not unique."""
+    matches = [table for table in table_symbols(type_prefix) if table.name == name]
+    if len(matches) != 1:
+        raise SystemExit(f"expected exactly one {name} symbol in config/data.cfg")
+    return matches[0]
+
+
+def emit_passive_required_levels(name: str, addr: int, count: int, rom: bytes) -> str:
+    skill_ids = invert_enum(extract_enum("include/skill.h", "PassiveSkillId"))
+    base = addr - ROMBASE
+    lines = [
+        '#include "types.h"',
+        '#include "skill.h"',
+        "",
+        "// clang-format off",
+        "",
+        *doc_comment(
+            addr,
+            [
+                "Hero level a player needs before buying each level of a skill: row = skill id,",
+                "column = level bought so far, -1 once maxLevel is reached.",
+            ],
+        ),
+        f"const s8 {name}[{count}][{_PASSIVE_SKILL_LEVELS}] = {{",
+    ]
+    width = len(str(count - 1))
+    for index in range(count):
+        values = unpack_from(
+            f"<{_PASSIVE_SKILL_LEVELS}b",
+            rom,
+            base + index * _PASSIVE_SKILL_LEVELS,
+        )
+        joined = ", ".join(f"{value:2}" for value in values)
+        lines.append(
+            f"    {{ {joined} }}, // [{index:>{width}}]"
+            f" {_passive_skill_label(skill_ids, index)}"
+        )
+    lines.append("};")
+    return write_table(os.path.join(DATA_DIR, f"{name}.c"), lines)
 
 
 @cache
@@ -349,30 +469,44 @@ def print_callback_table(rom: bytes, names_by_addr: dict[int, str]) -> None:
 
 def run() -> None:
     rom = load_rom()
-    names_by_addr = {symbol.addr & ~1: symbol.name for symbol in func_symbols()}
     labels = skill_labels(rom)
+    names_by_addr = {symbol.addr & ~1: symbol.name for symbol in func_symbols()}
     check_arithmetic()
     print_callback_table(rom, names_by_addr)
     entries = []
+
+    table = _owned_table("PassiveSkills", "PassiveSkill[")
+    src = emit_passive_skills(table.name, table.addr, table.count, rom)
+    print(f"  carved {src}  ({table.count} skills)")
+    entries.append((table.addr, src))
+
+    src = write_table(
+        os.path.join(DATA_DIR, "HeroSkills.c"),
+        emit_hero_skills(rom, names_by_addr, labels).splitlines(),
+    )
+    print(f"  carved {src}")
+    entries.append((HERO_ROWS_ADDR, src))
+
+    table = _owned_table("PassiveSkillRequiredLevels", "s8[")
+    src = emit_passive_required_levels(table.name, table.addr, table.count, rom)
+    print(f"  carved {src}")
+    entries.append((table.addr, src))
+
     for name, addr, text in (
         (
-            "ActiveSkillHeroSkills.c",
-            HERO_ROWS_ADDR,
-            emit_hero_skills(rom, names_by_addr, labels),
+            "ActiveSkillDescriptionBaseTextIds.c",
+            DESCRIPTION_BASE_TEXT_IDS_ADDR,
+            emit_description_base_text_ids(rom),
         ),
         (
             "ActiveSkillRequiredLevels.c",
             REQUIRED_LEVELS_ADDR,
             emit_required_levels(rom, labels),
         ),
-        (
-            "ActiveSkillDescriptionBaseTextIds.c",
-            DESCRIPTION_BASE_TEXT_IDS_ADDR,
-            emit_description_base_text_ids(rom),
-        ),
     ):
-        src = write_table(os.path.join("active_skill_tables", name), text.splitlines())
+        src = write_table(os.path.join(DATA_DIR, name), text.splitlines())
         print(f"  carved {src}")
         entries.append((addr, src))
-    upsert_map(entries, owned_dirs=["active_skill_tables"])
+
+    upsert_map(entries, owned_files=_OWNED_FILES)
     print("  updated config/split.cfg. Now run: make verify")
