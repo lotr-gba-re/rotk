@@ -69,16 +69,26 @@ def _run_length(raw: bytes, pos: int) -> int:
 
 
 def _longest_backref(raw: bytes, pos: int) -> tuple[int, int]:
-    """Length and distance of the longest earlier copy of the bytes at `pos`, the farthest
-    among equal lengths. The copy never overlaps its source (length <= distance)."""
+    """Find the longest encodable backref, preferring the farthest on a tie."""
+    limit = min(MAX_BACKREF, len(raw) - pos)
+    if limit < MIN_BACKREF:
+        return 0, 0
+    needle = raw[pos : pos + MIN_BACKREF]
+    start = max(0, pos - MAX_DISTANCE)
     best_length, best_distance = 0, 0
-    for distance in range(min(pos, MAX_DISTANCE), 0, -1):
-        limit = min(MAX_BACKREF, len(raw) - pos, distance)
-        length = 0
-        while length < limit and raw[pos + length] == raw[pos - distance + length]:
+    while (found := raw.find(needle, start, pos)) != -1:
+        distance = pos - found
+        candidate_limit = min(limit, distance)
+        length = len(needle)
+        while length < candidate_limit and raw[found + length] == raw[pos + length]:
             length += 1
         if length > best_length:
             best_length, best_distance = length, distance
+            if length == limit:
+                break
+            # Later candidates must beat this length; ties keep the farthest match.
+            needle = raw[pos : pos + length + 1]
+        start = found + 1
     return best_length, best_distance
 
 
@@ -119,7 +129,9 @@ def encode(raw: bytes) -> bytes:
     pos = 0
     while pos < n:
         run = _run_length(raw, pos)
-        length, distance = _longest_backref(raw, pos)
+        length, distance = 0, 0
+        if run < MAX_BACKREF:
+            length, distance = _longest_backref(raw, pos)
         if run >= MIN_RUN and run >= length:
             _put_literals(out, literals)
             _put_run(out, raw[pos], run)
