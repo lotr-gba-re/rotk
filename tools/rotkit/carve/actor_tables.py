@@ -59,4 +59,3 @@ def run() -> None:
     if not carved:
         raise SystemExit("no NpcSfx[N] symbols in config/data.cfg")
     upsert_map(carved, owned_dirs=["actor_tables"])
-    print("  updated config/split.cfg. Now run: make verify")

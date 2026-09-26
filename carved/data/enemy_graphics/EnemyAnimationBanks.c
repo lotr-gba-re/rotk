@@ -1,0 +1,180 @@
+#include "spriteAnimation.h"
+#include "variables.h"
+
+// clang-format off
+
+/**
+ * Per-enemy-type animation banks. Each row has one pointer per pose to five
+ * directional SpriteAnimation descriptors.
+ *
+ * @romaddress 0x08056820
+ */
+const SpriteAnimation *const EnemyAnimationBanks[ENEMY_TYPE_COUNT][ENEMY_ANIMATION_POSE_COUNT] = {
+    // [0] ENEMY_TYPE_GOBLIN_SCOUT
+    { EnemyAnimationBank_EnemyTypeGoblinScout_Walk, EnemyAnimationBank_EnemyTypeGoblinScout_Stand, EnemyAnimationBank_EnemyTypeGoblinScout_Death, EnemyAnimationBank_EnemyTypeGoblinScout_Stagger, EnemyAnimationBank_EnemyTypeGoblinScout_Stunned, EnemyAnimationBank_EnemyTypeGoblinScout_Attack },
+    // [1] ENEMY_TYPE_GOBLIN
+    { EnemyAnimationBank_EnemyTypeGoblinScout_Walk, EnemyAnimationBank_EnemyTypeGoblinScout_Stand, EnemyAnimationBank_EnemyTypeGoblinScout_Death, EnemyAnimationBank_EnemyTypeGoblinScout_Stagger, EnemyAnimationBank_EnemyTypeGoblinScout_Stunned, EnemyAnimationBank_EnemyTypeGoblinScout_Attack },
+    // [2] ENEMY_TYPE_GOBLIN_ELITE
+    { EnemyAnimationBank_EnemyTypeGoblinScout_Walk, EnemyAnimationBank_EnemyTypeGoblinScout_Stand, EnemyAnimationBank_EnemyTypeGoblinScout_Death, EnemyAnimationBank_EnemyTypeGoblinScout_Stagger, EnemyAnimationBank_EnemyTypeGoblinScout_Stunned, EnemyAnimationBank_EnemyTypeGoblinScout_Attack },
+    // [3] ENEMY_TYPE_GOBLIN_ARCHER
+    { EnemyAnimationBank_EnemyTypeGoblinArcher_Walk, EnemyAnimationBank_EnemyTypeGoblinArcher_Stand, EnemyAnimationBank_EnemyTypeGoblinArcher_Death, EnemyAnimationBank_EnemyTypeGoblinArcher_Stagger, EnemyAnimationBank_EnemyTypeGoblinArcher_Stunned, EnemyAnimationBank_EnemyTypeGoblinArcher_Attack },
+    // [4] ENEMY_TYPE_GOBLIN_ARCHER_ELITE
+    { EnemyAnimationBank_EnemyTypeGoblinArcher_Walk, EnemyAnimationBank_EnemyTypeGoblinArcher_Stand, EnemyAnimationBank_EnemyTypeGoblinArcher_Death, EnemyAnimationBank_EnemyTypeGoblinArcher_Stagger, EnemyAnimationBank_EnemyTypeGoblinArcher_Stunned, EnemyAnimationBank_EnemyTypeGoblinArcher_Attack },
+    // [5] ENEMY_TYPE_ORC_DRUMMER
+    { EnemyAnimationBank_EnemyTypeOrcDrummer_Walk, EnemyAnimationBank_EnemyTypeOrcDrummer_Stand, EnemyAnimationBank_EnemyTypeOrcDrummer_Death, EnemyAnimationBank_EnemyTypeOrcDrummer_Stagger, EnemyAnimationBank_EnemyTypeOrcDrummer_Stand, EnemyAnimationBank_EnemyTypeOrcDrummer_Walk },
+    // [6] ENEMY_TYPE_ORC_PITCHFORK_1
+    { EnemyAnimationBank_EnemyTypeOrcPitchfork1_Walk, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Stand, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Death, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Stagger, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Stand, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Attack },
+    // [7] ENEMY_TYPE_ORC_PITCHFORK_2
+    { EnemyAnimationBank_EnemyTypeOrcPitchfork1_Walk, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Stand, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Death, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Stagger, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Stand, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Attack },
+    // [8] ENEMY_TYPE_ORC_PITCHFORK_3
+    { EnemyAnimationBank_EnemyTypeOrcPitchfork1_Walk, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Stand, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Death, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Stagger, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Stand, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Attack },
+    // [9] ENEMY_TYPE_ORC_PITCHFORK_4
+    { EnemyAnimationBank_EnemyTypeOrcPitchfork1_Walk, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Stand, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Death, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Stagger, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Stand, EnemyAnimationBank_EnemyTypeOrcPitchfork1_Attack },
+    // [10] ENEMY_TYPE_ORC_WARRIOR_AXE
+    { EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Walk, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stand, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Death, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stagger, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stand, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Attack },
+    // [11] ENEMY_TYPE_ORC_WARRIOR_ORC_SWORD
+    { EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Walk, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stand, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Death, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stagger, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stand, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Attack },
+    // [12] ENEMY_TYPE_ORC_WARRIOR_MACE
+    { EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Walk, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stand, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Death, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stagger, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stand, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Attack },
+    // [13] ENEMY_TYPE_ORC_WARRIOR_LONGSWORD
+    { EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Walk, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stand, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Death, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stagger, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stand, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Attack },
+    // [14] ENEMY_TYPE_ORC_WARRIOR_ELITE_AXE
+    { EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Walk, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stand, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Death, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stagger, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stand, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Attack },
+    // [15] ENEMY_TYPE_ORC_WARRIOR_ELITE_ORC_SWORD
+    { EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Walk, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stand, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Death, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stagger, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stand, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Attack },
+    // [16] ENEMY_TYPE_ORC_WARRIOR_ELITE_MACE
+    { EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Walk, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stand, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Death, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stagger, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stand, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Attack },
+    // [17] ENEMY_TYPE_ORC_WARRIOR_ELITE_LONGSWORD
+    { EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Walk, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stand, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Death, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stagger, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Stand, EnemyAnimationBank_EnemyTypeOrcWarriorAxe_Attack },
+    // [18] ENEMY_TYPE_ORC_CAPTAIN_ARMORED
+    { EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Walk, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Stand, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Death, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Stagger, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Stunned, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Attack },
+    // [19] ENEMY_TYPE_ORC_CAPTAIN_ARMORED_ELITE
+    { EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Walk, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Stand, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Death, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Stagger, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Stunned, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Attack },
+    // [20] ENEMY_TYPE_ORC_ARCHER
+    { EnemyAnimationBank_EnemyTypeOrcArcher_Walk, EnemyAnimationBank_EnemyTypeOrcArcher_Stand, EnemyAnimationBank_EnemyTypeOrcArcher_Death, EnemyAnimationBank_EnemyTypeOrcArcher_Stagger, EnemyAnimationBank_EnemyTypeOrcArcher_Stunned, EnemyAnimationBank_EnemyTypeOrcArcher_Attack },
+    // [21] ENEMY_TYPE_ORC_ARCHER_ELITE
+    { EnemyAnimationBank_EnemyTypeOrcArcher_Walk, EnemyAnimationBank_EnemyTypeOrcArcher_Stand, EnemyAnimationBank_EnemyTypeOrcArcher_Death, EnemyAnimationBank_EnemyTypeOrcArcher_Stagger, EnemyAnimationBank_EnemyTypeOrcArcher_Stunned, EnemyAnimationBank_EnemyTypeOrcArcher_Attack },
+    // [22] ENEMY_TYPE_ORC_ARCHER_FIRE
+    { EnemyAnimationBank_EnemyTypeOrcArcher_Walk, EnemyAnimationBank_EnemyTypeOrcArcher_Stand, EnemyAnimationBank_EnemyTypeOrcArcher_Death, EnemyAnimationBank_EnemyTypeOrcArcher_Stagger, EnemyAnimationBank_EnemyTypeOrcArcher_Stunned, EnemyAnimationBank_EnemyTypeOrcArcher_Attack },
+    // [23] ENEMY_TYPE_ORC_ARCHER_POISON
+    { EnemyAnimationBank_EnemyTypeOrcArcher_Walk, EnemyAnimationBank_EnemyTypeOrcArcher_Stand, EnemyAnimationBank_EnemyTypeOrcArcher_Death, EnemyAnimationBank_EnemyTypeOrcArcher_Stagger, EnemyAnimationBank_EnemyTypeOrcArcher_Stunned, EnemyAnimationBank_EnemyTypeOrcArcher_Attack },
+    // [24] ENEMY_TYPE_ORC_CAPTAIN_UNARMORED
+    { EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Walk, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Stand, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Death, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Stagger, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Stunned, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Attack },
+    // [25] ENEMY_TYPE_ORC_CAPTAIN_UNARMORED_ELITE
+    { EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Walk, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Stand, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Death, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Stagger, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Stunned, EnemyAnimationBank_EnemyTypeOrcCaptainArmored_Attack },
+    // [26] ENEMY_TYPE_ORC_AXE_THROWER
+    { EnemyAnimationBank_EnemyTypeOrcAxeThrower_Walk, EnemyAnimationBank_EnemyTypeOrcAxeThrower_Stand, EnemyAnimationBank_EnemyTypeOrcAxeThrower_Death, EnemyAnimationBank_EnemyTypeOrcAxeThrower_Stagger, EnemyAnimationBank_EnemyTypeOrcAxeThrower_Stunned, EnemyAnimationBank_EnemyTypeOrcAxeThrower_Attack },
+    // [27] ENEMY_TYPE_ORC_AXE_THROWER_ELITE
+    { EnemyAnimationBank_EnemyTypeOrcAxeThrower_Walk, EnemyAnimationBank_EnemyTypeOrcAxeThrower_Stand, EnemyAnimationBank_EnemyTypeOrcAxeThrower_Death, EnemyAnimationBank_EnemyTypeOrcAxeThrower_Stagger, EnemyAnimationBank_EnemyTypeOrcAxeThrower_Stunned, EnemyAnimationBank_EnemyTypeOrcAxeThrower_Attack },
+    // [28] ENEMY_TYPE_ORC_FLAGBEARER
+    { EnemyAnimationBank_EnemyTypeOrcFlagbearer_Walk, EnemyAnimationBank_EnemyTypeOrcFlagbearer_Stand, EnemyAnimationBank_EnemyTypeOrcFlagbearer_Death, EnemyAnimationBank_EnemyTypeOrcFlagbearer_Stagger, EnemyAnimationBank_EnemyTypeOrcFlagbearer_Stagger, EnemyAnimationBank_EnemyTypeOrcFlagbearer_Attack },
+    // [29] ENEMY_TYPE_ORC_HOPLITE
+    { EnemyAnimationBank_EnemyTypeOrcHoplite_Walk, EnemyAnimationBank_EnemyTypeOrcHoplite_Stand, EnemyAnimationBank_EnemyTypeOrcHoplite_Death, EnemyAnimationBank_EnemyTypeOrcHoplite_Stand, EnemyAnimationBank_EnemyTypeOrcHoplite_Stand, EnemyAnimationBank_EnemyTypeOrcHoplite_Attack },
+    // [30] ENEMY_TYPE_ORC_HOPLITE_ELITE
+    { EnemyAnimationBank_EnemyTypeOrcHoplite_Walk, EnemyAnimationBank_EnemyTypeOrcHoplite_Stand, EnemyAnimationBank_EnemyTypeOrcHoplite_Death, EnemyAnimationBank_EnemyTypeOrcHoplite_Stand, EnemyAnimationBank_EnemyTypeOrcHoplite_Stand, EnemyAnimationBank_EnemyTypeOrcHoplite_Attack },
+    // [31] ENEMY_TYPE_URUK
+    { EnemyAnimationBank_EnemyTypeUruk_Walk, EnemyAnimationBank_EnemyTypeUruk_Stand, EnemyAnimationBank_EnemyTypeUruk_Death, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Attack },
+    // [32] ENEMY_TYPE_URUK_ELITE
+    { EnemyAnimationBank_EnemyTypeUruk_Walk, EnemyAnimationBank_EnemyTypeUruk_Stand, EnemyAnimationBank_EnemyTypeUruk_Death, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Attack },
+    // [33] ENEMY_TYPE_URUK_CROSSBOWMAN
+    { EnemyAnimationBank_EnemyTypeUrukCrossbowman_Walk, EnemyAnimationBank_EnemyTypeUrukCrossbowman_Stand, EnemyAnimationBank_EnemyTypeUrukCrossbowman_Death, EnemyAnimationBank_EnemyTypeUrukCrossbowman_Stagger, EnemyAnimationBank_EnemyTypeUrukCrossbowman_Stunned, EnemyAnimationBank_EnemyTypeUrukCrossbowman_Attack },
+    // [34] ENEMY_TYPE_URUK_CROSSBOWMAN_ELITE
+    { EnemyAnimationBank_EnemyTypeUrukCrossbowman_Walk, EnemyAnimationBank_EnemyTypeUrukCrossbowman_Stand, EnemyAnimationBank_EnemyTypeUrukCrossbowman_Death, EnemyAnimationBank_EnemyTypeUrukCrossbowman_Stagger, EnemyAnimationBank_EnemyTypeUrukCrossbowman_Stunned, EnemyAnimationBank_EnemyTypeUrukCrossbowman_Attack },
+    // [35] ENEMY_TYPE_URUK_BERSERKER
+    { EnemyAnimationBank_EnemyTypeUruk_Walk, EnemyAnimationBank_EnemyTypeUruk_Stand, EnemyAnimationBank_EnemyTypeUruk_Death, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Attack },
+    // [36] ENEMY_TYPE_URUK_BERSERKER_ELITE
+    { EnemyAnimationBank_EnemyTypeUruk_Walk, EnemyAnimationBank_EnemyTypeUruk_Stand, EnemyAnimationBank_EnemyTypeUruk_Death, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Attack },
+    // [37] ENEMY_TYPE_WILDMAN
+    { EnemyAnimationBank_EnemyTypeWildman_Walk, EnemyAnimationBank_EnemyTypeWildman_Stand, EnemyAnimationBank_EnemyTypeWildman_Death, EnemyAnimationBank_EnemyTypeWildman_Stagger, EnemyAnimationBank_EnemyTypeWildman_Stunned, EnemyAnimationBank_EnemyTypeWildman_Attack },
+    // [38] ENEMY_TYPE_WILDMAN_ELITE
+    { EnemyAnimationBank_EnemyTypeWildman_Walk, EnemyAnimationBank_EnemyTypeWildman_Stand, EnemyAnimationBank_EnemyTypeWildman_Death, EnemyAnimationBank_EnemyTypeWildman_Stagger, EnemyAnimationBank_EnemyTypeWildman_Stunned, EnemyAnimationBank_EnemyTypeWildman_Attack },
+    // [39] ENEMY_TYPE_MOUNTAIN_TROLL
+    { EnemyAnimationBank_EnemyTypeMountainTroll_Walk, EnemyAnimationBank_EnemyTypeMountainTroll_Stand, EnemyAnimationBank_EnemyTypeMountainTroll_Death, EnemyAnimationBank_EnemyTypeMountainTroll_Stand, EnemyAnimationBank_EnemyTypeMountainTroll_Stand, EnemyAnimationBank_EnemyTypeMountainTroll_Attack },
+    // [40] ENEMY_TYPE_HALF_TROLL
+    { EnemyAnimationBank_EnemyTypeHalfTroll_Walk, EnemyAnimationBank_EnemyTypeHalfTroll_Stand, EnemyAnimationBank_EnemyTypeHalfTroll_Death, EnemyAnimationBank_EnemyTypeHalfTroll_Stand, EnemyAnimationBank_EnemyTypeHalfTroll_Stand, EnemyAnimationBank_EnemyTypeHalfTroll_Attack },
+    // [41] ENEMY_TYPE_SPIDER
+    { EnemyAnimationBank_EnemyTypeSpider_Walk, EnemyAnimationBank_EnemyTypeSpider_Stand, EnemyAnimationBank_EnemyTypeSpider_Death, EnemyAnimationBank_EnemyTypeSpider_Stand, EnemyAnimationBank_EnemyTypeSpider_Stand, EnemyAnimationBank_EnemyTypeSpider_Attack },
+    // [42] ENEMY_TYPE_SPIDER_RED
+    { EnemyAnimationBank_EnemyTypeSpider_Walk, EnemyAnimationBank_EnemyTypeSpider_Stand, EnemyAnimationBank_EnemyTypeSpider_Death, EnemyAnimationBank_EnemyTypeSpider_Stand, EnemyAnimationBank_EnemyTypeSpider_Stand, EnemyAnimationBank_EnemyTypeSpider_Attack },
+    // [43] ENEMY_TYPE_SPIDER_GREEN
+    { EnemyAnimationBank_EnemyTypeSpider_Walk, EnemyAnimationBank_EnemyTypeSpider_Stand, EnemyAnimationBank_EnemyTypeSpider_Death, EnemyAnimationBank_EnemyTypeSpider_Stand, EnemyAnimationBank_EnemyTypeSpider_Stand, EnemyAnimationBank_EnemyTypeSpider_Attack },
+    // [44] ENEMY_TYPE_SPIDER_SMALL
+    { EnemyAnimationBank_EnemyTypeSpiderSmall_Walk, EnemyAnimationBank_EnemyTypeSpiderSmall_Stand, EnemyAnimationBank_EnemyTypeSpiderSmall_Death, EnemyAnimationBank_EnemyTypeSpiderSmall_Stand, EnemyAnimationBank_EnemyTypeSpiderSmall_Stand, EnemyAnimationBank_EnemyTypeSpiderSmall_Attack },
+    // [45] ENEMY_TYPE_CORSAIR
+    { EnemyAnimationBank_EnemyTypeCorsair_Walk, EnemyAnimationBank_EnemyTypeCorsair_Stand, EnemyAnimationBank_EnemyTypeCorsair_Death, EnemyAnimationBank_EnemyTypeCorsair_Stagger, EnemyAnimationBank_EnemyTypeCorsair_Stagger, EnemyAnimationBank_EnemyTypeCorsair_Attack },
+    // [46] ENEMY_TYPE_CORSAIR_ELITE
+    { EnemyAnimationBank_EnemyTypeCorsair_Walk, EnemyAnimationBank_EnemyTypeCorsair_Stand, EnemyAnimationBank_EnemyTypeCorsair_Death, EnemyAnimationBank_EnemyTypeCorsair_Stagger, EnemyAnimationBank_EnemyTypeCorsair_Stagger, EnemyAnimationBank_EnemyTypeCorsair_Attack },
+    // [47] ENEMY_TYPE_CORSAIR_CAPTAIN
+    { EnemyAnimationBank_EnemyTypeCorsair_Walk, EnemyAnimationBank_EnemyTypeCorsair_Stand, EnemyAnimationBank_EnemyTypeCorsair_Death, EnemyAnimationBank_EnemyTypeCorsair_Stagger, EnemyAnimationBank_EnemyTypeCorsair_Stagger, EnemyAnimationBank_EnemyTypeCorsair_Attack },
+    // [48] ENEMY_TYPE_WARG
+    { EnemyAnimationBank_EnemyTypeWarg_Walk, EnemyAnimationBank_EnemyTypeWarg_Stand, EnemyAnimationBank_EnemyTypeWarg_Death, EnemyAnimationBank_EnemyTypeWarg_Stagger, EnemyAnimationBank_EnemyTypeWarg_Stand, EnemyAnimationBank_EnemyTypeWarg_Attack },
+    // [49] ENEMY_TYPE_WARG_ELITE
+    { EnemyAnimationBank_EnemyTypeWarg_Walk, EnemyAnimationBank_EnemyTypeWarg_Stand, EnemyAnimationBank_EnemyTypeWarg_Death, EnemyAnimationBank_EnemyTypeWarg_Stagger, EnemyAnimationBank_EnemyTypeWarg_Stand, EnemyAnimationBank_EnemyTypeWarg_Attack },
+    // [50] ENEMY_TYPE_HARADRIM_ARCHER
+    { EnemyAnimationBank_EnemyTypeHaradrimArcher_Walk, EnemyAnimationBank_EnemyTypeHaradrimArcher_Stand, EnemyAnimationBank_EnemyTypeHaradrimArcher_Death, EnemyAnimationBank_EnemyTypeHaradrimArcher_Stand, EnemyAnimationBank_EnemyTypeHaradrimArcher_Stand, EnemyAnimationBank_EnemyTypeHaradrimArcher_Attack },
+    // [51] ENEMY_TYPE_HARADRIM_ARCHER_ELITE
+    { EnemyAnimationBank_EnemyTypeHaradrimArcher_Walk, EnemyAnimationBank_EnemyTypeHaradrimArcher_Stand, EnemyAnimationBank_EnemyTypeHaradrimArcher_Death, EnemyAnimationBank_EnemyTypeHaradrimArcher_Stand, EnemyAnimationBank_EnemyTypeHaradrimArcher_Stand, EnemyAnimationBank_EnemyTypeHaradrimArcher_Attack },
+    // [52] ENEMY_TYPE_EASTERLING_HEAVY
+    { EnemyAnimationBank_EnemyTypeEasterlingHeavy_Walk, EnemyAnimationBank_EnemyTypeEasterlingHeavy_Stand, EnemyAnimationBank_EnemyTypeEasterlingHeavy_Death, EnemyAnimationBank_EnemyTypeEasterlingHeavy_Stagger, EnemyAnimationBank_EnemyTypeEasterlingHeavy_Stagger, EnemyAnimationBank_EnemyTypeEasterlingHeavy_Attack },
+    // [53] ENEMY_TYPE_EASTERLING_LIGHT
+    { EnemyAnimationBank_EnemyTypeEasterlingHeavy_Walk, EnemyAnimationBank_EnemyTypeEasterlingHeavy_Stand, EnemyAnimationBank_EnemyTypeEasterlingHeavy_Death, EnemyAnimationBank_EnemyTypeEasterlingHeavy_Stagger, EnemyAnimationBank_EnemyTypeEasterlingHeavy_Stagger, EnemyAnimationBank_EnemyTypeEasterlingHeavy_Attack },
+    // [54] ENEMY_TYPE_EASTERLING_ELITE
+    { EnemyAnimationBank_EnemyTypeEasterlingHeavy_Walk, EnemyAnimationBank_EnemyTypeEasterlingHeavy_Stand, EnemyAnimationBank_EnemyTypeEasterlingHeavy_Death, EnemyAnimationBank_EnemyTypeEasterlingHeavy_Stagger, EnemyAnimationBank_EnemyTypeEasterlingHeavy_Stagger, EnemyAnimationBank_EnemyTypeEasterlingHeavy_Attack },
+    // [55] ENEMY_TYPE_CREBAIN
+    { EnemyAnimationBank_EnemyTypeCrebain_Walk, EnemyAnimationBank_EnemyTypeCrebain_Stand, EnemyAnimationBank_EnemyTypeCrebain_Death, EnemyAnimationBank_EnemyTypeCrebain_Walk, EnemyAnimationBank_EnemyTypeCrebain_Walk, EnemyAnimationBank_EnemyTypeCrebain_Attack },
+    // [56] ENEMY_TYPE_BAT
+    { EnemyAnimationBank_EnemyTypeBat_Walk, EnemyAnimationBank_EnemyTypeBat_Stand, EnemyAnimationBank_EnemyTypeBat_Death, EnemyAnimationBank_EnemyTypeBat_Walk, EnemyAnimationBank_EnemyTypeBat_Walk, EnemyAnimationBank_EnemyTypeBat_Attack },
+    // [57] ENEMY_TYPE_GHOST
+    { EnemyAnimationBank_EnemyTypeGhost_Walk, EnemyAnimationBank_EnemyTypeGhost_Stand, EnemyAnimationBank_EnemyTypeGhost_Death, EnemyAnimationBank_EnemyTypeGhost_Stand, EnemyAnimationBank_EnemyTypeGhost_Stand, EnemyAnimationBank_EnemyTypeGhost_Attack },
+    // [58] ENEMY_TYPE_NAZGUL
+    { EnemyAnimationBank_EnemyTypeNazgul_Walk, EnemyAnimationBank_EnemyTypeNazgul_Walk, EnemyAnimationBank_EnemyTypeNazgul_Death, EnemyAnimationBank_EnemyTypeNazgul_Stagger, EnemyAnimationBank_EnemyTypeNazgul_Stagger, EnemyAnimationBank_EnemyTypeNazgul_Attack },
+    // [59] ENEMY_TYPE_FLY_SWARM
+    { EnemyAnimationBank_EnemyTypeFlySwarm_Walk, EnemyAnimationBank_EnemyTypeFlySwarm_Walk, EnemyAnimationBank_EnemyTypeFlySwarm_Walk, EnemyAnimationBank_EnemyTypeFlySwarm_Walk, EnemyAnimationBank_EnemyTypeFlySwarm_Walk, EnemyAnimationBank_EnemyTypeFlySwarm_Walk },
+    // [60] ENEMY_TYPE_SHELOB
+    { EnemyAnimationBank_EnemyTypeShelob_Walk, EnemyAnimationBank_EnemyTypeShelob_Walk, EnemyAnimationBank_EnemyTypeShelob_Death, EnemyAnimationBank_EnemyTypeShelob_Stagger, EnemyAnimationBank_EnemyTypeShelob_Stagger, EnemyAnimationBank_EnemyTypeShelob_Attack },
+    // [61] ENEMY_TYPE_GROND
+    { EnemyAnimationBank_EnemyTypeGrond_Walk, EnemyAnimationBank_EnemyTypeGrond_Walk, EnemyAnimationBank_EnemyTypeGrond_Death, EnemyAnimationBank_EnemyTypeGrond_Walk, EnemyAnimationBank_EnemyTypeGrond_Walk, EnemyAnimationBank_EnemyTypeGrond_Walk },
+    // [62] ENEMY_TYPE_SARUMAN
+    { EnemyAnimationBank_EnemyTypeSaruman_Walk, EnemyAnimationBank_EnemyTypeSaruman_Stand, EnemyAnimationBank_EnemyTypeSaruman_Death, EnemyAnimationBank_EnemyTypeSaruman_Stagger, EnemyAnimationBank_EnemyTypeSaruman_Stand, EnemyAnimationBank_EnemyTypeSaruman_Attack },
+    // [63] ENEMY_TYPE_DENETHOR
+    { EnemyAnimationBank_EnemyTypeDenethor_Walk, EnemyAnimationBank_EnemyTypeDenethor_Stand, EnemyAnimationBank_EnemyTypeDenethor_Death, EnemyAnimationBank_EnemyTypeDenethor_Walk, EnemyAnimationBank_EnemyTypeDenethor_Stunned, EnemyAnimationBank_EnemyTypeDenethor_Attack },
+    // [64] ENEMY_TYPE_WITCH_KING
+    { EnemyAnimationBank_EnemyTypeWitchKing_Walk, EnemyAnimationBank_EnemyTypeWitchKing_Walk, EnemyAnimationBank_EnemyTypeWitchKing_Death, EnemyAnimationBank_EnemyTypeWitchKing_Stagger, EnemyAnimationBank_EnemyTypeWitchKing_Walk, EnemyAnimationBank_EnemyTypeWitchKing_Attack },
+    // [65] ENEMY_TYPE_GOLLUM
+    { EnemyAnimationBank_EnemyTypeGollum_Walk, EnemyAnimationBank_EnemyTypeGollum_Stand, EnemyAnimationBank_EnemyTypeGollum_Death, EnemyAnimationBank_EnemyTypeGollum_Stand, EnemyAnimationBank_EnemyTypeGollum_Stand, EnemyAnimationBank_EnemyTypeGollum_Attack },
+    // [66] ENEMY_TYPE_MUMAKIL
+    { EnemyAnimationBank_EnemyTypeMumakil_Walk, EnemyAnimationBank_EnemyTypeMumakil_Stand, EnemyAnimationBank_EnemyTypeMumakil_Death, EnemyAnimationBank_EnemyTypeMumakil_Walk, EnemyAnimationBank_EnemyTypeMumakil_Walk, EnemyAnimationBank_EnemyTypeMumakil_Attack },
+    // [67] ENEMY_TYPE_KING_OF_THE_DEAD
+    { EnemyAnimationBank_EnemyTypeKingOfTheDead_Walk, EnemyAnimationBank_EnemyTypeKingOfTheDead_Walk, EnemyAnimationBank_EnemyTypeKingOfTheDead_Walk, EnemyAnimationBank_EnemyTypeKingOfTheDead_Walk, EnemyAnimationBank_EnemyTypeKingOfTheDead_Walk, EnemyAnimationBank_EnemyTypeKingOfTheDead_Attack },
+    // [68] ENEMY_TYPE_MOUTH_OF_SAURON
+    { EnemyAnimationBank_EnemyTypeMouthOfSauron_Walk, EnemyAnimationBank_EnemyTypeMouthOfSauron_Stand, EnemyAnimationBank_EnemyTypeMouthOfSauron_Death, EnemyAnimationBank_EnemyTypeMouthOfSauron_Death, EnemyAnimationBank_EnemyTypeMouthOfSauron_Stand, EnemyAnimationBank_EnemyTypeMouthOfSauron_Attack },
+    // [69] ENEMY_TYPE_FLYING_NAZGUL
+    { EnemyAnimationBank_EnemyTypeFlyingNazgul_Walk, EnemyAnimationBank_EnemyTypeFlyingNazgul_Walk, EnemyAnimationBank_EnemyTypeFlyingNazgul_Death, EnemyAnimationBank_EnemyTypeFlyingNazgul_Walk, EnemyAnimationBank_EnemyTypeFlyingNazgul_Walk, EnemyAnimationBank_EnemyTypeFlyingNazgul_Attack },
+    // [70] ENEMY_TYPE_GROUND_SKELETON
+    { EnemyAnimationBank_EnemyTypeGroundSkeleton_Walk, EnemyAnimationBank_EnemyTypeGroundSkeleton_Walk, EnemyAnimationBank_EnemyTypeGroundSkeleton_Death, EnemyAnimationBank_EnemyTypeGroundSkeleton_Stagger, EnemyAnimationBank_EnemyTypeGroundSkeleton_Stagger, EnemyAnimationBank_EnemyTypeGroundSkeleton_Walk },
+    // [71] ENEMY_TYPE_SKELETON_WARRIOR
+    { EnemyAnimationBank_EnemyTypeSkeletonWarrior_Walk, EnemyAnimationBank_EnemyTypeSkeletonWarrior_Stand, EnemyAnimationBank_EnemyTypeSkeletonWarrior_Death, EnemyAnimationBank_EnemyTypeSkeletonWarrior_Stagger, EnemyAnimationBank_EnemyTypeSkeletonWarrior_Stagger, EnemyAnimationBank_EnemyTypeSkeletonWarrior_Attack },
+    // [72] ENEMY_TYPE_SKELETON_WARRIOR_ELITE
+    { EnemyAnimationBank_EnemyTypeSkeletonWarrior_Walk, EnemyAnimationBank_EnemyTypeSkeletonWarrior_Stand, EnemyAnimationBank_EnemyTypeSkeletonWarrior_Death, EnemyAnimationBank_EnemyTypeSkeletonWarrior_Stagger, EnemyAnimationBank_EnemyTypeSkeletonWarrior_Stagger, EnemyAnimationBank_EnemyTypeSkeletonWarrior_Attack },
+    // [73] ENEMY_TYPE_GONDOR_SOLDIER
+    { EnemyAnimationBank_EnemyTypeGondorSoldier_Walk, EnemyAnimationBank_EnemyTypeGondorSoldier_Stand, EnemyAnimationBank_EnemyTypeGondorSoldier_Death, EnemyAnimationBank_EnemyTypeGondorSoldier_Stand, EnemyAnimationBank_EnemyTypeGondorSoldier_Stand, EnemyAnimationBank_EnemyTypeGondorSoldier_Attack },
+    // [74] ENEMY_TYPE_UNUSED_74
+    { EnemyAnimationBank_EnemyTypeUruk_Walk, EnemyAnimationBank_EnemyTypeUruk_Stand, EnemyAnimationBank_EnemyTypeUruk_Death, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Attack },
+    // [75] ENEMY_TYPE_UNUSED_75
+    { EnemyAnimationBank_EnemyTypeUruk_Walk, EnemyAnimationBank_EnemyTypeUruk_Stand, EnemyAnimationBank_EnemyTypeUruk_Death, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Attack },
+    // [76] ENEMY_TYPE_UNUSED_76
+    { EnemyAnimationBank_EnemyTypeUruk_Walk, EnemyAnimationBank_EnemyTypeUruk_Stand, EnemyAnimationBank_EnemyTypeUruk_Death, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Attack },
+    // [77] ENEMY_TYPE_UNUSED_77
+    { EnemyAnimationBank_EnemyTypeUruk_Walk, EnemyAnimationBank_EnemyTypeUruk_Stand, EnemyAnimationBank_EnemyTypeUruk_Death, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Attack },
+    // [78] ENEMY_TYPE_UNUSED_78
+    { EnemyAnimationBank_EnemyTypeUruk_Walk, EnemyAnimationBank_EnemyTypeUruk_Stand, EnemyAnimationBank_EnemyTypeUruk_Death, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Attack },
+    // [79] ENEMY_TYPE_UNUSED_79
+    { EnemyAnimationBank_EnemyTypeUruk_Walk, EnemyAnimationBank_EnemyTypeUruk_Stand, EnemyAnimationBank_EnemyTypeUruk_Death, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Attack },
+    // [80] ENEMY_TYPE_UNUSED_SHELOB_CLONE
+    { EnemyAnimationBank_EnemyTypeShelob_Walk, EnemyAnimationBank_EnemyTypeShelob_Walk, EnemyAnimationBank_EnemyTypeShelob_Death, EnemyAnimationBank_EnemyTypeShelob_Stagger, EnemyAnimationBank_EnemyTypeShelob_Stagger, EnemyAnimationBank_EnemyTypeShelob_Attack },
+    // [81] ENEMY_TYPE_UNUSED_81
+    { EnemyAnimationBank_EnemyTypeUruk_Walk, EnemyAnimationBank_EnemyTypeUruk_Stand, EnemyAnimationBank_EnemyTypeUruk_Death, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Attack },
+    // [82] ENEMY_TYPE_UNUSED_82
+    { NULL, NULL, NULL, NULL, NULL, NULL },
+};
+// clang-format on

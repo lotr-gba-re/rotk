@@ -6,7 +6,7 @@ Table-specific layouts live with their carver.
 import os
 import re
 import textwrap
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Annotated
 
@@ -144,6 +144,17 @@ def entry_comment(index: int, label: str) -> str:
     return f'// [{index}] "{label}"'
 
 
+def enum_entry_comment(
+    index: int, enum_names: Mapping[int, str] | Sequence[str]
+) -> str:
+    """The `// [index] ENUM_NAME` comment above an enum-indexed table entry."""
+    try:
+        name = enum_names[index]
+    except (IndexError, KeyError):
+        raise SystemExit(f"enum has no name for table index {index}") from None
+    return f"// [{index}] {name}"
+
+
 def doc_comment(addr: int, description: list[str] | None = None) -> list[str]:
     """Doxygen doc block for a carved definition, in the src/c docstring format:
     description lines, a blank separator, then @romaddress. An empty string in
@@ -159,13 +170,50 @@ def doc_comment(addr: int, description: list[str] | None = None) -> list[str]:
 
 
 def write_sheet(
-    category: str, images: list[png.IndexedImage], labels: list[str] | None
+    category: str,
+    images: list[png.IndexedImage],
+    labels: list[str | Sequence[str]] | None,
+    label_separator: str = " | ",
+    isolated: Sequence[int] = (),
+    per_row: bool = False,
 ) -> None:
     """Draw one category's viewing aid at carved-local/gfx/reference-sheets/<category>.png,
     mirroring the category's own path under carved-local/gfx/."""
     path = GFX_SHEETS / f"{category}.png"
     os.makedirs(path.parent, exist_ok=True)
-    png.write_sheet(str(path), images, labels)
+    png.write_sheet(
+        str(path),
+        images,
+        labels,
+        label_separator=label_separator,
+        isolated=isolated,
+        per_row=per_row,
+    )
+
+
+def write_animated_sheet(
+    category: str,
+    animations: list[Sequence[png.IndexedImage]],
+    labels: list[str | Sequence[str]] | None,
+    duration: int = 100,
+    label_separator: str = " | ",
+    isolated: Sequence[int] = (),
+    per_row: bool = False,
+    frame_times: Sequence[Sequence[int]] | None = None,
+) -> None:
+    """Write an animated reference sheet under carved-local/gfx/reference-sheets."""
+    path = GFX_SHEETS / f"{category}.gif"
+    os.makedirs(path.parent, exist_ok=True)
+    png.write_animated_sheet(
+        str(path),
+        animations,
+        labels,
+        duration=duration,
+        label_separator=label_separator,
+        isolated=isolated,
+        per_row=per_row,
+        frame_times=frame_times,
+    )
 
 
 def keep_rom_copy(
@@ -294,15 +342,19 @@ def upsert_map(
     entries: list[tuple[int, str]],
     owned_dirs: Sequence[str] = (),
     owned_files: Sequence[str] = (),
+    owned_prefixes: Sequence[str] = (),
 ) -> str:
-    """Merge (addr, 'carved/data/...') rows into split.cfg, keyed by path. Owned rows
-    that no entry re-creates are stale (merged or renamed files), so drop their rows and
-    source files. Exact file ownership lets carvers share one output directory."""
+    """Merge (addr, source) rows into split.cfg, keyed by path. Drop stale owned rows
+    and source files when a carver merges or renames its outputs."""
     rows = stores.read_split() if os.path.isfile(SPLIT_CFG) else {}
     fresh = {src for _addr, src in entries}
     for src in list(rows):
-        owned = src in owned_files or any(
-            src.startswith(f"carved/data/{directory}/") for directory in owned_dirs
+        owned = (
+            src in owned_files
+            or any(
+                src.startswith(f"carved/data/{directory}/") for directory in owned_dirs
+            )
+            or any(src.startswith(prefix) for prefix in owned_prefixes)
         )
         if owned and src not in fresh:
             del rows[src]

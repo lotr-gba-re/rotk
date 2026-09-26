@@ -3,23 +3,119 @@
 #include "actor.h"
 #include "types.h"
 
-/**
- * Creature family (EnemyTypeInfo.category); selects the attacker's STAT_DAMAGE_TO_* bonus in
- * combat_getEnemyTypeDamageBonus. 0 = no family (no per-family damage bonus applies).
- * 1-byte enum. agbcc honors __attribute__((packed)); Ghidra's C parser hardcodes enum size to 4
- * (issue #4518) but apply_symbols.py resizes enums to their minimal width after parsing, keeping
- * the packed EnemyTypeInfo layout intact.
- */
-typedef enum CreatureCategory
+/** Enemy family used to select the matching STAT_DAMAGE_TO_* bonus. */
+typedef enum EnemyFamily
 {
-    CREATURE_NONE = 0,
-    CREATURE_ANIMALS = 1,
-    CREATURE_CREBAIN = 2,
-    CREATURE_WARGS = 3,
-    CREATURE_ORCS = 4,
-    CREATURE_URUKHAI = 5,
-    CREATURE_NAZGUL = 6,
-} __attribute__((packed)) CreatureCategory;
+    ENEMY_FAMILY_NONE = 0,
+    ENEMY_FAMILY_ANIMALS = 1,
+    ENEMY_FAMILY_CREBAIN = 2,
+    ENEMY_FAMILY_WARGS = 3,
+    ENEMY_FAMILY_ORCS = 4,
+    ENEMY_FAMILY_URUKHAI = 5,
+    ENEMY_FAMILY_NAZGUL = 6,
+} __attribute__((packed)) EnemyFamily;
+
+/** Enemy archetypes used by the parallel enemy info, SFX, loot, and graphics tables. */
+typedef enum EnemyType
+{
+    ENEMY_TYPE_GOBLIN_SCOUT = 0,
+    ENEMY_TYPE_GOBLIN = 1,
+    ENEMY_TYPE_GOBLIN_ELITE = 2,
+    ENEMY_TYPE_GOBLIN_ARCHER = 3,
+    ENEMY_TYPE_GOBLIN_ARCHER_ELITE = 4,
+    ENEMY_TYPE_ORC_DRUMMER = 5,
+    ENEMY_TYPE_ORC_PITCHFORK_1 = 6, // Pitchf-orcs are all almost the same. Variant chosen at random
+    ENEMY_TYPE_ORC_PITCHFORK_2 = 7, // Pitchf-orcs are all almost the same. Variant chosen at random
+    ENEMY_TYPE_ORC_PITCHFORK_3 = 8, // Pitchf-orcs are all almost the same. Variant chosen at random
+    ENEMY_TYPE_ORC_PITCHFORK_4 = 9, // Pitchf-orcs are all almost the same. Variant chosen at random
+    ENEMY_TYPE_ORC_WARRIOR_AXE = 10,
+    ENEMY_TYPE_ORC_WARRIOR_ORC_SWORD = 11,
+    ENEMY_TYPE_ORC_WARRIOR_MACE = 12,
+    ENEMY_TYPE_ORC_WARRIOR_LONGSWORD = 13,
+    ENEMY_TYPE_ORC_WARRIOR_ELITE_AXE = 14,
+    ENEMY_TYPE_ORC_WARRIOR_ELITE_ORC_SWORD = 15,
+    ENEMY_TYPE_ORC_WARRIOR_ELITE_MACE = 16,
+    ENEMY_TYPE_ORC_WARRIOR_ELITE_LONGSWORD = 17,
+    ENEMY_TYPE_ORC_CAPTAIN_ARMORED = 18,
+    ENEMY_TYPE_ORC_CAPTAIN_ARMORED_ELITE = 19,
+    ENEMY_TYPE_ORC_ARCHER = 20,
+    ENEMY_TYPE_ORC_ARCHER_ELITE = 21,
+    ENEMY_TYPE_ORC_ARCHER_FIRE = 22,
+    ENEMY_TYPE_ORC_ARCHER_POISON = 23,
+    ENEMY_TYPE_ORC_CAPTAIN_UNARMORED = 24,
+    ENEMY_TYPE_ORC_CAPTAIN_UNARMORED_ELITE = 25,
+    ENEMY_TYPE_ORC_AXE_THROWER = 26,
+    ENEMY_TYPE_ORC_AXE_THROWER_ELITE = 27,
+    ENEMY_TYPE_ORC_FLAGBEARER = 28,
+    ENEMY_TYPE_ORC_HOPLITE = 29,
+    ENEMY_TYPE_ORC_HOPLITE_ELITE = 30,
+    ENEMY_TYPE_URUK = 31,
+    ENEMY_TYPE_URUK_ELITE = 32,
+    ENEMY_TYPE_URUK_CROSSBOWMAN = 33,
+    ENEMY_TYPE_URUK_CROSSBOWMAN_ELITE = 34,
+    ENEMY_TYPE_URUK_BERSERKER = 35,
+    ENEMY_TYPE_URUK_BERSERKER_ELITE = 36,
+    ENEMY_TYPE_WILDMAN = 37,
+    ENEMY_TYPE_WILDMAN_ELITE = 38,
+    ENEMY_TYPE_MOUNTAIN_TROLL = 39,
+    ENEMY_TYPE_HALF_TROLL = 40,
+    ENEMY_TYPE_SPIDER = 41,
+    ENEMY_TYPE_SPIDER_RED = 42,
+    ENEMY_TYPE_SPIDER_GREEN = 43,
+    ENEMY_TYPE_SPIDER_SMALL = 44,
+    ENEMY_TYPE_CORSAIR = 45,
+    ENEMY_TYPE_CORSAIR_ELITE = 46,
+    ENEMY_TYPE_CORSAIR_CAPTAIN = 47,
+    ENEMY_TYPE_WARG = 48,
+    ENEMY_TYPE_WARG_ELITE = 49,
+    ENEMY_TYPE_HARADRIM_ARCHER = 50,
+    ENEMY_TYPE_HARADRIM_ARCHER_ELITE = 51,
+    ENEMY_TYPE_EASTERLING_HEAVY = 52, // More armor, less acc, def, dmg
+    ENEMY_TYPE_EASTERLING_LIGHT = 53, // More acc, def, dmg, less armor
+    ENEMY_TYPE_EASTERLING_ELITE = 54,
+    ENEMY_TYPE_CREBAIN = 55,
+    ENEMY_TYPE_BAT = 56,
+    ENEMY_TYPE_GHOST = 57,
+    ENEMY_TYPE_NAZGUL = 58,
+    ENEMY_TYPE_FLY_SWARM = 59,
+    ENEMY_TYPE_SHELOB = 60,
+    ENEMY_TYPE_GROND = 61,
+    ENEMY_TYPE_SARUMAN = 62,
+    ENEMY_TYPE_DENETHOR = 63,
+    ENEMY_TYPE_WITCH_KING = 64,
+    ENEMY_TYPE_GOLLUM = 65,
+    ENEMY_TYPE_MUMAKIL = 66,
+    ENEMY_TYPE_KING_OF_THE_DEAD = 67,
+    ENEMY_TYPE_MOUTH_OF_SAURON = 68,
+    ENEMY_TYPE_FLYING_NAZGUL = 69,
+    ENEMY_TYPE_GROUND_SKELETON = 70,
+    ENEMY_TYPE_SKELETON_WARRIOR = 71,
+    ENEMY_TYPE_SKELETON_WARRIOR_ELITE = 72,
+    ENEMY_TYPE_GONDOR_SOLDIER = 73,
+    ENEMY_TYPE_UNUSED_74 = 74,
+    ENEMY_TYPE_UNUSED_75 = 75,
+    ENEMY_TYPE_UNUSED_76 = 76,
+    ENEMY_TYPE_UNUSED_77 = 77,
+    ENEMY_TYPE_UNUSED_78 = 78,
+    ENEMY_TYPE_UNUSED_79 = 79,
+    ENEMY_TYPE_UNUSED_SHELOB_CLONE = 80, // Unused Shelob clone
+    ENEMY_TYPE_UNUSED_81 = 81,
+    ENEMY_TYPE_UNUSED_82 = 82,
+    ENEMY_TYPE_COUNT = 83,
+} EnemyType;
+
+/** Animation pose slots in EnemyAnimationBanks. */
+typedef enum EnemyAnimationPose
+{
+    ENEMY_ANIMATION_POSE_WALK = 0,
+    ENEMY_ANIMATION_POSE_STAND = 1,
+    ENEMY_ANIMATION_POSE_DEATH = 2,
+    ENEMY_ANIMATION_POSE_STAGGER = 3,
+    ENEMY_ANIMATION_POSE_STUNNED = 4,
+    ENEMY_ANIMATION_POSE_ATTACK = 5,
+    ENEMY_ANIMATION_POSE_COUNT = 6,
+} EnemyAnimationPose;
+
 /**
  * EnemyTypeInfo.attackFlags - describes how this enemy's own attack hits a player, read by the
  * enemy->player armor path. Bits 0/1 are the two
@@ -84,7 +180,7 @@ typedef union EnemyAttackFlags {
 #define STATUS_FRAMES_PER_POWER 30
 
 /**
- * Per-enemy-type record; EnemyTypes @0x08057518 (83 entries, indexed by Actor.unitType).
+ * Per-enemy-type record; EnemyTypeInfos @0x08057518 (83 entries, indexed by Actor.unitType).
  * All player-facing combat stats of an enemy come from here - enemies have no per-instance stat
  * vector like the players' Player.stats.
  */
@@ -149,13 +245,13 @@ typedef struct EnemyTypeInfo
     u8 poisonPower;
 
     u8 fearPower;
-    CreatureCategory category;
+    EnemyFamily family;
 } EnemyTypeInfo;
 /**
- * Per-enemy-type sound set; EnemySfxSets @0x08057b94 (83 entries, parallel to EnemyTypes,
+ * Per-enemy-type sound set; EnemySfxSets @0x08057b94 (83 entries, parallel to EnemyTypeInfos,
  * indexed by Actor.unitType).
  */
-typedef struct EnemySfx
+typedef struct EnemySfxSet
 {
     /** starting an attack (behavior state machine) */
     u16 attackSfx;
@@ -174,9 +270,9 @@ typedef struct EnemySfx
 
     /** an attack on this enemy whiffs (failed to-hit roll) */
     u16 missSfx;
-} EnemySfx;
+} EnemySfxSet;
 /**
- * Per-enemy-type loot record; EnemyLootInfos @0x08057f78 (83 entries, parallel to EnemyTypes,
+ * Per-enemy-type loot record; EnemyLootInfos @0x08057f78 (83 entries, parallel to EnemyTypeInfos,
  * indexed by Actor.unitType). Read by the loot rolls.
  */
 typedef struct EnemyLootInfo
@@ -197,8 +293,8 @@ typedef struct EnemyLootInfo
     /** +4 carries 95/100/105/110 per entry, +5..+7 are always zero */
     u8 field_0x4[4];
 } EnemyLootInfo;
-u16 combat_getEnemyAccuracy(u16 enemyIndex);
-u16 combat_getEnemyDefense(u16 enemyIndex);
-u16 combat_getEnemyMaxHp(u16 enemyIndex);
-u16 combat_getEnemyMaxDamage(u16 enemyIndex);
+u16 combat_getEnemyAccuracy(u16 enemyType);
+u16 combat_getEnemyDefense(u16 enemyType);
+u16 combat_getEnemyMaxHp(u16 enemyType);
+u16 combat_getEnemyMaxDamage(u16 enemyType);
 void combat_awardKillXp(Actor *victim);

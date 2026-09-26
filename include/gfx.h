@@ -201,7 +201,11 @@ typedef struct PaletteCycle
 typedef struct PaletteCycleList
 {
     u32 count;
+#ifdef AGBCC
     PaletteCycle cycles[0]; // runtime size is count
+#else
+    PaletteCycle cycles[]; // runtime size is count
+#endif
 } PaletteCycleList;
 
 /** Register every cycle of a PaletteCycleList into the palette-cycle slots. */

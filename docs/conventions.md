@@ -45,13 +45,11 @@ Example:
 
 ```c
 /**
- * Calculate player's bonus damage against the victim's creature family (animals, wargs, orcs, ...).
- *
- * @param enemyType index into EnemyTypes (its .category selects the stat)
+ * Get a player's family-specific damage bonus against an enemy type.
  *
  * @romaddress 0x08011488
  */
-u16 combat_getEnemyTypeDamageBonus(s32 playerIndex, u8 enemyType)
+u16 combat_getEnemyFamilyDamageBonus(s32 playerIndex, u8 enemyType)
 ```
 
 Comments inside the function body are encouraged for tricky sections, but be terse and do not explain things that are clear from reading the code.
@@ -125,7 +123,7 @@ Hack module names must never reuse a game module name, so it is always clear whe
 ### Globals and Tables
 
 - Data symbols in the ROM are PascalCase.
-    - Arrays get plural names (`EnemyTypes`, `WeaponPrefixes`, `Direction8MoveVectors`)
+    - Arrays get plural names (`EnemyTypeInfos`, `WeaponPrefixes`, `Direction8MoveVectors`)
     - Singular values get a descriptive singular name (`SaveHeaderTemplate`).
 - RAM globals carry a `g_` prefix (`g_PlayerGlobals`, `g_SaveSlots`).
 - ROM data constants never use the `g_` prefix.

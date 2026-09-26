@@ -35,9 +35,9 @@ Directory overview:
 
 - `src/c/`, `include/`, `config/`: Matched decompiled functions, reverse-engineered headers, and config files mapping names to ROM addresses.
 - `carved/`: Committed data tables (affixes, loot, enemies, ...) carved from the ROM using `rotkit`. While these are machine-generated, they are committed for easier reference.
-- `carved-local/`: Directory for art assets carved from the ROM into editable formats (graphics, sound, animations, ...).
+- `carved-local/`: Directory for art assets and asset metadata carved from the ROM into editable formats.
   **Gitignored**, see above for more information.
-  Every clone re-carves them from its own ROM.
+  Every clone re-carves them from its own ROM; `make clean` preserves them.
 - `tools/rotkit/`: Python toolkit for data carving, original ROM building, working on byte-matching, and ROM hack building.
   Beware of slop.
 - `make/`: Makefiles. Beware of slop.

@@ -86,6 +86,7 @@ def compile_file(
         run_tool(
             "arm-none-eabi-cpp",
             "-nostdinc",
+            "-DAGBCC",
             f"-I{INCLUDE}",
             f"-I{CARVED_INCLUDE}",
             f"-I{BUILD_INCLUDE}",

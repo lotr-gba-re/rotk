@@ -350,4 +350,3 @@ def run(captions: CaptionsOption = True) -> None:
         print(f"  carved {src}")
     _write_cfg(carve)
     upsert_map(entries, owned_dirs=list(GROUPS))
-    print("  updated config/split.cfg. Now run: make verify")

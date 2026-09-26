@@ -24,6 +24,7 @@ CARVED_CONFIG = CARVED / "config"  # carver-generated data stores (data.cfg rows
 GFX_LOCAL = CARVED_LOCAL / "gfx"  # editable carved images, one directory per group
 GFX_SHEETS = GFX_LOCAL / "reference-sheets"  # viewing aids, mirroring the group tree
 BUILD_INCLUDE = BUILD / "include"  # build-generated headers (variables.h)
+ENEMY_ASSET_SOURCES = BUILD / "generated/data/enemy_graphics"  # local metadata -> C
 TOOLS_OUT = TOOLS / "out"  # ROM-derived analysis dumps (gitignored)
 GHIDRA_PROJ = ROOT / "ghidra_proj"  # regenerable browse project (gitignored)
 

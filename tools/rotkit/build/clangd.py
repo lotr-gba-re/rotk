@@ -2,8 +2,8 @@
 hacks/compile_flags.txt so clangd sees the HACK_<patch> selection.
 
 compile_flags.txt alone only indexes files you open; this lists every .c under src/c and
-carved/data so workspace-symbol search covers them cold. The list is on-disk .c files, not
-split.cfg, so work-in-progress files show up the moment the file exists. Flags mirror
+carved/data, plus generated enemy animation sources from split.cfg. Work-in-progress
+files appear as soon as they exist on disk. Flags mirror
 compile_flags.txt (clang parsing, not the real build).
 Gitignored per-developer artifact: `make clangd`; `make verify` and `make hack` force-refresh
 it too.
@@ -19,7 +19,9 @@ import glob
 import json
 import os
 
+from rotkit.build.enemy_asset_sources import group_for_source
 from rotkit.paths import CARVED_DATA, ROOT, SRC_C
+from rotkit.stores import read_split
 
 HACKS = ROOT / "hacks"
 
@@ -95,9 +97,12 @@ def _write(path, body: str) -> None:
 
 def run() -> None:
     srcs = sorted(
-        os.path.relpath(path, ROOT)
-        for dir in (SRC_C, CARVED_DATA)
-        for path in glob.glob(str(dir / "**" / "*.c"), recursive=True)
+        {
+            os.path.relpath(path, ROOT)
+            for dir in (SRC_C, CARVED_DATA)
+            for path in glob.glob(str(dir / "**" / "*.c"), recursive=True)
+        }
+        | {src for src in read_split() if group_for_source(src) is not None}
     )
     # directory must be a plain string: json.dump cannot serialize pathlib.Path.
     db = [

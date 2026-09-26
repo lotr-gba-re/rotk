@@ -2,12 +2,9 @@
 
 // clang-format off
 
-// TODO: enemy type names are unreversed - map unitType (the [index] here) to creature names
-//       (spawn/scene data?) and add them to the entry comments
-
 /** @romaddress 0x08057518 */
-const EnemyTypeInfo EnemyTypes[83] = {
-    // [0x00]
+const EnemyTypeInfo EnemyTypeInfos[83] = {
+    // [0] ENEMY_TYPE_GOBLIN_SCOUT
     { .moveSpeed = 0x2c000,  // 2.75 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 15,
@@ -20,9 +17,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 25,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x01]
+    // [1] ENEMY_TYPE_GOBLIN
     { .moveSpeed = 0x28000,  // 2.5 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 19,
@@ -35,9 +32,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 35,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x02]
+    // [2] ENEMY_TYPE_GOBLIN_ELITE
     { .moveSpeed = 0x30000,  // 3 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 72,
@@ -50,9 +47,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 45,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x03]
+    // [3] ENEMY_TYPE_GOBLIN_ARCHER
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .ranged = 1 },
       .maxHp = 14,
@@ -65,9 +62,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 25,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x04]
+    // [4] ENEMY_TYPE_GOBLIN_ARCHER_ELITE
     { .moveSpeed = 0x28000,  // 2.5 px/f
       .attackFlags.d = { .ranged = 1 },
       .maxHp = 56,
@@ -80,9 +77,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 35,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x05]
+    // [5] ENEMY_TYPE_ORC_DRUMMER
     { .moveSpeed = 0x30000,  // 3 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 25,
@@ -95,9 +92,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 38,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x06]
+    // [6] ENEMY_TYPE_ORC_PITCHFORK_1
     { .moveSpeed = 0x20000,  // 2 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 19,
@@ -110,9 +107,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 25,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x07]
+    // [7] ENEMY_TYPE_ORC_PITCHFORK_2
     { .moveSpeed = 0x20000,  // 2 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 19,
@@ -125,9 +122,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 20,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x08]
+    // [8] ENEMY_TYPE_ORC_PITCHFORK_3
     { .moveSpeed = 0x20000,  // 2 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 19,
@@ -140,9 +137,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 27,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x09]
+    // [9] ENEMY_TYPE_ORC_PITCHFORK_4
     { .moveSpeed = 0x20000,  // 2 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 19,
@@ -155,9 +152,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 35,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x0a]
+    // [10] ENEMY_TYPE_ORC_WARRIOR_AXE
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 45,
@@ -170,9 +167,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 45,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x0b]
+    // [11] ENEMY_TYPE_ORC_WARRIOR_ORC_SWORD
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 45,
@@ -185,9 +182,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 40,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x0c]
+    // [12] ENEMY_TYPE_ORC_WARRIOR_MACE
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 55,
@@ -200,9 +197,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 47,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x0d]
+    // [13] ENEMY_TYPE_ORC_WARRIOR_LONGSWORD
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 45,
@@ -215,9 +212,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 55,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x0e]
+    // [14] ENEMY_TYPE_ORC_WARRIOR_ELITE_AXE
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 135,
@@ -230,9 +227,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 65,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x0f]
+    // [15] ENEMY_TYPE_ORC_WARRIOR_ELITE_ORC_SWORD
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 135,
@@ -245,9 +242,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 60,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x10]
+    // [16] ENEMY_TYPE_ORC_WARRIOR_ELITE_MACE
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 145,
@@ -260,9 +257,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 67,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x11]
+    // [17] ENEMY_TYPE_ORC_WARRIOR_ELITE_LONGSWORD
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 135,
@@ -275,9 +272,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 75,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x12]
+    // [18] ENEMY_TYPE_ORC_CAPTAIN_ARMORED
     { .moveSpeed = 0x28000,  // 2.5 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 60,
@@ -290,9 +287,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 75,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x13]
+    // [19] ENEMY_TYPE_ORC_CAPTAIN_ARMORED_ELITE
     { .moveSpeed = 0x2c000,  // 2.75 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 200,
@@ -305,9 +302,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 85,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x14]
+    // [20] ENEMY_TYPE_ORC_ARCHER
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .ranged = 1 },
       .maxHp = 30,
@@ -320,9 +317,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 50,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x15]
+    // [21] ENEMY_TYPE_ORC_ARCHER_ELITE
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .ranged = 1 },
       .maxHp = 90,
@@ -335,9 +332,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 60,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x16]
+    // [22] ENEMY_TYPE_ORC_ARCHER_FIRE
     { .moveSpeed = 0x28000,  // 2.5 px/f
       .attackFlags.d = { .ranged = 1, .fire = 1 },
       .maxHp = 35,
@@ -350,9 +347,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 55,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x17]
+    // [23] ENEMY_TYPE_ORC_ARCHER_POISON
     { .moveSpeed = 0x28000,  // 2.5 px/f
       .attackFlags.d = { .ranged = 1, .poison = 1 },
       .maxHp = 35,
@@ -365,9 +362,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 55,
       .poisonPower = 11,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x18]
+    // [24] ENEMY_TYPE_ORC_CAPTAIN_UNARMORED
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 97,
@@ -380,9 +377,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 40,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x19]
+    // [25] ENEMY_TYPE_ORC_CAPTAIN_UNARMORED_ELITE
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 155,
@@ -395,9 +392,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 35,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x1a]
+    // [26] ENEMY_TYPE_ORC_AXE_THROWER
     { .moveSpeed = 0x28000,  // 2.5 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 45,
@@ -410,9 +407,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 60,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x1b]
+    // [27] ENEMY_TYPE_ORC_AXE_THROWER_ELITE
     { .moveSpeed = 0x2c000,  // 2.75 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 150,
@@ -425,9 +422,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 65,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x1c]
+    // [28] ENEMY_TYPE_ORC_FLAGBEARER
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .ranged = 1 },
       .maxHp = 35,
@@ -440,9 +437,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 40,
       .poisonPower = 0,
       .fearPower = 5,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x1d]
+    // [29] ENEMY_TYPE_ORC_HOPLITE
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 50,
@@ -455,9 +452,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 70,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x1e]
+    // [30] ENEMY_TYPE_ORC_HOPLITE_ELITE
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 220,
@@ -470,9 +467,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 100,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x1f]
+    // [31] ENEMY_TYPE_URUK
     { .moveSpeed = 0x20000,  // 2 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 16,
@@ -485,9 +482,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 15,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_URUKHAI },
+      .family = ENEMY_FAMILY_URUKHAI },
 
-    // [0x20]
+    // [32] ENEMY_TYPE_URUK_ELITE
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 45,
@@ -500,9 +497,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 25,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_URUKHAI },
+      .family = ENEMY_FAMILY_URUKHAI },
 
-    // [0x21]
+    // [33] ENEMY_TYPE_URUK_CROSSBOWMAN
     { .moveSpeed = 0x28000,  // 2.5 px/f
       .attackFlags.d = { .ranged = 1 },
       .maxHp = 13,
@@ -515,9 +512,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 15,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_URUKHAI },
+      .family = ENEMY_FAMILY_URUKHAI },
 
-    // [0x22]
+    // [34] ENEMY_TYPE_URUK_CROSSBOWMAN_ELITE
     { .moveSpeed = 0x28000,  // 2.5 px/f
       .attackFlags.d = { .ranged = 1 },
       .maxHp = 40,
@@ -530,9 +527,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 27,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_URUKHAI },
+      .family = ENEMY_FAMILY_URUKHAI },
 
-    // [0x23]
+    // [35] ENEMY_TYPE_URUK_BERSERKER
     { .moveSpeed = 0x28000,  // 2.5 px/f
       .attackFlags.d = { .meleeSlash = 1, .fire = 1 },
       .maxHp = 16,
@@ -545,9 +542,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 26,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_URUKHAI },
+      .family = ENEMY_FAMILY_URUKHAI },
 
-    // [0x24]
+    // [36] ENEMY_TYPE_URUK_BERSERKER_ELITE
     { .moveSpeed = 0x2c000,  // 2.75 px/f
       .attackFlags.d = { .meleeSlash = 1, .fire = 1 },
       .maxHp = 40,
@@ -560,9 +557,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 38,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_URUKHAI },
+      .family = ENEMY_FAMILY_URUKHAI },
 
-    // [0x25]
+    // [37] ENEMY_TYPE_WILDMAN
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 30,
@@ -575,9 +572,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 32,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x26]
+    // [38] ENEMY_TYPE_WILDMAN_ELITE
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 95,
@@ -590,9 +587,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 42,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x27]
+    // [39] ENEMY_TYPE_MOUNTAIN_TROLL
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeImpale = 1 },
       .maxHp = 350,
@@ -605,9 +602,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 45,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x28]
+    // [40] ENEMY_TYPE_HALF_TROLL
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeImpale = 1 },
       .maxHp = 250,
@@ -620,9 +617,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 35,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x29]
+    // [41] ENEMY_TYPE_SPIDER
     { .moveSpeed = 0x2c000,  // 2.75 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 16,
@@ -635,9 +632,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 30,
       .poisonPower = 4,
       .fearPower = 0,
-      .category = CREATURE_WARGS },
+      .family = ENEMY_FAMILY_WARGS },
 
-    // [0x2a]
+    // [42] ENEMY_TYPE_SPIDER_RED
     { .moveSpeed = 0x30000,  // 3 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 74,
@@ -650,9 +647,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 30,
       .poisonPower = 8,
       .fearPower = 0,
-      .category = CREATURE_WARGS },
+      .family = ENEMY_FAMILY_WARGS },
 
-    // [0x2b]
+    // [43] ENEMY_TYPE_SPIDER_GREEN
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1, .poison = 1 },
       .maxHp = 18,
@@ -665,9 +662,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 30,
       .poisonPower = 6,
       .fearPower = 0,
-      .category = CREATURE_WARGS },
+      .family = ENEMY_FAMILY_WARGS },
 
-    // [0x2c]
+    // [44] ENEMY_TYPE_SPIDER_SMALL
     { .moveSpeed = 0x30000,  // 3 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 5,
@@ -680,9 +677,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 20,
       .poisonPower = 2,
       .fearPower = 0,
-      .category = CREATURE_WARGS },
+      .family = ENEMY_FAMILY_WARGS },
 
-    // [0x2d]
+    // [45] ENEMY_TYPE_CORSAIR
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 45,
@@ -695,9 +692,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 45,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x2e]
+    // [46] ENEMY_TYPE_CORSAIR_ELITE
     { .moveSpeed = 0x28000,  // 2.5 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 170,
@@ -710,9 +707,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 55,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x2f]
+    // [47] ENEMY_TYPE_CORSAIR_CAPTAIN
     { .moveSpeed = 0x28000,  // 2.5 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 250,
@@ -725,9 +722,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 70,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x30]
+    // [48] ENEMY_TYPE_WARG
     { .moveSpeed = 0x28000,  // 2.5 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 65,
@@ -740,9 +737,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 30,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_WARGS },
+      .family = ENEMY_FAMILY_WARGS },
 
-    // [0x31]
+    // [49] ENEMY_TYPE_WARG_ELITE
     { .moveSpeed = 0x28000,  // 2.5 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 250,
@@ -755,9 +752,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 40,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_WARGS },
+      .family = ENEMY_FAMILY_WARGS },
 
-    // [0x32]
+    // [50] ENEMY_TYPE_HARADRIM_ARCHER
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .ranged = 1 },
       .maxHp = 44,
@@ -770,9 +767,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 40,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x33]
+    // [51] ENEMY_TYPE_HARADRIM_ARCHER_ELITE
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .ranged = 1 },
       .maxHp = 144,
@@ -785,9 +782,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 40,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_ORCS },
+      .family = ENEMY_FAMILY_ORCS },
 
-    // [0x34]
+    // [52] ENEMY_TYPE_EASTERLING_HEAVY
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 50,
@@ -800,9 +797,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 50,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x35]
+    // [53] ENEMY_TYPE_EASTERLING_LIGHT
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 45,
@@ -815,9 +812,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 80,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x36]
+    // [54] ENEMY_TYPE_EASTERLING_ELITE
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 190,
@@ -830,9 +827,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 90,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x37]
+    // [55] ENEMY_TYPE_CREBAIN
     { .moveSpeed = 0x30000,  // 3 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 3,
@@ -845,9 +842,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 10,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_CREBAIN },
+      .family = ENEMY_FAMILY_CREBAIN },
 
-    // [0x38]
+    // [56] ENEMY_TYPE_BAT
     { .moveSpeed = 0x30000,  // 3 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 6,
@@ -860,9 +857,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 10,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_CREBAIN },
+      .family = ENEMY_FAMILY_CREBAIN },
 
-    // [0x39]
+    // [57] ENEMY_TYPE_GHOST
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1, .fear = 1 },
       .maxHp = 32,
@@ -875,9 +872,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 60,
       .poisonPower = 0,
       .fearPower = 5,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x3a]
+    // [58] ENEMY_TYPE_NAZGUL
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1, .poison = 1, .fear = 1 },
       .maxHp = 75,
@@ -890,9 +887,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 100,
       .poisonPower = 10,
       .fearPower = 15,
-      .category = CREATURE_NAZGUL },
+      .family = ENEMY_FAMILY_NAZGUL },
 
-    // [0x3b]
+    // [59] ENEMY_TYPE_FLY_SWARM
     { .moveSpeed = 0x30000,  // 3 px/f
       .attackFlags.d = { .meleeSlash = 1, .poison = 1 },
       .maxHp = 18,
@@ -905,9 +902,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 20,
       .poisonPower = 6,
       .fearPower = 0,
-      .category = CREATURE_WARGS },
+      .family = ENEMY_FAMILY_WARGS },
 
-    // [0x3c]
+    // [60] ENEMY_TYPE_SHELOB
     { .moveSpeed = 0x2c000,  // 2.75 px/f
       .attackFlags.d = { .meleeSlash = 1, .poison = 1 },
       .maxHp = 425,
@@ -920,9 +917,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 40,
       .poisonPower = 9,
       .fearPower = 0,
-      .category = CREATURE_WARGS },
+      .family = ENEMY_FAMILY_WARGS },
 
-    // [0x3d]
+    // [61] ENEMY_TYPE_GROND
     { .moveSpeed = 0x20000,  // 2 px/f
       .attackFlags.d = { .meleeImpale = 1, .fear = 1 },
       .maxHp = 100,
@@ -935,9 +932,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 40,
       .poisonPower = 0,
       .fearPower = 3,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x3e]
+    // [62] ENEMY_TYPE_SARUMAN
     { .moveSpeed = 0x28000,  // 2.5 px/f
       .attackFlags.d = { .meleeImpale = 1, .fear = 1 },
       .maxHp = 100,
@@ -950,9 +947,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 35,
       .poisonPower = 0,
       .fearPower = 5,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x3f]
+    // [63] ENEMY_TYPE_DENETHOR
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeImpale = 1 },
       .maxHp = 500,
@@ -965,9 +962,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 150,
       .poisonPower = 10,
       .fearPower = 10,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x40]
+    // [64] ENEMY_TYPE_WITCH_KING
     { .moveSpeed = 0x20000,  // 2 px/f
       .attackFlags.d = { .meleeSlash = 1, .poison = 1, .fear = 1 },
       .maxHp = 550,
@@ -980,9 +977,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 50,
       .poisonPower = 3,
       .fearPower = 0,
-      .category = CREATURE_NAZGUL },
+      .family = ENEMY_FAMILY_NAZGUL },
 
-    // [0x41]
+    // [65] ENEMY_TYPE_GOLLUM
     { .moveSpeed = 0x2c000,  // 2.75 px/f
       .attackFlags.d = { .meleeSlash = 1, .poison = 1 },
       .maxHp = 120,
@@ -995,9 +992,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 90,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x42]
+    // [66] ENEMY_TYPE_MUMAKIL
     { .moveSpeed = 0xcccc,  // 0.799988 px/f
       .attackFlags.d = { .meleeImpale = 1, .fear = 1 },
       .maxHp = 400,
@@ -1010,9 +1007,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 30,
       .poisonPower = 0,
       .fearPower = 10,
-      .category = CREATURE_WARGS },
+      .family = ENEMY_FAMILY_WARGS },
 
-    // [0x43]
+    // [67] ENEMY_TYPE_KING_OF_THE_DEAD
     { .moveSpeed = 0x38000,  // 3.5 px/f
       .attackFlags.d = { .meleeImpale = 1, .fear = 1 },
       .maxHp = 999,
@@ -1025,9 +1022,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 150,
       .poisonPower = 0,
       .fearPower = 3,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x44]
+    // [68] ENEMY_TYPE_MOUTH_OF_SAURON
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeImpale = 1, .poison = 1, .fire = 1, .fear = 1 },
       .maxHp = 575,
@@ -1040,9 +1037,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 70,
       .poisonPower = 5,
       .fearPower = 10,
-      .category = CREATURE_NAZGUL },
+      .family = ENEMY_FAMILY_NAZGUL },
 
-    // [0x45]
+    // [69] ENEMY_TYPE_FLYING_NAZGUL
     { .moveSpeed = 0x20000,  // 2 px/f
       .attackFlags.d = { .meleeImpale = 1, .fear = 1 },
       .maxHp = 50,
@@ -1055,9 +1052,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 45,
       .poisonPower = 0,
       .fearPower = 10,
-      .category = CREATURE_NAZGUL },
+      .family = ENEMY_FAMILY_NAZGUL },
 
-    // [0x46]
+    // [70] ENEMY_TYPE_GROUND_SKELETON
     { .moveSpeed = 0x0,  // 0 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 20,
@@ -1070,9 +1067,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 25,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x47]
+    // [71] ENEMY_TYPE_SKELETON_WARRIOR
     { .moveSpeed = 0x2c000,  // 2.75 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 25,
@@ -1085,9 +1082,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 75,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x48]
+    // [72] ENEMY_TYPE_SKELETON_WARRIOR_ELITE
     { .moveSpeed = 0x0,  // 0 px/f
       .attackFlags.d = { .meleeImpale = 1 },
       .maxHp = 250,
@@ -1100,9 +1097,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 10,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x49]
+    // [73] ENEMY_TYPE_GONDOR_SOLDIER
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 45,
@@ -1115,9 +1112,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 45,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x4a]
+    // [74] ENEMY_TYPE_UNUSED_74
     { .moveSpeed = 0x24000,  // 2.25 px/f
       .attackFlags.d = { .meleeImpale = 1 },
       .maxHp = 1,
@@ -1130,9 +1127,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 10,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_URUKHAI },
+      .family = ENEMY_FAMILY_URUKHAI },
 
-    // [0x4b]
+    // [75] ENEMY_TYPE_UNUSED_75
     { .moveSpeed = 0x20000,  // 2 px/f
       .attackFlags.d = { .meleeImpale = 1, .fire = 1 },
       .maxHp = 20,
@@ -1145,9 +1142,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 20,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_URUKHAI },
+      .family = ENEMY_FAMILY_URUKHAI },
 
-    // [0x4c]
+    // [76] ENEMY_TYPE_UNUSED_76
     { .moveSpeed = 0x20000,  // 2 px/f
       .attackFlags.d = { .meleeImpale = 1, .fire = 1 },
       .maxHp = 30,
@@ -1160,9 +1157,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 20,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_URUKHAI },
+      .family = ENEMY_FAMILY_URUKHAI },
 
-    // [0x4d]
+    // [77] ENEMY_TYPE_UNUSED_77
     { .moveSpeed = 0x20000,  // 2 px/f
       .attackFlags.d = { .meleeSlash = 1 },
       .maxHp = 20,
@@ -1175,9 +1172,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 20,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_URUKHAI },
+      .family = ENEMY_FAMILY_URUKHAI },
 
-    // [0x4e]
+    // [78] ENEMY_TYPE_UNUSED_78
     { .moveSpeed = 0x20000,  // 2 px/f
       .attackFlags.d = { .ranged = 1, .fire = 1 },
       .maxHp = 5,
@@ -1190,9 +1187,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 20,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_URUKHAI },
+      .family = ENEMY_FAMILY_URUKHAI },
 
-    // [0x4f]
+    // [79] ENEMY_TYPE_UNUSED_79
     { .moveSpeed = 0x20000,  // 2 px/f
       .attackFlags.d = { .ranged = 1, .fear = 1 },
       .maxHp = 5,
@@ -1205,9 +1202,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 20,
       .poisonPower = 0,
       .fearPower = 10,
-      .category = CREATURE_WARGS },
+      .family = ENEMY_FAMILY_WARGS },
 
-    // [0x50]
+    // [80] ENEMY_TYPE_UNUSED_SHELOB_CLONE
     { .moveSpeed = 0x2c000,  // 2.75 px/f
       .attackFlags.d = { .meleeImpale = 1, .poison = 1, .fire = 1, .fear = 1 },
       .maxHp = 425,
@@ -1220,9 +1217,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 40,
       .poisonPower = 15,
       .fearPower = 15,
-      .category = CREATURE_WARGS },
+      .family = ENEMY_FAMILY_WARGS },
 
-    // [0x51]
+    // [81] ENEMY_TYPE_UNUSED_81
     { .moveSpeed = 0x28000,  // 2.5 px/f
       .attackFlags.d = { .ranged = 1, .fire = 1 },
       .maxHp = 300,
@@ -1235,9 +1232,9 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 30,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 
-    // [0x52]
+    // [82] ENEMY_TYPE_UNUSED_82
     { .moveSpeed = 0x28000,  // 2.5 px/f
       .attackFlags.d = { .ranged = 1 },
       .maxHp = 100,
@@ -1250,16 +1247,15 @@ const EnemyTypeInfo EnemyTypes[83] = {
       .defense = 30,
       .poisonPower = 0,
       .fearPower = 0,
-      .category = CREATURE_NONE },
+      .family = ENEMY_FAMILY_NONE },
 };
 
 // TODO: the u16 SFX ids are magic numbers - grow enum SfxId (include/sfx.h) as they get identified
 //       and emit them by name (0x0a = SFX_COMBAT_EVADE is already known)
-// TODO: enemy type names are unreversed - same [index] = unitType as EnemyTypes
 
 /** @romaddress 0x08057b94 */
-const EnemySfx EnemySfxSets[83] = {
-    // [0x00]
+const EnemySfxSet EnemySfxSets[83] = {
+    // [0] ENEMY_TYPE_GOBLIN_SCOUT
     { .attackSfx = 0xa2,
       .aggroSfx = 0xa3,
       .hitSfx = 0xa4,
@@ -1267,7 +1263,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xa5,
       .missSfx = 0x0a },
 
-    // [0x01]
+    // [1] ENEMY_TYPE_GOBLIN
     { .attackSfx = 0xa2,
       .aggroSfx = 0xa3,
       .hitSfx = 0xa4,
@@ -1275,7 +1271,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xa5,
       .missSfx = 0x0a },
 
-    // [0x02]
+    // [2] ENEMY_TYPE_GOBLIN_ELITE
     { .attackSfx = 0xa2,
       .aggroSfx = 0xa3,
       .hitSfx = 0xa4,
@@ -1283,7 +1279,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xa5,
       .missSfx = 0x0a },
 
-    // [0x03]
+    // [3] ENEMY_TYPE_GOBLIN_ARCHER
     { .attackSfx = 0xd2,
       .aggroSfx = 0xa3,
       .hitSfx = 0xa4,
@@ -1291,7 +1287,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xa5,
       .missSfx = 0x0a },
 
-    // [0x04]
+    // [4] ENEMY_TYPE_GOBLIN_ARCHER_ELITE
     { .attackSfx = 0xd2,
       .aggroSfx = 0xa3,
       .hitSfx = 0xa4,
@@ -1299,7 +1295,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xa5,
       .missSfx = 0x0a },
 
-    // [0x05]
+    // [5] ENEMY_TYPE_ORC_DRUMMER
     { .attackSfx = 0xa2,
       .aggroSfx = 0x8d,
       .hitSfx = 0xa4,
@@ -1307,7 +1303,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xa5,
       .missSfx = 0x0a },
 
-    // [0x06]
+    // [6] ENEMY_TYPE_ORC_PITCHFORK_1
     { .attackSfx = 0x87,
       .aggroSfx = 0x89,
       .hitSfx = 0x8a,
@@ -1315,7 +1311,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x8b,
       .missSfx = 0x0a },
 
-    // [0x07]
+    // [7] ENEMY_TYPE_ORC_PITCHFORK_2
     { .attackSfx = 0x87,
       .aggroSfx = 0x89,
       .hitSfx = 0x8a,
@@ -1323,7 +1319,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x8b,
       .missSfx = 0x0a },
 
-    // [0x08]
+    // [8] ENEMY_TYPE_ORC_PITCHFORK_3
     { .attackSfx = 0x87,
       .aggroSfx = 0x89,
       .hitSfx = 0x8a,
@@ -1331,7 +1327,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x8b,
       .missSfx = 0x0a },
 
-    // [0x09]
+    // [9] ENEMY_TYPE_ORC_PITCHFORK_4
     { .attackSfx = 0x87,
       .aggroSfx = 0x89,
       .hitSfx = 0x8a,
@@ -1339,7 +1335,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x8b,
       .missSfx = 0x0a },
 
-    // [0x0a]
+    // [10] ENEMY_TYPE_ORC_WARRIOR_AXE
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1347,7 +1343,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x0b]
+    // [11] ENEMY_TYPE_ORC_WARRIOR_ORC_SWORD
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1355,7 +1351,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x0c]
+    // [12] ENEMY_TYPE_ORC_WARRIOR_MACE
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1363,7 +1359,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x0d]
+    // [13] ENEMY_TYPE_ORC_WARRIOR_LONGSWORD
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1371,7 +1367,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x0e]
+    // [14] ENEMY_TYPE_ORC_WARRIOR_ELITE_AXE
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1379,7 +1375,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x0f]
+    // [15] ENEMY_TYPE_ORC_WARRIOR_ELITE_ORC_SWORD
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1387,7 +1383,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x10]
+    // [16] ENEMY_TYPE_ORC_WARRIOR_ELITE_MACE
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1395,7 +1391,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x11]
+    // [17] ENEMY_TYPE_ORC_WARRIOR_ELITE_LONGSWORD
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1403,7 +1399,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x12]
+    // [18] ENEMY_TYPE_ORC_CAPTAIN_ARMORED
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1411,7 +1407,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x13]
+    // [19] ENEMY_TYPE_ORC_CAPTAIN_ARMORED_ELITE
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1419,7 +1415,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x14]
+    // [20] ENEMY_TYPE_ORC_ARCHER
     { .attackSfx = 0xd2,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1427,7 +1423,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x15]
+    // [21] ENEMY_TYPE_ORC_ARCHER_ELITE
     { .attackSfx = 0xd2,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1435,7 +1431,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x16]
+    // [22] ENEMY_TYPE_ORC_ARCHER_FIRE
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1443,7 +1439,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x17]
+    // [23] ENEMY_TYPE_ORC_ARCHER_POISON
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1451,7 +1447,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x18]
+    // [24] ENEMY_TYPE_ORC_CAPTAIN_UNARMORED
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1459,7 +1455,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x19]
+    // [25] ENEMY_TYPE_ORC_CAPTAIN_UNARMORED_ELITE
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1467,7 +1463,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x1a]
+    // [26] ENEMY_TYPE_ORC_AXE_THROWER
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1475,7 +1471,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x1b]
+    // [27] ENEMY_TYPE_ORC_AXE_THROWER_ELITE
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1483,7 +1479,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x1c]
+    // [28] ENEMY_TYPE_ORC_FLAGBEARER
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1491,7 +1487,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x1d]
+    // [29] ENEMY_TYPE_ORC_HOPLITE
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1499,7 +1495,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x1e]
+    // [30] ENEMY_TYPE_ORC_HOPLITE_ELITE
     { .attackSfx = 0x93,
       .aggroSfx = 0x94,
       .hitSfx = 0x95,
@@ -1507,7 +1503,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x96,
       .missSfx = 0x0a },
 
-    // [0x1f]
+    // [31] ENEMY_TYPE_URUK
     { .attackSfx = 0x97,
       .aggroSfx = 0x98,
       .hitSfx = 0x99,
@@ -1515,7 +1511,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x9a,
       .missSfx = 0x0a },
 
-    // [0x20]
+    // [32] ENEMY_TYPE_URUK_ELITE
     { .attackSfx = 0x97,
       .aggroSfx = 0x98,
       .hitSfx = 0x99,
@@ -1523,7 +1519,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x9a,
       .missSfx = 0x0a },
 
-    // [0x21]
+    // [33] ENEMY_TYPE_URUK_CROSSBOWMAN
     { .attackSfx = 0xd2,
       .aggroSfx = 0x98,
       .hitSfx = 0x99,
@@ -1531,7 +1527,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x9a,
       .missSfx = 0x0a },
 
-    // [0x22]
+    // [34] ENEMY_TYPE_URUK_CROSSBOWMAN_ELITE
     { .attackSfx = 0xd2,
       .aggroSfx = 0x98,
       .hitSfx = 0x99,
@@ -1539,7 +1535,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x9a,
       .missSfx = 0x0a },
 
-    // [0x23]
+    // [35] ENEMY_TYPE_URUK_BERSERKER
     { .attackSfx = 0x97,
       .aggroSfx = 0x98,
       .hitSfx = 0x99,
@@ -1547,7 +1543,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x9a,
       .missSfx = 0x0a },
 
-    // [0x24]
+    // [36] ENEMY_TYPE_URUK_BERSERKER_ELITE
     { .attackSfx = 0x97,
       .aggroSfx = 0x98,
       .hitSfx = 0x99,
@@ -1555,7 +1551,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x9a,
       .missSfx = 0x0a },
 
-    // [0x25]
+    // [37] ENEMY_TYPE_WILDMAN
     { .attackSfx = 0x9e,
       .aggroSfx = 0x9f,
       .hitSfx = 0xa0,
@@ -1563,7 +1559,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xa1,
       .missSfx = 0x0a },
 
-    // [0x26]
+    // [38] ENEMY_TYPE_WILDMAN_ELITE
     { .attackSfx = 0x9e,
       .aggroSfx = 0x9f,
       .hitSfx = 0xa0,
@@ -1571,7 +1567,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xa1,
       .missSfx = 0x0a },
 
-    // [0x27]
+    // [39] ENEMY_TYPE_MOUNTAIN_TROLL
     { .attackSfx = 0xaa,
       .aggroSfx = 0xab,
       .hitSfx = 0xac,
@@ -1579,7 +1575,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xad,
       .missSfx = 0x1d },
 
-    // [0x28]
+    // [40] ENEMY_TYPE_HALF_TROLL
     { .attackSfx = 0xa6,
       .aggroSfx = 0xa7,
       .hitSfx = 0xa8,
@@ -1587,7 +1583,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xa9,
       .missSfx = 0x1d },
 
-    // [0x29]
+    // [41] ENEMY_TYPE_SPIDER
     { .attackSfx = 0xb8,
       .aggroSfx = 0xb9,
       .hitSfx = 0xb9,
@@ -1595,7 +1591,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xba,
       .missSfx = 0x0a },
 
-    // [0x2a]
+    // [42] ENEMY_TYPE_SPIDER_RED
     { .attackSfx = 0xb8,
       .aggroSfx = 0xb9,
       .hitSfx = 0xb9,
@@ -1603,7 +1599,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xba,
       .missSfx = 0x0a },
 
-    // [0x2b]
+    // [43] ENEMY_TYPE_SPIDER_GREEN
     { .attackSfx = 0xb8,
       .aggroSfx = 0xb9,
       .hitSfx = 0xb9,
@@ -1611,7 +1607,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xba,
       .missSfx = 0x0a },
 
-    // [0x2c]
+    // [44] ENEMY_TYPE_SPIDER_SMALL
     { .attackSfx = 0xb8,
       .aggroSfx = 0xb9,
       .hitSfx = 0xb9,
@@ -1619,7 +1615,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xba,
       .missSfx = 0x0a },
 
-    // [0x2d]
+    // [45] ENEMY_TYPE_CORSAIR
     { .attackSfx = 0xc7,
       .aggroSfx = 0xc8,
       .hitSfx = 0xc9,
@@ -1627,7 +1623,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xca,
       .missSfx = 0x0a },
 
-    // [0x2e]
+    // [46] ENEMY_TYPE_CORSAIR_ELITE
     { .attackSfx = 0xc7,
       .aggroSfx = 0xc8,
       .hitSfx = 0xc9,
@@ -1635,7 +1631,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xca,
       .missSfx = 0x0a },
 
-    // [0x2f]
+    // [47] ENEMY_TYPE_CORSAIR_CAPTAIN
     { .attackSfx = 0xc7,
       .aggroSfx = 0xc8,
       .hitSfx = 0xc9,
@@ -1643,7 +1639,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xca,
       .missSfx = 0x0a },
 
-    // [0x30]
+    // [48] ENEMY_TYPE_WARG
     { .attackSfx = 0xbf,
       .aggroSfx = 0xc0,
       .hitSfx = 0xc1,
@@ -1651,7 +1647,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xc2,
       .missSfx = 0x1d },
 
-    // [0x31]
+    // [49] ENEMY_TYPE_WARG_ELITE
     { .attackSfx = 0xbb,
       .aggroSfx = 0xbc,
       .hitSfx = 0xbd,
@@ -1659,7 +1655,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xbe,
       .missSfx = 0x1d },
 
-    // [0x32]
+    // [50] ENEMY_TYPE_HARADRIM_ARCHER
     { .attackSfx = 0xce,
       .aggroSfx = 0xcf,
       .hitSfx = 0xd0,
@@ -1667,7 +1663,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xd1,
       .missSfx = 0x0a },
 
-    // [0x33]
+    // [51] ENEMY_TYPE_HARADRIM_ARCHER_ELITE
     { .attackSfx = 0xce,
       .aggroSfx = 0xcf,
       .hitSfx = 0xd0,
@@ -1675,7 +1671,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xd1,
       .missSfx = 0x0a },
 
-    // [0x34]
+    // [52] ENEMY_TYPE_EASTERLING_HEAVY
     { .attackSfx = 0xc7,
       .aggroSfx = 0xc8,
       .hitSfx = 0xc9,
@@ -1683,7 +1679,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xca,
       .missSfx = 0x0a },
 
-    // [0x35]
+    // [53] ENEMY_TYPE_EASTERLING_LIGHT
     { .attackSfx = 0xc7,
       .aggroSfx = 0xc8,
       .hitSfx = 0xc9,
@@ -1691,7 +1687,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xca,
       .missSfx = 0x0a },
 
-    // [0x36]
+    // [54] ENEMY_TYPE_EASTERLING_ELITE
     { .attackSfx = 0xc7,
       .aggroSfx = 0xc8,
       .hitSfx = 0xc9,
@@ -1699,7 +1695,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xca,
       .missSfx = 0x0a },
 
-    // [0x37]
+    // [55] ENEMY_TYPE_CREBAIN
     { .attackSfx = 0xae,
       .aggroSfx = 0xaf,
       .hitSfx = 0xb0,
@@ -1707,7 +1703,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xb1,
       .missSfx = 0x1d },
 
-    // [0x38]
+    // [56] ENEMY_TYPE_BAT
     { .attackSfx = 0xb2,
       .aggroSfx = 0xb3,
       .hitSfx = 0xb4,
@@ -1715,7 +1711,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xb5,
       .missSfx = 0x1d },
 
-    // [0x39]
+    // [57] ENEMY_TYPE_GHOST
     { .attackSfx = 0xcb,
       .aggroSfx = 0xcc,
       .hitSfx = 0xcc,
@@ -1723,7 +1719,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xcd,
       .missSfx = 0x1d },
 
-    // [0x3a]
+    // [58] ENEMY_TYPE_NAZGUL
     { .attackSfx = 0xc3,
       .aggroSfx = 0xc4,
       .hitSfx = 0xc5,
@@ -1731,7 +1727,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xc6,
       .missSfx = 0x0a },
 
-    // [0x3b]
+    // [59] ENEMY_TYPE_FLY_SWARM
     { .attackSfx = 0xb8,
       .aggroSfx = 0xb6,
       .hitSfx = 0xb6,
@@ -1739,7 +1735,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xb7,
       .missSfx = 0x1d },
 
-    // [0x3c]
+    // [60] ENEMY_TYPE_SHELOB
     { .attackSfx = 0xd4,
       .aggroSfx = 0xd3,
       .hitSfx = 0xd7,
@@ -1747,7 +1743,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xd8,
       .missSfx = 0x0a },
 
-    // [0x3d]
+    // [61] ENEMY_TYPE_GROND
     { .attackSfx = 0x106,
       .aggroSfx = 0x10e,
       .hitSfx = 0x116,
@@ -1755,7 +1751,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x117,
       .missSfx = 0x0a },
 
-    // [0x3e]
+    // [62] ENEMY_TYPE_SARUMAN
     { .attackSfx = 0xdc,
       .aggroSfx = 0xdb,
       .hitSfx = 0xdd,
@@ -1763,7 +1759,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xde,
       .missSfx = 0x0a },
 
-    // [0x3f]
+    // [63] ENEMY_TYPE_DENETHOR
     { .attackSfx = 0xe1,
       .aggroSfx = 0xdf,
       .hitSfx = 0xe3,
@@ -1771,7 +1767,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xe4,
       .missSfx = 0x1d },
 
-    // [0x40]
+    // [64] ENEMY_TYPE_WITCH_KING
     { .attackSfx = 0xeb,
       .aggroSfx = 0xea,
       .hitSfx = 0xec,
@@ -1779,7 +1775,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xee,
       .missSfx = 0x0a },
 
-    // [0x41]
+    // [65] ENEMY_TYPE_GOLLUM
     { .attackSfx = 0xf0,
       .aggroSfx = 0xef,
       .hitSfx = 0xf1,
@@ -1787,7 +1783,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xf5,
       .missSfx = 0x1d },
 
-    // [0x42]
+    // [66] ENEMY_TYPE_MUMAKIL
     { .attackSfx = 0xf6,
       .aggroSfx = 0xf6,
       .hitSfx = 0xf7,
@@ -1795,7 +1791,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xf8,
       .missSfx = 0x0a },
 
-    // [0x43]
+    // [67] ENEMY_TYPE_KING_OF_THE_DEAD
     { .attackSfx = 0xfa,
       .aggroSfx = 0xf9,
       .hitSfx = 0xf9,
@@ -1803,7 +1799,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xfb,
       .missSfx = 0x0a },
 
-    // [0x44]
+    // [68] ENEMY_TYPE_MOUTH_OF_SAURON
     { .attackSfx = 0x101,
       .aggroSfx = 0xfc,
       .hitSfx = 0x102,
@@ -1811,7 +1807,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x103,
       .missSfx = 0x0a },
 
-    // [0x45]
+    // [69] ENEMY_TYPE_FLYING_NAZGUL
     { .attackSfx = 0xe7,
       .aggroSfx = 0xe5,
       .hitSfx = 0xe8,
@@ -1819,7 +1815,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xe9,
       .missSfx = 0x0a },
 
-    // [0x46]
+    // [70] ENEMY_TYPE_GROUND_SKELETON
     { .attackSfx = 0x08,
       .aggroSfx = 0xcc,
       .hitSfx = 0x08,
@@ -1827,7 +1823,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x08,
       .missSfx = 0x0a },
 
-    // [0x47]
+    // [71] ENEMY_TYPE_SKELETON_WARRIOR
     { .attackSfx = 0x08,
       .aggroSfx = 0xcc,
       .hitSfx = 0x08,
@@ -1835,7 +1831,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x08,
       .missSfx = 0x0a },
 
-    // [0x48]
+    // [72] ENEMY_TYPE_SKELETON_WARRIOR_ELITE
     { .attackSfx = 0x104,
       .aggroSfx = 0x105,
       .hitSfx = 0x105,
@@ -1843,7 +1839,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x105,
       .missSfx = 0x0a },
 
-    // [0x49]
+    // [73] ENEMY_TYPE_GONDOR_SOLDIER
     { .attackSfx = 0xc7,
       .aggroSfx = 0xc8,
       .hitSfx = 0xc9,
@@ -1851,7 +1847,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xca,
       .missSfx = 0x0a },
 
-    // [0x4a]
+    // [74] ENEMY_TYPE_UNUSED_74
     { .attackSfx = 0x104,
       .aggroSfx = 0x105,
       .hitSfx = 0x105,
@@ -1859,7 +1855,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x105,
       .missSfx = 0x0a },
 
-    // [0x4b]
+    // [75] ENEMY_TYPE_UNUSED_75
     { .attackSfx = 0x97,
       .aggroSfx = 0x98,
       .hitSfx = 0x99,
@@ -1867,7 +1863,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x9a,
       .missSfx = 0x0a },
 
-    // [0x4c]
+    // [76] ENEMY_TYPE_UNUSED_76
     { .attackSfx = 0x97,
       .aggroSfx = 0x98,
       .hitSfx = 0x99,
@@ -1875,7 +1871,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x9a,
       .missSfx = 0x0a },
 
-    // [0x4d]
+    // [77] ENEMY_TYPE_UNUSED_77
     { .attackSfx = 0x97,
       .aggroSfx = 0x98,
       .hitSfx = 0x99,
@@ -1883,7 +1879,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x9a,
       .missSfx = 0x0a },
 
-    // [0x4e]
+    // [78] ENEMY_TYPE_UNUSED_78
     { .attackSfx = 0x97,
       .aggroSfx = 0x98,
       .hitSfx = 0x99,
@@ -1891,7 +1887,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x9a,
       .missSfx = 0x0a },
 
-    // [0x4f]
+    // [79] ENEMY_TYPE_UNUSED_79
     { .attackSfx = 0x97,
       .aggroSfx = 0x98,
       .hitSfx = 0x99,
@@ -1899,7 +1895,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0x9a,
       .missSfx = 0x0a },
 
-    // [0x50]
+    // [80] ENEMY_TYPE_UNUSED_SHELOB_CLONE
     { .attackSfx = 0xb8,
       .aggroSfx = 0xb9,
       .hitSfx = 0xb9,
@@ -1907,7 +1903,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xba,
       .missSfx = 0x0a },
 
-    // [0x51]
+    // [81] ENEMY_TYPE_UNUSED_81
     { .attackSfx = 0xdc,
       .aggroSfx = 0xdb,
       .hitSfx = 0xdd,
@@ -1915,7 +1911,7 @@ const EnemySfx EnemySfxSets[83] = {
       .deathSfx = 0xde,
       .missSfx = 0x0a },
 
-    // [0x52]
+    // [82] ENEMY_TYPE_UNUSED_82
     { .attackSfx = 0xdc,
       .aggroSfx = 0xdb,
       .hitSfx = 0xdd,
@@ -1924,585 +1920,583 @@ const EnemySfx EnemySfxSets[83] = {
       .missSfx = 0x0a },
 };
 
-// TODO: enemy type names are unreversed - same [index] = unitType as EnemyTypes
-
 /** @romaddress 0x08057f78 */
 const EnemyLootInfo EnemyLootInfos[83] = {
-    // [0x00]
+    // [0] ENEMY_TYPE_GOBLIN_SCOUT
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x01]
+    // [1] ENEMY_TYPE_GOBLIN
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x02]
+    // [2] ENEMY_TYPE_GOBLIN_ELITE
     { .dropChanceBonus = 45,
       .qualityLo = 65,
       .qualityHi = 0,
       .prefixTierChance = 70,
       .field_0x4 = {100, 0, 0, 0} },
 
-    // [0x03]
+    // [3] ENEMY_TYPE_GOBLIN_ARCHER
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x04]
+    // [4] ENEMY_TYPE_GOBLIN_ARCHER_ELITE
     { .dropChanceBonus = 45,
       .qualityLo = 65,
       .qualityHi = 0,
       .prefixTierChance = 70,
       .field_0x4 = {100, 0, 0, 0} },
 
-    // [0x05]
+    // [5] ENEMY_TYPE_ORC_DRUMMER
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 35,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x06]
+    // [6] ENEMY_TYPE_ORC_PITCHFORK_1
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x07]
+    // [7] ENEMY_TYPE_ORC_PITCHFORK_2
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x08]
+    // [8] ENEMY_TYPE_ORC_PITCHFORK_3
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x09]
+    // [9] ENEMY_TYPE_ORC_PITCHFORK_4
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x0a]
+    // [10] ENEMY_TYPE_ORC_WARRIOR_AXE
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x0b]
+    // [11] ENEMY_TYPE_ORC_WARRIOR_ORC_SWORD
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x0c]
+    // [12] ENEMY_TYPE_ORC_WARRIOR_MACE
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x0d]
+    // [13] ENEMY_TYPE_ORC_WARRIOR_LONGSWORD
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x0e]
+    // [14] ENEMY_TYPE_ORC_WARRIOR_ELITE_AXE
     { .dropChanceBonus = 45,
       .qualityLo = 65,
       .qualityHi = 0,
       .prefixTierChance = 80,
       .field_0x4 = {100, 0, 0, 0} },
 
-    // [0x0f]
+    // [15] ENEMY_TYPE_ORC_WARRIOR_ELITE_ORC_SWORD
     { .dropChanceBonus = 45,
       .qualityLo = 65,
       .qualityHi = 0,
       .prefixTierChance = 80,
       .field_0x4 = {100, 0, 0, 0} },
 
-    // [0x10]
+    // [16] ENEMY_TYPE_ORC_WARRIOR_ELITE_MACE
     { .dropChanceBonus = 45,
       .qualityLo = 65,
       .qualityHi = 0,
       .prefixTierChance = 80,
       .field_0x4 = {100, 0, 0, 0} },
 
-    // [0x11]
+    // [17] ENEMY_TYPE_ORC_WARRIOR_ELITE_LONGSWORD
     { .dropChanceBonus = 45,
       .qualityLo = 65,
       .qualityHi = 0,
       .prefixTierChance = 80,
       .field_0x4 = {100, 0, 0, 0} },
 
-    // [0x12]
+    // [18] ENEMY_TYPE_ORC_CAPTAIN_ARMORED
     { .dropChanceBonus = 45,
       .qualityLo = 32,
       .qualityHi = 0,
       .prefixTierChance = 15,
       .field_0x4 = {105, 0, 0, 0} },
 
-    // [0x13]
+    // [19] ENEMY_TYPE_ORC_CAPTAIN_ARMORED_ELITE
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 95,
       .field_0x4 = {110, 0, 0, 0} },
 
-    // [0x14]
+    // [20] ENEMY_TYPE_ORC_ARCHER
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x15]
+    // [21] ENEMY_TYPE_ORC_ARCHER_ELITE
     { .dropChanceBonus = 45,
       .qualityLo = 65,
       .qualityHi = 0,
       .prefixTierChance = 90,
       .field_0x4 = {100, 0, 0, 0} },
 
-    // [0x16]
+    // [22] ENEMY_TYPE_ORC_ARCHER_FIRE
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 15,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x17]
+    // [23] ENEMY_TYPE_ORC_ARCHER_POISON
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 15,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x18]
+    // [24] ENEMY_TYPE_ORC_CAPTAIN_UNARMORED
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 15,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x19]
+    // [25] ENEMY_TYPE_ORC_CAPTAIN_UNARMORED_ELITE
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 25,
       .field_0x4 = {105, 0, 0, 0} },
 
-    // [0x1a]
+    // [26] ENEMY_TYPE_ORC_AXE_THROWER
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 15,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x1b]
+    // [27] ENEMY_TYPE_ORC_AXE_THROWER_ELITE
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 95,
       .field_0x4 = {105, 0, 0, 0} },
 
-    // [0x1c]
+    // [28] ENEMY_TYPE_ORC_FLAGBEARER
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 30,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x1d]
+    // [29] ENEMY_TYPE_ORC_HOPLITE
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 15,
       .field_0x4 = {100, 0, 0, 0} },
 
-    // [0x1e]
+    // [30] ENEMY_TYPE_ORC_HOPLITE_ELITE
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 20,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x1f]
+    // [31] ENEMY_TYPE_URUK
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x20]
+    // [32] ENEMY_TYPE_URUK_ELITE
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 50,
       .field_0x4 = {110, 0, 0, 0} },
 
-    // [0x21]
+    // [33] ENEMY_TYPE_URUK_CROSSBOWMAN
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x22]
+    // [34] ENEMY_TYPE_URUK_CROSSBOWMAN_ELITE
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 50,
       .field_0x4 = {105, 0, 0, 0} },
 
-    // [0x23]
+    // [35] ENEMY_TYPE_URUK_BERSERKER
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = -31,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x24]
+    // [36] ENEMY_TYPE_URUK_BERSERKER_ELITE
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = -31,
       .prefixTierChance = 20,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x25]
+    // [37] ENEMY_TYPE_WILDMAN
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x26]
+    // [38] ENEMY_TYPE_WILDMAN_ELITE
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 35,
       .field_0x4 = {105, 0, 0, 0} },
 
-    // [0x27]
+    // [39] ENEMY_TYPE_MOUNTAIN_TROLL
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 100,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x28]
+    // [40] ENEMY_TYPE_HALF_TROLL
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 90,
       .field_0x4 = {105, 0, 0, 0} },
 
-    // [0x29]
+    // [41] ENEMY_TYPE_SPIDER
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x2a]
+    // [42] ENEMY_TYPE_SPIDER_RED
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 75,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x2b]
+    // [43] ENEMY_TYPE_SPIDER_GREEN
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 25,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x2c]
+    // [44] ENEMY_TYPE_SPIDER_SMALL
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = -31,
       .prefixTierChance = 5,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x2d]
+    // [45] ENEMY_TYPE_CORSAIR
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x2e]
+    // [46] ENEMY_TYPE_CORSAIR_ELITE
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 60,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x2f]
+    // [47] ENEMY_TYPE_CORSAIR_CAPTAIN
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 100,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x30]
+    // [48] ENEMY_TYPE_WARG
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = -31,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x31]
+    // [49] ENEMY_TYPE_WARG_ELITE
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = -31,
       .prefixTierChance = 20,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x32]
+    // [50] ENEMY_TYPE_HARADRIM_ARCHER
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x33]
+    // [51] ENEMY_TYPE_HARADRIM_ARCHER_ELITE
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 70,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x34]
+    // [52] ENEMY_TYPE_EASTERLING_HEAVY
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 7,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x35]
+    // [53] ENEMY_TYPE_EASTERLING_LIGHT
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x36]
+    // [54] ENEMY_TYPE_EASTERLING_ELITE
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 90,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x37]
+    // [55] ENEMY_TYPE_CREBAIN
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = -31,
       .prefixTierChance = 1,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x38]
+    // [56] ENEMY_TYPE_BAT
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = -31,
       .prefixTierChance = 1,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x39]
+    // [57] ENEMY_TYPE_GHOST
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 20,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x3a]
+    // [58] ENEMY_TYPE_NAZGUL
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 55,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x3b]
+    // [59] ENEMY_TYPE_FLY_SWARM
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = -31,
       .prefixTierChance = 5,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x3c]
+    // [60] ENEMY_TYPE_SHELOB
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 100,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x3d]
+    // [61] ENEMY_TYPE_GROND
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 100,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x3e]
+    // [62] ENEMY_TYPE_SARUMAN
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 100,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x3f]
+    // [63] ENEMY_TYPE_DENETHOR
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 100,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x40]
+    // [64] ENEMY_TYPE_WITCH_KING
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 100,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x41]
+    // [65] ENEMY_TYPE_GOLLUM
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 100,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x42]
+    // [66] ENEMY_TYPE_MUMAKIL
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 100,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x43]
+    // [67] ENEMY_TYPE_KING_OF_THE_DEAD
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 25,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x44]
+    // [68] ENEMY_TYPE_MOUTH_OF_SAURON
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 100,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x45]
+    // [69] ENEMY_TYPE_FLYING_NAZGUL
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 100,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x46]
+    // [70] ENEMY_TYPE_GROUND_SKELETON
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 7,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x47]
+    // [71] ENEMY_TYPE_SKELETON_WARRIOR
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 10,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x48]
+    // [72] ENEMY_TYPE_SKELETON_WARRIOR_ELITE
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = -31,
       .prefixTierChance = 7,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x49]
+    // [73] ENEMY_TYPE_GONDOR_SOLDIER
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = 0,
       .prefixTierChance = 7,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x4a]
+    // [74] ENEMY_TYPE_UNUSED_74
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = -31,
       .prefixTierChance = 5,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x4b]
+    // [75] ENEMY_TYPE_UNUSED_75
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = -31,
       .prefixTierChance = 5,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x4c]
+    // [76] ENEMY_TYPE_UNUSED_76
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = -31,
       .prefixTierChance = 5,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x4d]
+    // [77] ENEMY_TYPE_UNUSED_77
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = -31,
       .prefixTierChance = 5,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x4e]
+    // [78] ENEMY_TYPE_UNUSED_78
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = -31,
       .prefixTierChance = 5,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x4f]
+    // [79] ENEMY_TYPE_UNUSED_79
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = -31,
       .prefixTierChance = 5,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x50]
+    // [80] ENEMY_TYPE_UNUSED_SHELOB_CLONE
     { .dropChanceBonus = 45,
       .qualityLo = 70,
       .qualityHi = 0,
       .prefixTierChance = 100,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x51]
+    // [81] ENEMY_TYPE_UNUSED_81
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = -31,
       .prefixTierChance = 5,
       .field_0x4 = {95, 0, 0, 0} },
 
-    // [0x52]
+    // [82] ENEMY_TYPE_UNUSED_82
     { .dropChanceBonus = 0,
       .qualityLo = 0,
       .qualityHi = -31,

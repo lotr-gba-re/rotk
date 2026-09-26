@@ -1,5 +1,6 @@
 #include "loot.h"
 #include "actor.h"
+#include "enemy.h"
 #include "game.h"
 #include "item.h"
 #include "math.h"
@@ -128,10 +129,11 @@ u8 loot_generateDrop(Item *itemOut, u8 playerIndex, s16 extraTreasurePercent, u8
 
     item_clearSlot((u32 *)itemOut);
 
-    // Scripted missions: certain enemy types drop a health drop outright.
+    // Scripted: Pitchfork Orcs always drop health items in the Mouth of Sauron fight and the
+    //           Witch King fight.
     if (((g_CurrentMissionId == MISSION_ITHILIEN_BLACK_GATE && g_MissionVariant == 1) ||
          (g_CurrentMissionId == MISSION_PELENNOR_BATTLE_WITCH_KING && g_MissionVariant == 4)) &&
-        unitType > 5 && unitType < 10)
+        unitType >= ENEMY_TYPE_ORC_PITCHFORK_1 && unitType <= ENEMY_TYPE_ORC_PITCHFORK_4)
     {
         kind = loot_rollHealthDrop();
     }

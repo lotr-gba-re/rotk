@@ -74,4 +74,3 @@ def run() -> None:
     addr, src = emit_scene_handlers(rom, names_by_addr)
     print(f"  carved {src}")
     upsert_map([(addr, src)], owned_dirs=["scene"])
-    print("  updated config/split.cfg. Now run: make verify")

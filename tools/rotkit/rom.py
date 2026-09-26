@@ -9,7 +9,7 @@ from rotkit.paths import BUILD, ROM
 from rotkit.stores import read_split
 
 ROMBASE = 0x08000000
-# compiled TU -> split/<stem>.bin (stem = path minus src/ or carved/)
+# compiled TU -> split/<stem>.bin (strip src/, carved/, or build/generated/)
 BIN_DIR = BUILD / "split"
 
 _rom: bytes | None = None
@@ -47,7 +47,11 @@ def regions() -> list[Region]:
     """split.cfg regions, sorted by address."""
     rows = []
     for src, addr in read_split().items():
-        rel = src.removeprefix("src/").removeprefix("carved/")
+        rel = (
+            src.removeprefix("src/")
+            .removeprefix("carved/")
+            .removeprefix("build/generated/")
+        )
         stem = os.path.splitext(rel)[0]
         rows.append(Region(addr, os.path.join(BIN_DIR, stem + ".bin"), src))
     return sorted(rows, key=lambda r: r.addr)

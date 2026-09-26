@@ -241,8 +241,8 @@ def required_levels_addr(hero: str) -> int:
     )
 
 
-def check_arithmetic() -> None:
-    """Print the layout arithmetic and fail on any inconsistency."""
+def print_layout_arithmetic() -> None:
+    """Print the skill-table layout breakdown."""
     print("  layout arithmetic")
     print(
         f"    row       0x{ROW_SIZE:02x} = 0x04 callback + 0x02 spiritCost"
@@ -271,6 +271,10 @@ def check_arithmetic() -> None:
         f" 0x{REQUIRED_LEVELS_ADDR:08x}.."
         f"0x{REQUIRED_LEVELS_ADDR + HERO_COUNT * REQUIRED_LEVELS_ROWS * REQUIRED_LEVELS_COLUMNS - 1:08x}"
     )
+
+
+def check_arithmetic() -> None:
+    """Fail on any inconsistent layout constants."""
     assert ROWS_SIZE == 0xF0, "6 rows must end exactly where passiveSkillIds starts"
     assert OBJECT_SIZE == 0xF9 and OBJECT_STRIDE == 0xFC
     assert REQUIRED_LEVELS_ROWS == REQUIRED_LEVELS_COLUMNS == 6, "one column per level"
@@ -467,12 +471,14 @@ def print_callback_table(rom: bytes, names_by_addr: dict[int, str]) -> None:
         print(f"    0x{addr:08x}  {name}")
 
 
-def run() -> None:
+def run(verbose: bool = False) -> None:
     rom = load_rom()
     labels = skill_labels(rom)
     names_by_addr = {symbol.addr & ~1: symbol.name for symbol in func_symbols()}
     check_arithmetic()
-    print_callback_table(rom, names_by_addr)
+    if verbose:
+        print_layout_arithmetic()
+        print_callback_table(rom, names_by_addr)
     entries = []
 
     table = _owned_table("PassiveSkills", "PassiveSkill[")
@@ -509,4 +515,3 @@ def run() -> None:
         entries.append((addr, src))
 
     upsert_map(entries, owned_files=_OWNED_FILES)
-    print("  updated config/split.cfg. Now run: make verify")

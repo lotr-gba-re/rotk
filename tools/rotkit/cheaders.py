@@ -1,10 +1,11 @@
-"""Read enum values, struct field names and #define values back out of the headers with
-libclang, so carved C names identifiers exactly as the compiler sees them. The headers are
-host-portable C89, so a host libclang yields the same enumerator values agbcc would.
+"""Read enum values, struct fields, #defines and type layouts with libclang.
+
+Naming helpers use host parsing. Type layouts use the ARM target ABI.
 """
 
 import os
 import re
+from collections.abc import Sequence
 from typing import Any
 
 from rotkit.paths import INCLUDE, ROOT
@@ -27,6 +28,67 @@ def _index() -> Any:
                 cindex.Config.set_library_file(cand)
                 return cindex.Index.create()
         raise
+
+
+def extract_type_layouts(
+    headers: Sequence[str], include_dirs: Sequence[str]
+) -> dict[str, dict[str, int]]:
+    """ARM record alignments and enum widths for Ghidra's header importer."""
+    from clang import cindex
+
+    source = "\n".join(f'#include "{header}"' for header in headers)
+    path = str(ROOT / "__rotkit_layouts.c")
+    tu = _index().parse(
+        path,
+        args=[
+            "--target=arm-none-eabi",
+            "-nostdinc",
+            *["-I" + directory for directory in include_dirs],
+        ],
+        unsaved_files=[(path, source)],
+    )
+    errors = [str(d) for d in tu.diagnostics if d.severity >= cindex.Diagnostic.Error]
+    if errors:
+        raise ValueError("cannot read header layouts:\n" + "\n".join(errors))
+    alignments = {}
+    packings = {}
+    enum_sizes = {}
+    for node in tu.cursor.walk_preorder():
+        if not node.is_definition() or not node.spelling:
+            continue
+        if (
+            node.kind
+            in (
+                cindex.CursorKind.STRUCT_DECL,
+                cindex.CursorKind.UNION_DECL,
+            )
+            and not node.is_anonymous()
+        ):
+            attrs = {child.kind for child in node.get_children()}
+            if cindex.CursorKind.PACKED_ATTR in attrs:
+                packings[node.spelling] = 1
+            if attrs & {cindex.CursorKind.PACKED_ATTR, cindex.CursorKind.ALIGNED_ATTR}:
+                alignment = node.type.get_align()
+                if alignment <= 0:
+                    raise ValueError(f"cannot determine alignment of {node.spelling}")
+                alignments[node.spelling] = alignment
+        elif node.kind == cindex.CursorKind.ENUM_DECL:
+            size = node.type.get_size()
+            if size <= 0:
+                raise ValueError(f"cannot determine size of {node.spelling}")
+            enum_sizes[node.spelling] = size
+    return {
+        "record_alignments": alignments,
+        "record_packings": packings,
+        "enum_sizes": enum_sizes,
+    }
+
+
+def extract_record_alignments(
+    headers: Sequence[str], include_dirs: Sequence[str]
+) -> dict[str, int]:
+    """ARM alignment of named struct/union definitions with layout attributes."""
+    return extract_type_layouts(headers, include_dirs)["record_alignments"]
 
 
 def extract_enum(

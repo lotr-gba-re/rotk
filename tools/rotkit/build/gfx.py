@@ -10,6 +10,7 @@ PNGs, or any rotkit module loaded here, is newer than its .inc; its reference sh
 redrawn from the PNGs at the same time.
 """
 
+import json
 import os
 import re
 import sys
@@ -20,17 +21,21 @@ from typing import Callable
 from rotkit import bgasset
 from rotkit.carve import (
     bg_assets,
+    enemy_graphics,
     item_gfx,
     level_icons,
     loot_piles,
     skill_icons,
     write_sheet,
 )
+from rotkit.build.enemy_asset_sources import group_for_source
+from rotkit.build.enemy_graphics import encode_category as encode_enemy_category
 from rotkit.compression import lz77
 from rotkit.paths import BUILD, CARVED_DATA, GFX_LOCAL, ROM, ROOT
 from rotkit.png import IndexedImage, read_indexed, rgb_to_bgr555
 from rotkit.rom import load_rom
 from rotkit.spritegfx import cell_oam, pixels_to_tiles
+from rotkit.stores import read_split
 
 Encoder = Callable[[Path], tuple[str, IndexedImage]]
 
@@ -230,6 +235,11 @@ CARVERS: dict[ModuleType, Encoder] = {
 }
 
 
+CATEGORY_ENCODERS: dict[ModuleType, Callable[[Path], tuple[str, int]]] = {
+    enemy_graphics: encode_enemy_category,
+}
+
+
 def _categories(group: str) -> list[Path]:
     """A group's image directories: every directory holding PNGs, at whatever depth (item
     graphics nest a variant under the item type, a group with no split holds its own
@@ -247,7 +257,11 @@ def _category(category_dir: Path) -> str:
 def _write_inc(category: str, text: str) -> None:
     inc = BUILD / "gfx" / f"{category}.inc"
     inc.parent.mkdir(parents=True, exist_ok=True)
-    inc.write_text(text)
+    if inc.exists() and inc.read_text() == text:
+        return
+    temporary = inc.with_suffix(".inc.tmp")
+    temporary.write_text(text)
+    temporary.replace(inc)
 
 
 def encode_category(encoder: Encoder, category_dir: Path) -> int:
@@ -266,7 +280,8 @@ def encode_category(encoder: Encoder, category_dir: Path) -> int:
 
 
 _MACRO_REF = re.compile(
-    r"\b([A-Za-z0-9]+)_(TILES|TILES_SIZE|PALETTE|MAP|FRAME\d+_(?:LZ77|OFFSET))\b"
+    r"\b([A-Za-z0-9]+|EnemyAnimation_[A-Za-z0-9_]+)"
+    r"_(TILES|TILES_SIZE|PALETTE|MAP|FRAME\d+_(?:LZ77|OFFSET))\b"
 )
 # Asset macros name their symbol once and expand its byte lists internally.
 _ICON_MACRO = re.compile(r"\bITEM_(?:BACKPACK_ICON(?:_BOXED)?|BG_ICON)\((\w+)")
@@ -275,7 +290,7 @@ _TILES_ONLY_MACRO = re.compile(r"\bBG_ASSET_TILES_ONLY\((\w+)")
 
 def _placeholders(carver: ModuleType) -> int:
     """No ROM, no images: define every macro the carver's committed TUs expand."""
-    count = 0
+    placeholders: dict[str, set[str]] = {}
     for group in getattr(carver, "DATA_GROUPS", carver.GROUPS):
         for src in (CARVED_DATA / group).glob("*.c"):
             text = src.read_text()
@@ -295,22 +310,20 @@ def _placeholders(carver: ModuleType) -> int:
                 for symbol in _TILES_ONLY_MACRO.findall(text)
                 for suffix in ("TILES", "TILES_SIZE")
             }
-            # A sized tiles array needs at least one element. When a TU includes several
-            # categories, the first include can supply all its placeholders and the rest
-            # only need to exist.
-            lines = "".join(
-                f"#define {macro} {4 if macro.endswith('_TILES_SIZE') else 0}\n"
-                for macro in sorted(macros)
-            )
-            for index, include in enumerate(includes):
-                expected = lines if index == 0 else ""
-                path = BUILD / "gfx" / f"{include}.inc"
-                if not (
-                    path.exists() and path.read_text() == expected
-                ):  # keep the TU's mtime
-                    _write_inc(include, expected)
-            count += len(macros)
-    return count
+            # The first include supplies the TU's placeholders. Several TUs may share it.
+            placeholders.setdefault(includes[0], set()).update(macros)
+            for include in includes[1:]:
+                placeholders.setdefault(include, set())
+
+    for include, macros in placeholders.items():
+        lines = "".join(
+            f"#define {macro} {4 if macro.endswith('_TILES_SIZE') else 0}\n"
+            for macro in sorted(macros)
+        )
+        path = BUILD / "gfx" / f"{include}.inc"
+        if not (path.exists() and path.read_text() == lines):  # keep the TU's mtime
+            _write_inc(include, lines)
+    return sum(len(macros) for macros in placeholders.values())
 
 
 def _tool_mtime() -> float:
@@ -323,20 +336,49 @@ def _tool_mtime() -> float:
     )
 
 
+def _input_state(category_dir: Path, tool_mtime: float) -> dict:
+    files = {}
+    for path in sorted(category_dir.iterdir()):
+        if path.suffix in (".png", ".bin", ".json") and path.is_file():
+            stat = path.stat()
+            files[path.name] = [stat.st_mtime_ns, stat.st_size]
+    return {"tool_mtime": tool_mtime, "files": files}
+
+
+def _state_path(category_dir: Path) -> Path:
+    return BUILD / "gfx" / f"{_category(category_dir)}.inputs.json"
+
+
 def _stale(category_dir: Path, tool_mtime: float) -> bool:
     inc = BUILD / "gfx" / f"{_category(category_dir)}.inc"
     if not inc.exists():
         return True
-    newest = max(
-        tool_mtime, *(png.stat().st_mtime for png in category_dir.glob("*.png"))
-    )
-    return newest > inc.stat().st_mtime
+    try:
+        previous = json.loads(_state_path(category_dir).read_text())
+    except (FileNotFoundError, ValueError):
+        return True
+    return previous != _input_state(category_dir, tool_mtime)
+
+
+def _check_categories(carver: ModuleType, categories: list[Path]) -> None:
+    expected = {
+        f"enemy/{group}"
+        for source in read_split()
+        if (group := group_for_source(source)) is not None
+    }
+    actual = {_category(directory) for directory in categories}
+    if expected != actual:
+        raise SystemExit(
+            f"build gfx: {carver.GROUPS}: missing categories {sorted(expected - actual)}, "
+            f"unexpected categories {sorted(actual - expected)}; run rotkit carve enemy-graphics "
+            "to regenerate canonical assets"
+        )
 
 
 def run() -> None:
     rom = None
     tool_mtime = _tool_mtime()
-    for carver, encoder in CARVERS.items():
+    for carver in [*CARVERS, *CATEGORY_ENCODERS]:
         groups = {g: _categories(g) for g in carver.GROUPS}
         if not all(groups.values()):
             if os.path.isfile(ROM):
@@ -351,9 +393,21 @@ def run() -> None:
                 )
                 continue
         categories = [d for dirs in groups.values() for d in dirs]
-        encoded = sum(
-            encode_category(encoder, d) for d in categories if _stale(d, tool_mtime)
-        )
+        if carver in CATEGORY_ENCODERS:
+            _check_categories(carver, categories)
+        encoded = 0
+        for directory in categories:
+            if not _stale(directory, tool_mtime):
+                continue
+            if carver in CATEGORY_ENCODERS:
+                text, count = CATEGORY_ENCODERS[carver](directory)
+                _write_inc(_category(directory), text)
+                encoded += count
+            else:
+                encoded += encode_category(CARVERS[carver], directory)
+            _state_path(directory).write_text(
+                json.dumps(_input_state(directory, tool_mtime)) + "\n"
+            )
         print(
             f"build gfx: {', '.join(carver.GROUPS)}:"
             f" {len(categories)} categories, {encoded} encoded"

@@ -59,6 +59,7 @@ def run(analyze: bool = False) -> None:
     tmode = program.getRegister("TMode")
 
     typemap = {}
+    enum_values = {}
 
     def resolve_type(s: str):
         s = s.strip()
@@ -84,7 +85,15 @@ def run(analyze: bool = False) -> None:
             if not inner:
                 # unsized arrays (e.g. `u8[]`) have no fixed length to apply
                 return None
-            n = int(inner, 0)
+            try:
+                n = int(inner, 0)
+            except ValueError:
+                n = enum_values.get(inner)
+                if n is None:
+                    errors.append(
+                        f"array length {inner!r} is not an integer or enum value"
+                    )
+                    return None
             return ArrayDataType(base, n, base.getLength())
         dt = typemap.get(s)
         if dt is None:
@@ -96,43 +105,17 @@ def run(analyze: bool = False) -> None:
         # 1. types
         fdefs = parse_headers.parse_into(dtm, monitor)
         print(f"parsed headers: {len(fdefs)} prototypes into DTM")
-        # Ghidra's C parser hardcodes every enum to 4 bytes (Ghidra issue #4518), ignoring
-        # __attribute__((packed)). Resize each enum to its minimal width so packed 1-byte
-        # enum fields land at the right offset and their structs repack (community ResizeEnums.py).
         from ghidra.program.model.data import Enum
 
-        alldt = []
-        it = dtm.getAllDataTypes()
-        while it.hasNext():
-            alldt.append(it.next())
-        nresized = 0
-        for dt in alldt:
-            if not isinstance(dt, Enum):
-                continue
-            vals = [int(v) for v in dt.getValues()]
-            if not vals:
-                continue
-            lo, hi = min(vals), max(vals)
-            want = 8
-            for nb in (1, 2, 4):
-                bits = nb * 8
-                if (lo >= 0 and hi < (1 << bits)) or (
-                    lo < 0 and -(1 << (bits - 1)) <= lo and hi < (1 << (bits - 1))
-                ):
-                    want = nb
-                    break
-            if want != dt.getLength():
-                edit = dt.copy(dtm)
-                edit.setLength(want)
-                dt.replaceWith(edit)
-                nresized += 1
-        print(f"resized {nresized} enum(s) to packed width")
-        # build name->DataType map (CParserUtils files types under category paths,
-        # not /Name, so resolve by simple name across all categories)
+        # Build name->DataType and enum-value maps. CParserUtils files types under
+        # category paths, not /Name, so resolve both by simple name across categories.
         it = dtm.getAllDataTypes()
         while it.hasNext():
             dt = it.next()
             typemap.setdefault(dt.getName(), dt)
+            if isinstance(dt, Enum):
+                for name in dt.getNames():
+                    enum_values.setdefault(str(name), int(dt.getValue(name)))
 
         # 2. functions.
         # Phase A: set every function's TMode (arm/thumb) BEFORE any disassembly -

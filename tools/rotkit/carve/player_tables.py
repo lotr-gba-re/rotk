@@ -56,4 +56,3 @@ def run() -> None:
     src = emit_xp_thresholds(table.name, table.addr, table.count, rom)
     print(f"  carved {src}  ({table.count} entries)")
     upsert_map([(table.addr, src)], owned_files=[_XP_THRESHOLDS_PATH])
-    print("  updated config/split.cfg. Now run: make verify")

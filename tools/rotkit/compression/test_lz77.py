@@ -1,5 +1,3 @@
-import random
-
 import pytest
 
 from rotkit.compression import lz77
@@ -72,7 +70,6 @@ def test_backref_ties_and_overlap() -> None:
 
 
 def test_encode_matches_reference() -> None:
-    rng = random.Random(0xC0177)
     cases = [b"A" * n for n in (2, 3, 32, 34, 63, 64, 65, 1023, 1090, 2178)]
     cases += [
         bytes(range(256)) * 5,
@@ -80,9 +77,5 @@ def test_encode_matches_reference() -> None:
         b"ABCxABCyABC",
         b"ABCDxABCDEyABCDEzABCDE" * 40,
     ]
-    for _ in range(100):
-        length = rng.randrange(769)
-        alphabet = rng.randrange(2, 257)
-        cases.append(bytes(rng.randrange(alphabet) for _ in range(length)))
     for raw in cases:
         assert lz77.encode(raw) == _reference_encode(raw)

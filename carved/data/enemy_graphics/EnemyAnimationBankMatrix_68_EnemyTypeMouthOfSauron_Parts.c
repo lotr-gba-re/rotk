@@ -1,0 +1,15 @@
+#include "spriteAnimation.h"
+#include "variables.h"
+
+// clang-format off
+
+/** @romaddress 0x0806dfbc */
+const SpriteAnimation *const EnemyTypeMouthOfSauronPartAnimationBanks[6][7] = {
+    { EnemyAnimationBank_EnemyTypeMouthOfSauron_Walk, EnemyAnimationBank_EnemyTypeMouthOfSauron_Stand, EnemyAnimationBank_EnemyTypeMouthOfSauron_ExtraPose00, EnemyAnimationBank_EnemyTypeMouthOfSauron_Death, EnemyAnimationBank_EnemyTypeMouthOfSauron_Attack, NULL, NULL },
+    { EnemyAnimationBank_EnemyTypeMouthOfSauron_ExtraPose02, EnemyAnimationBank_EnemyTypeMouthOfSauron_ExtraPose03, EnemyAnimationBank_EnemyTypeSaruman_ExtraPose00, EnemyAnimationBank_EnemyTypeSaruman_ExtraPose01, EnemyAnimationBank_EnemyTypeSaruman_ExtraPose02, NULL, NULL },
+    { EnemyAnimationBank_EnemyTypeMouthOfSauron_ExtraPose02, EnemyAnimationBank_EnemyTypeMouthOfSauron_ExtraPose03, EnemyAnimationBank_EnemyTypeMouthOfSauron_ExtraPose01, EnemyAnimationBank_EnemyTypeSaruman_ExtraPose01, EnemyAnimationBank_EnemyTypeSaruman_ExtraPose02, NULL, NULL },
+    { EnemyAnimationBank_EnemyTypeMouthOfSauron_ExtraPose02, EnemyAnimationBank_EnemyTypeMouthOfSauron_ExtraPose03, EnemyAnimationBank_EnemyTypeSaruman_ExtraPose00, EnemyAnimationBank_EnemyTypeSaruman_ExtraPose01, EnemyAnimationBank_EnemyTypeSaruman_ExtraPose02, NULL, NULL },
+    { EnemyAnimationBank_EnemyTypeMouthOfSauron_ExtraPose02, EnemyAnimationBank_EnemyTypeMouthOfSauron_ExtraPose03, EnemyAnimationBank_EnemyTypeSaruman_ExtraPose00, EnemyAnimationBank_EnemyTypeSaruman_ExtraPose01, EnemyAnimationBank_EnemyTypeSaruman_ExtraPose02, NULL, NULL },
+    { EnemyAnimationBank_EnemyTypeMouthOfSauron_ExtraPose02, EnemyAnimationBank_EnemyTypeMouthOfSauron_ExtraPose03, EnemyAnimationBank_EnemyTypeSaruman_ExtraPose00, EnemyAnimationBank_EnemyTypeSaruman_ExtraPose01, EnemyAnimationBank_EnemyTypeSaruman_ExtraPose02, NULL, NULL },
+};
+// clang-format on

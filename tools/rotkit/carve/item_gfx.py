@@ -47,6 +47,7 @@ from rotkit.spritegfx import (
     SPRITE_FRAME_LZ77,
     FrameSet,
     OamTemplate,
+    SpriteBounds,
     parse_frame_set,
     pixels_to_tiles,
     tiles_to_pixels,
@@ -185,7 +186,8 @@ def _read_backpack_icon(
         f"{where}: frame set is {frame_set.width}x{frame_set.height} x{frame_set.frame_count}",
     )
     _check(
-        frame_set.field_0x2 == bytes(4) and frame_set.field_0xa == 0,
+        frame_set.movement_collision_box == SpriteBounds(0, 0, 0, 0)
+        and frame_set.hotspot_count == 0,
         f"{where}: unexpected header fields",
     )
     _check(
@@ -209,8 +211,9 @@ def _read_backpack_icon(
         f"{where}: OAM templates {frame.oam} differ from ICON_OAM",
     )
     _check(
-        frame_set.frame_count == 1 and frame_set.field_0x8 == frame.tile_bytes,
-        f"{where}: field_0x8",
+        frame_set.frame_count == 1
+        and frame_set.max_frame_tile_bytes == frame.tile_bytes,
+        f"{where}: maxFrameTileBytes",
     )
     _check(
         frame_set.trigger_box_count <= 1,
@@ -426,14 +429,14 @@ _EXPECTED_FIELDS = {
     "SpriteFrameSetHeader": [
         "width",
         "height",
-        "field_0x2",
+        "movementCollisionBox",
         "frameCount",
-        "field_0x8",
-        "field_0xa",
+        "maxFrameTileBytes",
+        "hotspotCount",
         "triggerBoxCount",
     ],
-    "SpriteFrame": ["flags", "field_0x1", "width", "height", "tileOffset", "tileBytes"],
-    "SpriteIconFrameSet": ["header", "frameOffsets", "frame", "oam", "padding"],
+    "SpriteFrame": ["flags", "width", "height", "tileOffset", "tileBytes"],
+    "SpriteIconFrameSet": ["header", "frameOffsets", "frame", "oam"],
     "SpriteIconBoxedFrameSet": [
         "header",
         "frameOffsets",
@@ -441,7 +444,7 @@ _EXPECTED_FIELDS = {
         "triggerBoxes",
         "oam",
     ],
-    "ActorTriggerBox": ["xMin", "xMax", "yMin", "yMax", "enable", "pad"],
+    "ActorTriggerBox": ["xMin", "xMax", "yMin", "yMax", "enable"],
 }
 
 
@@ -563,4 +566,3 @@ def run(captions: CaptionsOption = True) -> None:
             print(f"  carved {src}  ({len(group)} icons)")
     _write_cfg(carve)
     upsert_map(entries, owned_dirs=list(GROUPS))
-    print("  updated config/split.cfg. Now run: make verify")

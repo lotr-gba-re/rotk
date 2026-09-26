@@ -33,7 +33,7 @@ static inline void applyStun(Actor *attacker, Actor *victim, u32 playerIndex, u8
  */
 static inline void applyFlinch(Actor *victim, u32 playerIndex, u32 unitType)
 {
-    victim->hitStunTimer = EnemyTypes[unitType].hitStun;
+    victim->hitStunTimer = EnemyTypeInfos[unitType].hitStun;
     victim->actionState = ACTOR_STATE_HURT;
     victim->field_0x64[0] |= 2;
     victim->actionStateTimer = PLAYER_STAT(playerIndex, STAT_FOE_STUN_TIME) + 5;
@@ -64,9 +64,12 @@ s32 combat_resolvePveAttack(Actor *attacker, Actor *victim)
     u32 noFlinchFlags;
     Vector2Int diff;
 
-    if ((u8)(unitType - 0x1d) < 2 && victim->actionState != 0x0e && victim->actionState != 0x8)
+    u8 victimType = unitType;
+
+    if (victimType >= ENEMY_TYPE_ORC_HOPLITE && victimType <= ENEMY_TYPE_ORC_HOPLITE_ELITE &&
+        victim->actionState != 0x0e && victim->actionState != 0x8)
     {
-        // These enemies can only be hit on backstab. Probably shield carriers.
+        // ENEMY_TYPE_ORC_HOPLITE and ENEMY_TYPE_ORC_HOPLITE_ELITE can only be hit on backstab.
         hitPossible = combat_isBackstab(attacker, victim);
     }
 
@@ -219,8 +222,9 @@ s32 combat_resolvePveAttack(Actor *attacker, Actor *victim)
                         }
                         applyStun(attacker, victim, playerIndex, noFlinchFlags);
                     }
-                    // knockback-via-state for one creature family
-                    else if (unitType - 10 <= 7 && victim->behaviorState == 0x14 &&
+                    else if (unitType >= ENEMY_TYPE_ORC_WARRIOR_AXE &&
+                             unitType <= ENEMY_TYPE_ORC_WARRIOR_ELITE_LONGSWORD &&
+                             victim->behaviorState == 0x14 &&
                              (crit || (PLAYER(playerIndex).combatFlags.p &
                                        PLAYER_COMBAT_FLAG_FORCE_CRIT_UNKNOWN)))
                     {
@@ -241,7 +245,9 @@ s32 combat_resolvePveAttack(Actor *attacker, Actor *victim)
                         }
                     }
                 }
-                else if (unitType != 0x3c && unitType != 0x50 && unitType != 0x42)
+                else if (unitType != ENEMY_TYPE_SHELOB &&
+                         unitType != ENEMY_TYPE_UNUSED_SHELOB_CLONE &&
+                         unitType != ENEMY_TYPE_MUMAKIL)
                 {
                     if (victim->hitStunTimer <= 0 || victim->currentHp <= 0)
                     {
@@ -554,7 +560,7 @@ bool combat_resolveEnemyAttackOnPlayer(Actor *attacker, Actor *victim)
             return FALSE;
         }
 
-        if (EnemyTypes[unitType].attackFlags.p & ENEMY_ATTACK_RANGED)
+        if (EnemyTypeInfos[unitType].attackFlags.p & ENEMY_ATTACK_RANGED)
         {
             if (combat_rollAvoidance(STAT_ARROW_PARRY_PERCENT, playerIndex))
             {
@@ -632,7 +638,7 @@ bool combat_resolveEnemyAttackOnPlayer(Actor *attacker, Actor *victim)
         }
 
         if (PLAYER_STAT(playerIndex, STAT_CURSED) != 0 &&
-            EnemyTypes[unitType].category == CREATURE_NAZGUL)
+            EnemyTypeInfos[unitType].family == ENEMY_FAMILY_NAZGUL)
         {
             maxDamage += PLAYER_STAT(playerIndex, STAT_CURSED) * 15;
         }
@@ -647,11 +653,11 @@ bool combat_resolveEnemyAttackOnPlayer(Actor *attacker, Actor *victim)
             {
                 damage = 5;
             }
-            if (crit || (EnemyTypes[unitType].attackFlags.p & ENEMY_ATTACK_MELEE_IMPALE) != 0)
+            if (crit || (EnemyTypeInfos[unitType].attackFlags.p & ENEMY_ATTACK_MELEE_IMPALE) != 0)
             {
                 percent = rng_rollRange(1, 100);
-                if ((EnemyTypes[unitType].attackFlags.p & ENEMY_ATTACK_RANGED) == 0 &&
-                    (unitType != 0x44 || percent < 41))
+                if (!(EnemyTypeInfos[unitType].attackFlags.p & ENEMY_ATTACK_RANGED) &&
+                    !(unitType == ENEMY_TYPE_MOUTH_OF_SAURON && percent > 40))
                 {
                     actor_resetActionState(victim);
                     victim->actionState = ACTOR_STATE_KNOCKED_DOWN;
@@ -861,7 +867,7 @@ bool combat_applyHazardHitOnEnemy(Actor *victim, u16 maxDamage)
     if (!(victim->flags.p & ACTOR_FLAG_INVULNERABLE))
     {
         damage = rng_rollRange(maxDamage / 2, maxDamage);
-        damage -= EnemyTypes[victim->unitType].slashArmor;
+        damage -= EnemyTypeInfos[victim->unitType].slashArmor;
         if (damage < 0)
         {
             damage = 1;
@@ -899,7 +905,7 @@ bool combat_applyPveRangedHit(Actor *attacker, Actor *victim, u16 baseDamage)
         {
             damage += PLAYER_STAT(playerIndex, STAT_WISDOM);
         }
-        damage -= EnemyTypes[unitType].slashArmor;
+        damage -= EnemyTypeInfos[unitType].slashArmor;
         if (damage < 0)
         {
             damage = 1;
@@ -920,7 +926,7 @@ bool combat_applyPveRangedHit(Actor *attacker, Actor *victim, u16 baseDamage)
         if (!(victim->flags.p & ACTOR_FLAG_NO_FLINCH) &&
             (victim->hitStunTimer <= 0 || victim->currentHp <= 0))
         {
-            victim->hitStunTimer = EnemyTypes[unitType].hitStun;
+            victim->hitStunTimer = EnemyTypeInfos[unitType].hitStun;
             victim->actionState = ACTOR_STATE_HURT;
             victim->field_0x64[0] |= 2;
             victim->actionStateTimer = PLAYER_STAT(playerIndex, STAT_FOE_STUN_TIME) + 5;

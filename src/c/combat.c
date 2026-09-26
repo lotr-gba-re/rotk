@@ -18,7 +18,7 @@
  *
  * @romaddress 0x08010818
  */
-u16 combat_getEnemyMaxHp(u16 enemyIndex)
+u16 combat_getEnemyMaxHp(u16 enemyType)
 {
     u16 maxHp = 0;
 
@@ -26,19 +26,19 @@ u16 combat_getEnemyMaxHp(u16 enemyIndex)
     // +200% for hard, +400% for grueling.
     if (g_SaveGlobals.d.optionsFlags.p & OPTION_FLAG_DIFFICULTY_GRUELING)
     {
-        maxHp = math_percentOf(EnemyTypes[enemyIndex].maxHp, 400);
+        maxHp = math_percentOf(EnemyTypeInfos[enemyType].maxHp, 400);
     }
     else if (g_SaveGlobals.d.optionsFlags.p & OPTION_FLAG_DIFFICULTY_HARD)
     {
-        maxHp = math_percentOf(EnemyTypes[enemyIndex].maxHp, 200);
+        maxHp = math_percentOf(EnemyTypeInfos[enemyType].maxHp, 200);
     }
     // Co-op stacks another +50% on top of the difficulty bonus.
     if (g_GameFlags.p & GAME_FLAG_COOP_ACTIVE)
     {
-        maxHp += math_percentOf(EnemyTypes[enemyIndex].maxHp, 50);
+        maxHp += math_percentOf(EnemyTypeInfos[enemyType].maxHp, 50);
     }
     // Add the base HP on top of the accumulated bonuses.
-    maxHp += EnemyTypes[enemyIndex].maxHp;
+    maxHp += EnemyTypeInfos[enemyType].maxHp;
     if (g_GameFlags.p & GAME_FLAG_CORRUPTION_TIER_1)
     {
         maxHp += math_percentOf(maxHp, 50);
@@ -67,16 +67,16 @@ u16 combat_handleEnemyAttackOnPlayerStatusArmorSfx(Actor *attacker, Actor *victi
     bool statusApplies = TRUE;
     s32 cut;
 
-    if (EnemyTypes[attackerType].attackFlags.p & ENEMY_ATTACK_RANGED)
+    if (EnemyTypeInfos[attackerType].attackFlags.p & ENEMY_ATTACK_RANGED)
     {
         armor = PLAYER_STAT(playerIndex, STAT_MISSILE_ARMOR);
         *outHitSfx = SFX_COMBAT_HIT_MISSILE;
     }
-    else if (EnemyTypes[attackerType].attackFlags.p & ENEMY_ATTACK_MELEE_MASK)
+    else if (EnemyTypeInfos[attackerType].attackFlags.p & ENEMY_ATTACK_MELEE_MASK)
     {
         armor = PLAYER_STAT(playerIndex, STAT_MELEE_ARMOR);
 
-        if (EnemyTypes[attackerType].attackFlags.p & ENEMY_ATTACK_MELEE_SLASH)
+        if (EnemyTypeInfos[attackerType].attackFlags.p & ENEMY_ATTACK_MELEE_SLASH)
         {
             *outHitSfx = SFX_COMBAT_HIT_SLASH;
         }
@@ -92,10 +92,10 @@ u16 combat_handleEnemyAttackOnPlayerStatusArmorSfx(Actor *attacker, Actor *victi
         statusApplies = FALSE;
     }
 
-    if ((EnemyTypes[attackerType].attackFlags.p & ENEMY_ATTACK_POISON) && statusApplies == TRUE)
+    if ((EnemyTypeInfos[attackerType].attackFlags.p & ENEMY_ATTACK_POISON) && statusApplies == TRUE)
     {
         victim->as.combat.venomDuration =
-            EnemyTypes[attackerType].poisonPower * STATUS_FRAMES_PER_POWER;
+            EnemyTypeInfos[attackerType].poisonPower * STATUS_FRAMES_PER_POWER;
 
         if (PLAYER_STAT(playerIndex, STAT_POISON_RESIST_PERCENT) > 0)
         {
@@ -112,10 +112,10 @@ u16 combat_handleEnemyAttackOnPlayerStatusArmorSfx(Actor *attacker, Actor *victi
         player_subtractHp(playerIndex, 2, FALSE);
     }
 
-    if ((EnemyTypes[attackerType].attackFlags.p & ENEMY_ATTACK_FEAR) && statusApplies == TRUE)
+    if ((EnemyTypeInfos[attackerType].attackFlags.p & ENEMY_ATTACK_FEAR) && statusApplies == TRUE)
     {
         victim->as.combat.fearDuration =
-            EnemyTypes[attackerType].fearPower * STATUS_FRAMES_PER_POWER;
+            EnemyTypeInfos[attackerType].fearPower * STATUS_FRAMES_PER_POWER;
         if (PLAYER_STAT(playerIndex, STAT_FEAR_RESIST_PERCENT) > 0)
         {
             cut = math_percentOf(victim->as.combat.fearDuration,
@@ -129,7 +129,7 @@ u16 combat_handleEnemyAttackOnPlayerStatusArmorSfx(Actor *attacker, Actor *victi
         player_subtractSpirit(playerIndex, 3);
     }
 
-    if (EnemyTypes[attackerType].attackFlags.p & ENEMY_ATTACK_FIRE)
+    if (EnemyTypeInfos[attackerType].attackFlags.p & ENEMY_ATTACK_FIRE)
     {
         armor += PLAYER_STAT(playerIndex, STAT_FIRE_PROTECTION);
         *outHitSfx = SFX_COMBAT_FIREBURST_PROC;
@@ -177,7 +177,7 @@ s32 combat_computePveDamage(Actor *attacker, Actor *victim, bool crit)
                                combat_getPlayerMaxDamage(playerIndex));
     }
 
-    damage += combat_getEnemyTypeDamageBonus(playerIndex, victim->unitType);
+    damage += combat_getEnemyFamilyDamageBonus(playerIndex, victim->unitType);
 
     if (victim->actionState == ACTOR_STATE_STUNNED)
     {
@@ -208,11 +208,11 @@ s32 combat_computePveDamage(Actor *attacker, Actor *victim, bool crit)
     {
         if (PLAYER(playerIndex).combatFlags.p & PLAYER_COMBAT_FLAG_DAMAGE_TYPE)
         {
-            enemyArmor = EnemyTypes[victim->unitType].slashArmor;
+            enemyArmor = EnemyTypeInfos[victim->unitType].slashArmor;
         }
         else
         {
-            enemyArmor = EnemyTypes[victim->unitType].impaleArmor;
+            enemyArmor = EnemyTypeInfos[victim->unitType].impaleArmor;
         }
         if (PLAYER_STAT(playerIndex, STAT_ARMOR_PIERCE))
         {
@@ -407,7 +407,7 @@ s32 combat_computePvpDamage(Actor *attacker, Actor *victim, bool crit)
  *
  * @romaddress 0x0801113c
  */
-u16 combat_getEnemyDefense(u16 enemyIndex)
+u16 combat_getEnemyDefense(u16 enemyType)
 {
     u16 defense = 0;
     u16 baseDefense;
@@ -416,15 +416,15 @@ u16 combat_getEnemyDefense(u16 enemyIndex)
     // +50% for hard, +100% for grueling.
     if (g_SaveGlobals.d.optionsFlags.p & OPTION_FLAG_DIFFICULTY_GRUELING)
     {
-        defense = math_percentOf(EnemyTypes[enemyIndex].defense, 100);
+        defense = math_percentOf(EnemyTypeInfos[enemyType].defense, 100);
     }
     else if (g_SaveGlobals.d.optionsFlags.p & OPTION_FLAG_DIFFICULTY_HARD)
     {
-        defense = math_percentOf(EnemyTypes[enemyIndex].defense, 50);
+        defense = math_percentOf(EnemyTypeInfos[enemyType].defense, 50);
     }
 
     // Add the base defense on top of the difficulty bonus.
-    baseDefense = EnemyTypes[enemyIndex].defense;
+    baseDefense = EnemyTypeInfos[enemyType].defense;
     defense = baseDefense + defense;
 
     if (g_GameFlags.p & GAME_FLAG_CORRUPTION_TIER_1)
@@ -448,7 +448,7 @@ u16 combat_getEnemyDefense(u16 enemyIndex)
  *
  * @romaddress 0x080111e0
  */
-u16 combat_getEnemyAccuracy(u16 enemyIndex)
+u16 combat_getEnemyAccuracy(u16 enemyType)
 {
     u16 accuracy = 0;
     u16 baseAccuracy;
@@ -457,15 +457,15 @@ u16 combat_getEnemyAccuracy(u16 enemyIndex)
     // +50% for hard, +100% for grueling.
     if (g_SaveGlobals.d.optionsFlags.p & OPTION_FLAG_DIFFICULTY_GRUELING)
     {
-        accuracy = math_percentOf(EnemyTypes[enemyIndex].accuracy, 100);
+        accuracy = math_percentOf(EnemyTypeInfos[enemyType].accuracy, 100);
     }
     else if (g_SaveGlobals.d.optionsFlags.p & OPTION_FLAG_DIFFICULTY_HARD)
     {
-        accuracy = math_percentOf(EnemyTypes[enemyIndex].accuracy, 50);
+        accuracy = math_percentOf(EnemyTypeInfos[enemyType].accuracy, 50);
     }
 
     // Add the base accuracy on top of the difficulty bonus.
-    baseAccuracy = EnemyTypes[enemyIndex].accuracy;
+    baseAccuracy = EnemyTypeInfos[enemyType].accuracy;
     accuracy = baseAccuracy + accuracy;
 
     if (g_GameFlags.p & GAME_FLAG_CORRUPTION_TIER_1)
@@ -489,7 +489,7 @@ u16 combat_getEnemyAccuracy(u16 enemyIndex)
  *
  * @romaddress 0x08011284
  */
-u16 combat_getEnemyMaxDamage(u16 enemyIndex)
+u16 combat_getEnemyMaxDamage(u16 enemyType)
 {
     u16 damage = 0;
     u16 baseDamage;
@@ -498,15 +498,15 @@ u16 combat_getEnemyMaxDamage(u16 enemyIndex)
     // +200% for hard, +400% for grueling.
     if (g_SaveGlobals.d.optionsFlags.p & OPTION_FLAG_DIFFICULTY_GRUELING)
     {
-        damage = math_percentOf(EnemyTypes[enemyIndex].attackDamage, 400);
+        damage = math_percentOf(EnemyTypeInfos[enemyType].attackDamage, 400);
     }
     else if (g_SaveGlobals.d.optionsFlags.p & OPTION_FLAG_DIFFICULTY_HARD)
     {
-        damage = math_percentOf(EnemyTypes[enemyIndex].attackDamage, 200);
+        damage = math_percentOf(EnemyTypeInfos[enemyType].attackDamage, 200);
     }
 
     // Add the base damage on top of the difficulty bonus.
-    baseDamage = EnemyTypes[enemyIndex].attackDamage;
+    baseDamage = EnemyTypeInfos[enemyType].attackDamage;
     damage = baseDamage + damage;
 
     if (g_GameFlags.p & GAME_FLAG_CORRUPTION_TIER_1)
@@ -563,7 +563,7 @@ bool combat_applyNonPlayerHitOnEnemy(Actor *victim, s16 maxDamage)
         maxDamage = rng_rollRange(maxDamage / 2, maxDamage);
     }
 
-    maxDamage -= EnemyTypes[victim->unitType].slashArmor;
+    maxDamage -= EnemyTypeInfos[victim->unitType].slashArmor;
     if (maxDamage < 0)
     {
         maxDamage = 1;
@@ -574,7 +574,7 @@ bool combat_applyNonPlayerHitOnEnemy(Actor *victim, s16 maxDamage)
     if (!(victim->flags.p & ACTOR_FLAG_NO_FLINCH) &&
         (victim->hitStunTimer < 1 || victim->currentHp < 1))
     {
-        victim->hitStunTimer = EnemyTypes[victim->unitType].hitStun;
+        victim->hitStunTimer = EnemyTypeInfos[victim->unitType].hitStun;
         victim->actionState = ACTOR_STATE_HURT;
         victim->field_0x64[0] |= 2;
         victim->actionStateTimer = HURT_STATE_FRAMES;
@@ -598,7 +598,7 @@ void combat_killEnemyOutright(Actor *victim)
     victim->currentHp = 0;
     if (!(victim->flags.p & ACTOR_FLAG_NO_FLINCH))
     {
-        victim->hitStunTimer = EnemyTypes[victim->unitType].hitStun;
+        victim->hitStunTimer = EnemyTypeInfos[victim->unitType].hitStun;
         victim->actionState = ACTOR_STATE_HURT;
         victim->field_0x64[0] |= 2;
         victim->actionStateTimer = HURT_STATE_FRAMES;
@@ -607,27 +607,25 @@ void combat_killEnemyOutright(Actor *victim)
 }
 
 /**
- * Calculate player's bonus damage against the victim's creature family (animals, wargs, orcs, ...),
- *
- * @param enemyType index into EnemyTypes (its .category selects the stat)
+ * Get a player's family-specific damage bonus against an enemy type.
  *
  * @romaddress 0x08011488
  */
-u16 combat_getEnemyTypeDamageBonus(s32 playerIndex, u8 enemyType)
+u16 combat_getEnemyFamilyDamageBonus(s32 playerIndex, u8 enemyType)
 {
-    switch (EnemyTypes[enemyType].category)
+    switch (EnemyTypeInfos[enemyType].family)
     {
-    case CREATURE_ANIMALS:
+    case ENEMY_FAMILY_ANIMALS:
         return PLAYER_STAT(playerIndex, STAT_DAMAGE_TO_ANIMALS);
-    case CREATURE_CREBAIN:
+    case ENEMY_FAMILY_CREBAIN:
         return PLAYER_STAT(playerIndex, STAT_DAMAGE_TO_CREBAIN);
-    case CREATURE_WARGS:
+    case ENEMY_FAMILY_WARGS:
         return PLAYER_STAT(playerIndex, STAT_DAMAGE_TO_WARGS);
-    case CREATURE_ORCS:
+    case ENEMY_FAMILY_ORCS:
         return PLAYER_STAT(playerIndex, STAT_DAMAGE_TO_ORCS);
-    case CREATURE_URUKHAI:
+    case ENEMY_FAMILY_URUKHAI:
         return PLAYER_STAT(playerIndex, STAT_DAMAGE_TO_URUKHAI);
-    case CREATURE_NAZGUL:
+    case ENEMY_FAMILY_NAZGUL:
         return PLAYER_STAT(playerIndex, STAT_DAMAGE_TO_NAZGUL);
     default:
         return 0;
@@ -808,7 +806,7 @@ void combat_nightburstOnKill(s32 playerIndex, Actor *procTarget)
 
                 if (nextTarget->hitStunTimer < 1 || nextTarget->currentHp < 1)
                 {
-                    nextTarget->hitStunTimer = EnemyTypes[nextTarget->unitType].hitStun;
+                    nextTarget->hitStunTimer = EnemyTypeInfos[nextTarget->unitType].hitStun;
                     nextTarget->actionState = ACTOR_STATE_HURT;
                     nextTarget->field_0x64[0] |= 2;
                     nextTarget->actionStateTimer =
@@ -921,11 +919,11 @@ void combat_awardKillXp(Actor *victim)
     {
         if (!(g_GameFlags.p & GAME_FLAG_COOP_ACTIVE) && victim->lastHitByPlayerIndex != 0)
         {
-            player_awardXp(EnemyTypes[victim->unitType].xpReward >> 1);
+            player_awardXp(EnemyTypeInfos[victim->unitType].xpReward >> 1);
         }
         else
         {
-            player_awardXp(EnemyTypes[victim->unitType].xpReward);
+            player_awardXp(EnemyTypeInfos[victim->unitType].xpReward);
         }
     }
 }

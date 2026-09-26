@@ -454,11 +454,8 @@ struct Actor
     /** jump base the animation VM computes opcode targets from (0x080022e4) */
     const u8 *animationJumpBase;
 
-    /**
-     * bytes 2..5 of the active animation descriptor, copied on animation set; read as
-     * signed offsets (0x08008558)
-     */
-    s8 animationHeader[4];
+    /** Active frame set's movement collision box, copied when the animation frame changes. */
+    SpriteBounds movementCollisionBox;
 
     u8 field_0x34[2];
 
@@ -466,8 +463,9 @@ struct Actor
      * trigger-box slots (see struct ActorTriggerBox), refreshed per animation
      * frame from frame data (sprite_setAnimationFrame / 0x08000f0c); the active count is
      * triggerBoxCount. Kinds without an animation (mission warp, attach FX) write
-     * slot 0 by hand. The tail slots double as movement/AI scratch for kinds whose
-     * animations declare few boxes (0x08003650, 0x0800b968)
+     * slot 0 by hand. Combat actors use slot 0 as their hurtbox and slot 1 as their hitbox.
+     * The tail slots double as movement/AI scratch for kinds whose animations declare few
+     * boxes (0x08003650, 0x0800b968)
      */
     struct ActorTriggerBox triggerBoxes[4];
 
@@ -517,7 +515,7 @@ struct Actor
     u8 variant;
 
     /**
-     * engine unit class: indexes EnemyTypes/EnemyLootInfos for an enemy; at or above
+     * engine unit class: indexes EnemyTypeInfos/EnemyLootInfos for an enemy; at or above
      * LOOT_UNIT_TYPE_CONTAINER there is no EnemyLootInfo entry (chests)
      */
     u8 unitType;

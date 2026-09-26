@@ -439,7 +439,7 @@ typedef struct ItemGfx
     .header = {.width = 32,                                                                        \
                .height = 24,                                                                       \
                .frameCount = 1,                                                                    \
-               .field_0x8 = 0x180,                                                                 \
+               .maxFrameTileBytes = 0x180,                                                         \
                .triggerBoxCount = boxCount},                                                       \
     .frameOffsets = {2},                                                                           \
     .frame = {.flags.d = {.oamCount = 2, .lz77 = 1},                                               \

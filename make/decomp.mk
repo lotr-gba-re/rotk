@@ -12,25 +12,27 @@ SPLIT_CFLAGS := -c -std=gnu11 -Wall -Wextra -mthumb -mthumb-interwork -O2 -mcpu=
                 -Iinclude -Icarved/include -Ibuild/include -Ibuild
 SPLIT_SRC := $(shell awk 'NF && $$1 !~ /^#/ {print $$2}' config/split.cfg 2>/dev/null)
 SPLIT_HDR := $(shell find src include carved -name '*.h' 2>/dev/null)
-# Mirror <root>/<p>.c -> build/split/<p>.bin, root being src/ or carved/ (% spans subdirs).
-SPLIT_BIN := $(foreach s,$(SPLIT_SRC),build/split/$(basename $(patsubst carved/%,%,$(s:src/%=%))).bin)
+# Strip src/, carved/, or build/generated/ before mapping to build/split/<p>.bin.
+SPLIT_BIN := $(foreach s,$(SPLIT_SRC),build/split/$(basename $(patsubst build/generated/%,%,$(patsubst carved/%,%,$(s:src/%=%)))).bin)
 
-# Carved graphics: the committed graphics tables (carved/data/<group>/) #include
+# Carved graphics: the committed tables and generated enemy animation sources #include
 # build/gfx/<category>.inc, byte lists `rotkit build gfx` encodes from the PNGs in
 # carved-local/gfx/ (extracting a group from the base ROM first when it has no images). It
 # owns the staleness check and runs while make parses, before any prerequisite is weighed:
 # a rule would stat the .inc first and miss the rewrite until the next run. The TU's depfile
 # then ties it to the .inc it includes.
-ifeq ($(filter clean% help,$(MAKECMDGOALS)),)
+# Pure test/help/clean invocations must not carve graphics or load the ROM at parse time.
+ifneq ($(filter-out test help clean%,$(or $(MAKECMDGOALS),help)),)
 $(shell uv run rotkit build gfx >&2)
 ifneq ($(.SHELLSTATUS),0)
 $(error rotkit build gfx failed)
 endif
 endif
 
-# Two source kinds, distinguished by path; each -> build/split/<same subpath>.bin:
-#   carved/data/*.c  reverse-engineered data tables  -> modern gcc, .rodata
-#   src/c/*.c        matched decompiled C (agbcc)    -> rotkit build cc (exact ROM bytes)
+# Three source kinds, distinguished by path; each -> build/split/<same subpath>.bin:
+#   carved/data/*.c       reverse-engineered tables   -> modern gcc, .rodata
+#   build/generated/*.c   local animation metadata    -> modern gcc, .rodata
+#   src/c/*.c             matched decompiled C (agbcc) -> rotkit build cc
 #
 # build/game_symbols.ld (produced by make/common.mk's grouped rule) PROVIDEs every store symbol at
 # its ROM address; data tables that reference other carved symbols by name need a link step to
@@ -41,7 +43,27 @@ build/split/data/%.bin: carved/data/%.c $(SPLIT_HDR) build/game_symbols.ld
 	@arm-none-eabi-gcc $(SPLIT_CFLAGS) -MMD -MP -MT $@ -MF $(@:.bin=.d) $< -o $(@:.bin=.o)
 	@arm-none-eabi-ld -T build/game_symbols.ld $(@:.bin=.o) -o $(@:.bin=.elf)
 	@arm-none-eabi-objcopy -O binary -j .rodata $(@:.bin=.elf) $@
--include $(patsubst %.bin,%.d,$(filter build/split/data/%,$(SPLIT_BIN)))
+# Explicitly list generated C targets so make does not treat them as disposable intermediates.
+# Otherwise a missing .c can leave an existing .bin up to date after metadata changes.
+ENEMY_ASSET_SRC := $(filter build/generated/data/enemy_graphics/EnemyAnimationAssets_%.c,$(SPLIT_SRC))
+$(ENEMY_ASSET_SRC):
+
+# Regenerate bulky animation C from the persistent local carve, never from the ROM.
+build/generated/data/enemy_graphics/EnemyAnimationAssets_%.c: carved-local/gfx/enemy/%/metadata.json \
+        carved/config/enemy_graphics.cfg config/data.cfg config/split.cfg \
+        tools/rotkit/build/enemy_asset_sources.py tools/rotkit/build/enemy_graphics.py \
+        tools/rotkit/enemy_animation_metadata.py tools/rotkit/carve/sprites.py
+	@uv run rotkit build enemy-asset-source $@
+
+# The include is explicit because old clones may still have depfiles naming the
+# removed committed source. All headers are covered by SPLIT_HDR.
+build/split/data/enemy_graphics/EnemyAnimationAssets_%.bin: build/generated/data/enemy_graphics/EnemyAnimationAssets_%.c build/gfx/enemy/%.inc $(SPLIT_HDR) build/game_symbols.ld
+	@mkdir -p $(dir $@)
+	@echo "  CC   $<"
+	@arm-none-eabi-gcc $(SPLIT_CFLAGS) $< -o $(@:.bin=.o)
+	@arm-none-eabi-ld -T build/game_symbols.ld $(@:.bin=.o) -o $(@:.bin=.elf)
+	@arm-none-eabi-objcopy -O binary -j .rodata $(@:.bin=.elf) $@
+-include $(patsubst %.bin,%.d,$(filter-out build/split/data/enemy_graphics/EnemyAnimationAssets_%.bin,$(filter build/split/data/%,$(SPLIT_BIN))))
 
 # Matched decompiled C -> exact ROM bytes via the period compiler (agbcc); see tools/rotkit/compile.py (prints its own line).
 build/split/c/%.bin: src/c/%.c build/include/variables.h $(SPLIT_HDR)
@@ -51,7 +73,10 @@ build/split/c/%.bin: src/c/%.c build/include/variables.h $(SPLIT_HDR)
 # Reconstruct + check the ROM. First a per-region byte-match report (report.py: localizes any
 # mismatch to one TU + first diverging offset); then the whole ROM (decompiled .bins + base-ROM
 # gaps) assembled with standard tools, asserting sha1 == base as the final end-to-end invariant.
-verify: $(SPLIT_BIN) clangd
+# A ROM-less clone with no local carve cannot compile graphic assets; keep the
+# existing check-stores/test-only path until the developer supplies a ROM.
+VERIFY_SPLITS := $(if $(or $(wildcard $(ROM)),$(wildcard carved-local/gfx/enemy/*/metadata.json)),$(SPLIT_BIN))
+verify: $(VERIFY_SPLITS) clangd
 	@if [ ! -f $(ROM) ]; then echo "verify: $(ROM) missing (gitignored) - skipping ROM build."; exit 0; fi
 	@uv run rotkit check rom
 	@uv run rotkit build rom >/dev/null
@@ -67,7 +92,8 @@ verify: $(SPLIT_BIN) clangd
 AGBCC ?= tools/agbcc/bin/agbcc
 check-bugfixes: build/include/variables.h
 	@fail=0; for f in $$(find src/c -name '*.c' | sort); do \
-	   arm-none-eabi-cpp -nostdinc -DBUGFIX -Iinclude -Icarved/include -Ibuild/include \
+	   arm-none-eabi-cpp -nostdinc -DBUGFIX -DAGBCC \
+	     -Iinclude -Icarved/include -Ibuild/include \
 	     -Itools/agbcc/include $$f -o build/bugfix.i \
 	   && $(AGBCC) build/bugfix.i -o /dev/null -O2 -mthumb-interwork -Wall -W -Wmissing-prototypes -Werror \
 	   || { echo "check-bugfixes: $$f fails with -DBUGFIX"; fail=1; }; done; \

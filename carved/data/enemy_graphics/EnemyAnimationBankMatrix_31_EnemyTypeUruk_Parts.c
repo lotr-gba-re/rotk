@@ -1,0 +1,15 @@
+#include "spriteAnimation.h"
+#include "variables.h"
+
+// clang-format off
+
+/** @romaddress 0x0807050c */
+const SpriteAnimation *const EnemyTypeUrukPartAnimationBanks[6][7] = {
+    { EnemyAnimationBank_EnemyTypeUruk_Walk, EnemyAnimationBank_EnemyTypeUruk_Stand, EnemyAnimationBank_EnemyTypeUruk_Death, EnemyAnimationBank_EnemyTypeUruk_Stagger, EnemyAnimationBank_EnemyTypeUruk_Attack, EnemyAnimationBank_EnemyTypeUruk_ExtraPose00, EnemyAnimationBank_EnemyTypeUruk_ExtraPose01 },
+    { EnemyAnimationBank_EnemyTypeUruk_ExtraPose02, EnemyAnimationBank_EnemyTypeUruk_ExtraPose03, EnemyAnimationBank_EnemyTypeUruk_ExtraPose04, EnemyAnimationBank_EnemyTypeUruk_ExtraPose05, EnemyAnimationBank_EnemyTypeUruk_ExtraPose06, NULL, NULL },
+    { EnemyAnimationBank_EnemyTypeUrukCrossbowman_ExtraPose03, EnemyAnimationBank_EnemyTypeUrukCrossbowman_ExtraPose05, EnemyAnimationBank_EnemyTypeUrukCrossbowman_ExtraPose04, EnemyAnimationBank_EnemyTypeUrukCrossbowman_ExtraPose07, EnemyAnimationBank_EnemyTypeUrukCrossbowman_ExtraPose08, NULL, EnemyAnimationBank_EnemyTypeUrukCrossbowman_ExtraPose06 },
+    { EnemyAnimationBank_EnemyTypeUruk_ExtraPose07, EnemyAnimationBank_EnemyTypeUruk_ExtraPose10, EnemyAnimationBank_EnemyTypeUruk_ExtraPose09, EnemyAnimationBank_EnemyTypeUrukCrossbowman_ExtraPose01, EnemyAnimationBank_EnemyTypeUrukCrossbowman_ExtraPose02, EnemyAnimationBank_EnemyTypeUruk_ExtraPose08, EnemyAnimationBank_EnemyTypeUrukCrossbowman_ExtraPose00 },
+    { EnemyAnimationBank_EnemyTypeUruk_ExtraPose02, EnemyAnimationBank_EnemyTypeUruk_ExtraPose03, EnemyAnimationBank_EnemyTypeUruk_ExtraPose04, EnemyAnimationBank_EnemyTypeUruk_ExtraPose05, EnemyAnimationBank_EnemyTypeUruk_ExtraPose06, NULL, NULL },
+    { EnemyAnimationBank_EnemyTypeUruk_ExtraPose02, EnemyAnimationBank_EnemyTypeUruk_ExtraPose03, EnemyAnimationBank_EnemyTypeUruk_ExtraPose04, EnemyAnimationBank_EnemyTypeUruk_ExtraPose05, EnemyAnimationBank_EnemyTypeUruk_ExtraPose06, NULL, NULL },
+};
+// clang-format on

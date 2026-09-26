@@ -7,6 +7,7 @@ from rotkit.carve import (
     CaptionsOption,
     actor_tables,
     bg_assets,
+    enemy_graphics,
     enemy_types,
     item_gfx,
     item_tables,
@@ -32,6 +33,7 @@ def run(captions: CaptionsOption = True) -> None:
     bg_assets.run(captions)
     item_tables.run()
     enemy_types.run()
+    enemy_graphics.run(captions)
     actor_tables.run()
     player_tables.run()
     skill_tables.run()

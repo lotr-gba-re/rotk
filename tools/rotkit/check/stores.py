@@ -18,7 +18,8 @@ Errors (exit 1):
   - a decompiled src/c function with no include/ prototype, or one that disagrees with the .c
   - a decompiled src/c function whose ROM binding drifted: missing @romaddress tag, no
     functions.cfg row (rename drift), or @romaddress disagreeing with functions.cfg
-  - a config/split.cfg row naming a source file that is not on disk
+  - a config/split.cfg row naming a source file that is not on disk, unless
+    it is a generated enemy animation source
 
 Warnings (printed, exit 0):
   - a committed src/c or carved/data .c with no config/split.cfg row
@@ -30,6 +31,7 @@ import re
 import sys
 from collections.abc import Iterator
 
+from rotkit.build.enemy_asset_sources import group_for_source
 from rotkit.paths import CARVED_DATA, INCLUDE, ROOT, SRC_C
 
 from rotkit.decomp import (
@@ -157,6 +159,8 @@ def _check_split_coverage(rel) -> int:
             f"{src}: no config/split.cfg row - not compiled, not byte-compared by `make verify`"
         )
     for src in sorted(listed - on_disk):
+        if group_for_source(src) is not None:
+            continue  # generated on demand from local metadata
         errors.append(f"{rel(SPLIT)}: row names {src!r}, which is not on disk")
     return len(listed)
 

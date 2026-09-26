@@ -5,15 +5,15 @@
 
 /**
  * ACTOR_TYPE_ENEMY_SPAWNER payload (16 bytes total; the unused RNG variant rearranges
- * the enemyId tail: three enemy ids and two probability bytes).
+ * the enemySpawnId tail: three enemy spawn IDs and two probability bytes).
  */
 typedef struct ActorEnemySpawnerMissionParams
 {
     ActorMissionParams head;
     u8 variant;
-    u8 enemyId; // index into the enemy-spawn table @0x080584a8 (not yet carved)
-    u8 cap;     // concurrent children - 1
-    u8 budget;  // total spawns; 0 = unbudgeted
+    u8 enemySpawnId; // index into the enemy-spawn table @0x080584a8 (not yet carved)
+    u8 cap;          // concurrent children - 1
+    u8 budget;       // total spawns; 0 = unbudgeted
     u8 linkGroup;
     u8 linkStream;   // fired on retirement
     u8 field_0xe[2]; // 0xff 0xff
@@ -36,7 +36,7 @@ typedef struct ActorEnemySpawnerState
      * index into the enemy-spawn table @0x080584a8 ({recordType, variant, unitType}
      * triples; not yet carved)
      */
-    u16 enemyId;
+    u16 enemySpawnId;
     u8 field_0x96[7];
 
     /** total spawns left, at 0 the spawner retires */
@@ -65,4 +65,4 @@ bool actor_enemySpawner_trySpawn(Actor *actor);
 
 /** @return first free child slot (0..3), 4 when all are occupied */
 u32 actor_enemySpawner_findFreeChildSlot(Actor *actor);
-Actor *actor_enemySpawner_spawnChild(u16 enemyIndex, Actor *spawner);
+Actor *actor_enemySpawner_spawnChild(u16 enemySpawnId, Actor *spawner);

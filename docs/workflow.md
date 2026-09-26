@@ -42,7 +42,7 @@ Naming rules are in [conventions.md](conventions.md).
 ## Everyday Building
 
 Run `make check` after every change.
-It lints the config files against the headers and `.c` files (`check-stores`) and then runs `verify`.
+It runs the Python tests, checks store consistency, compiles the bugfix arms, and verifies the ROM reconstruction when the original ROM is available.
 
 ## Ghidra
 
@@ -75,6 +75,7 @@ I have yet to find out if this is an `objdiff` issue or an issue in my slop tool
 
 `make carve` re-carves `carved/` and `carved-local/` from the ROM.
 Review the `carved/` diff before committing.
+`make clean` preserves the local carve; `make clean-local` removes it.
 
 Art assets are stored under `carved-local/gfx/`.
 For graphics there are reference sheets, e.g. at `carved-local/gfx/reference-sheets/`.

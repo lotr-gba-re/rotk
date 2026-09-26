@@ -13,6 +13,15 @@ dependencies = [
     "typer",           # the rotkit CLI (parsers/--help generated from run() signatures)
 ]
 
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tools/rotkit"]
+# build/ is a source package here, not a generated directory.
+norecursedirs = [".*", "__pycache__"]
+addopts = "-ra"
+
 [project.scripts]
 rotkit = "rotkit.cli:main"
 

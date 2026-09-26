@@ -8,7 +8,13 @@ absolute casts; a re-carve picks up names once they land in config/data.cfg.
 import os
 from struct import Struct
 
-from rotkit.carve import data_symbol, doc_comment, upsert_map, write_table
+from rotkit.carve import (
+    data_symbol,
+    doc_comment,
+    enum_entry_comment,
+    upsert_map,
+    write_table,
+)
 from rotkit.cheaders import extract_enum, extract_struct_fields, invert_enum
 from rotkit.rom import ROMBASE, load_rom
 
@@ -40,7 +46,7 @@ def emit_songs(rom: bytes) -> tuple[int, str]:
                 "layout is wrong"
             )
         lines += [
-            f"    // [{i}] {song_ids[i]}",
+            f"    {enum_entry_comment(i, song_ids)}",
             f"    {{ .{f_data} = (const void *)0x{data:08x}, "
             f".{f_flags} = 0x{flags:02x}, .{f_variant} = 0x{variant:02x} }},",
         ]
@@ -53,4 +59,3 @@ def run() -> None:
     addr, src = emit_songs(rom)
     print(f"  carved {src}")
     upsert_map([(addr, src)], owned_dirs=["sfx_tables"])
-    print("  updated config/split.cfg. Now run: make verify")

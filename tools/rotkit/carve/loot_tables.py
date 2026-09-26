@@ -374,6 +374,4 @@ def run() -> None:
         print(f"  carved carved/data/loot_tables/{table.name}.c  ({table.count} rows)")
 
     upsert_map(carved, owned_dirs=["loot_tables"])
-    print(
-        f"  carved {len(carved)} files; updated config/split.cfg. Now run: make verify"
-    )
+    print(f"  carved {len(carved)} files")

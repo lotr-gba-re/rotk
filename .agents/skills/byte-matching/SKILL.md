@@ -109,7 +109,10 @@ A ROM keeping them separate means the shifted operand carries its own narrowing;
 - fold rewrites `x < C` / `x >= C` (positive C) to `x <= C-1` / `x > C-1` at the tree level, so a literal bound always emits `cmp #(C-1); bls/bhi`.
   A ROM `cmp #C; bcc/bcs` means the bound reached RTL unfolded: assign it to a local in the SAME basic block right before the test (cse substitutes the constant into the compare; combine leaves LTU/GEU alone).
   A function-scope init behind a tablejump stays a register compare.
-- A range guard on a sub-word value has two byte-equal source forms: `level > 0 && level < CAP` and `(u8)(level - 1) < CAP - 1` (fold rewrites both to the same unsigned wrap compare). Pick the idiomatic one.
+- Prefer `>=` / `<=` ranges or `==` tests to subtract-and-cast membership checks when they byte-match.
+  A sub-word range `level > 0 && level < CAP` can match `(u8)(level - 1) < CAP - 1` because fold rewrites both to the same unsigned wrap compare.
+  If a wide local's direct range loses the ROM's narrowing shift pair, a separate `u8 narrow = wide; if (narrow >= LO && narrow <= HI)` can preserve the subtract, shift pair and compare without spelling subtraction in the test.
+  Keep the wide local for its other uses and byte-match the whole function.
 - `(x & M) != 0` as a value, M a single bit: do_store_flag's bit-extract path emits `lsrs #n; ands #1`, and the `#1` pseudo CSEs with other `& 1` sites (inviting cross-jumps between arms).
   The ROM's `ands; negs; lsrs #31` is `-(x & M) >> 31`.
 - A ROM `cmp #C; b<cc>; movs #1; b; movs #0; cmp #0; b<cc>` materializes a flag and immediately re-tests it.

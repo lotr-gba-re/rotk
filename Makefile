@@ -15,8 +15,8 @@ GHIDRA_VERSION_MAJOR_MINOR := $(word 1,$(subst _, ,$(GHIDRA_VERSION)))
 MAKEFLAGS  += -j$(shell nproc) --output-sync=target
 
 .DEFAULT_GOAL := help
-.PHONY: help check check-tools check-base-rom ghidra check-stores symbols carve debug dump \
-        clangd format format-staged install-hooks clean clean-ghidra
+.PHONY: help test check check-tools check-base-rom ghidra check-stores symbols carve debug dump \
+        clangd format format-staged install-hooks clean clean-local clean-ghidra
 
 include make/common.mk make/decomp.mk make/hack.mk
 
@@ -24,7 +24,8 @@ help:
 	@echo "ROTK GBA - run 'make <target>':"
 	@echo ""
 	@echo "  EVERYDAY"
-	@echo "    check              check-stores + verify - run after every change"
+	@echo "    test               run rotkit's pytest suite (no ROM or GBA toolchain needed)"
+	@echo "    check              test + check-stores + check-bugfixes + verify"
 	@echo ""
 	@echo "  SETUP"
 	@echo "    check-tools        verify toolchain + ROM checksum + Ghidra version"
@@ -56,10 +57,11 @@ help:
 	@echo "  FORMAT"
 	@echo "    format             clang-format the C + uv format the Python"
 	@echo "    format-staged      clang-format only staged content (safe for git add -p)"
-	@echo "    install-hooks      enable the pre-commit gate (format + make check + hack compile; once per clone)"
+	@echo "    install-hooks      enable the pre-commit gate (tests + format + check + hacks; once per clone)"
 	@echo ""
 	@echo "  HOUSEKEEPING"
-	@echo "    clean              remove build/ + carved-local/ + objdiff.json + dist/"
+	@echo "    clean              remove build/ + objdiff.json + dist/ (keep local carve)"
+	@echo "    clean-local        remove carved-local/ assets (requires re-carving)"
 	@echo "    clean-ghidra       remove the regenerable ghidra_proj/ (rebuild with make ghidra)"
 	@echo ""
 	@echo "  Re-carve one table family only: uv run rotkit carve <table>"
@@ -100,9 +102,12 @@ ghidra: check-base-rom
 check-stores:
 	uv run rotkit check stores
 
-# The everyday gate after any edit: the cheap lints first (fail fast), then the byte-match
-# reconstruction. `verify` skips itself if the ROM is absent, so `check` still lints without a dump.
-check: check-stores check-bugfixes verify
+# Python-only tests also gate commits that do not touch the ROM sources or stores.
+test:
+	uv run --group dev pytest
+
+# The everyday gate. `verify` skips the ROM comparison when the dump is absent.
+check: test check-stores check-bugfixes verify
 
 # One-stop regenerate of every stores-derived generated file (the incremental file rules for the
 # hack build inputs live in make/hack.mk; this forces all three at once, incl. variables.h).
@@ -148,17 +153,20 @@ format:
 format-staged:
 	@sh tools/format-staged.sh
 
-# Activate the tracked git hooks (pre-commit: clang-format check). Per-clone, run once.
+# Activate the tracked pre-commit hook (format, tests, source checks and hacks). Run once per clone.
 install-hooks:
 	@git config core.hooksPath tools/githooks
-	@echo "git hooks active from tools/githooks/ (pre-commit: clang-format check + make check + hack compile)"
+	@echo "git hooks active from tools/githooks/ (pre-commit: pytest + format + source/store checks + hacks)"
 
 # ------------------------------------------------------------- housekeeping ----
-# carved-local is wiped except its committed meta files (.gitignore, README.md).
+# Keep the local carve across build cleans so regeneration needs no ROM.
 clean:
 	rm -rf build objdiff.json dist
+	@echo "cleaned build/ + objdiff.json + dist/ (carved-local/ kept)"
+
+clean-local:
 	find carved-local -mindepth 1 -maxdepth 1 ! -name .gitignore ! -name README.md -exec rm -rf {} +
-	@echo "cleaned build/ + carved-local/ + objdiff.json + dist/ (ghidra_proj kept; see clean-ghidra)"
+	@echo "removed carved-local/ assets (run make carve with the original ROM to restore)"
 
 clean-ghidra:
 	rm -rf ghidra_proj

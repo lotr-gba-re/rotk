@@ -5,7 +5,7 @@
 
 /** @romaddress 0x08068f50 */
 const ItemTypeInfo ItemTypeInfos[15] = {
-    // ITEM_TYPE_KNIFE
+    // [0] ITEM_TYPE_KNIFE
     {
       .baseItems          = KnifeItems,
       .prefixRegionRanges = WeaponPrefixRegionRanges,
@@ -18,7 +18,7 @@ const ItemTypeInfo ItemTypeInfos[15] = {
       .baseMetadata       = KnifeItemFlags,
       .baseItemCount      = 18, },
 
-    // ITEM_TYPE_SWORD_1H
+    // [1] ITEM_TYPE_SWORD_1H
     {
       .baseItems          = Sword1HItems,
       .prefixRegionRanges = WeaponPrefixRegionRanges,
@@ -31,7 +31,7 @@ const ItemTypeInfo ItemTypeInfos[15] = {
       .baseMetadata       = Sword1HItemFlags,
       .baseItemCount      = 11, },
 
-    // ITEM_TYPE_SWORD_2H
+    // [2] ITEM_TYPE_SWORD_2H
     {
       .baseItems          = Sword2HItems,
       .prefixRegionRanges = WeaponPrefixRegionRanges,
@@ -44,7 +44,7 @@ const ItemTypeInfo ItemTypeInfos[15] = {
       .baseMetadata       = Sword2HItemFlags,
       .baseItemCount      = 9, },
 
-    // ITEM_TYPE_AXE
+    // [3] ITEM_TYPE_AXE
     {
       .baseItems          = AxeItems,
       .prefixRegionRanges = WeaponPrefixRegionRanges,
@@ -57,7 +57,7 @@ const ItemTypeInfo ItemTypeInfos[15] = {
       .baseMetadata       = AxeItemFlags,
       .baseItemCount      = 11, },
 
-    // ITEM_TYPE_MACE
+    // [4] ITEM_TYPE_MACE
     {
       .baseItems          = MaceItems,
       .prefixRegionRanges = WeaponPrefixRegionRanges,
@@ -70,7 +70,7 @@ const ItemTypeInfo ItemTypeInfos[15] = {
       .baseMetadata       = MaceItemFlags,
       .baseItemCount      = 10, },
 
-    // ITEM_TYPE_STAFF
+    // [5] ITEM_TYPE_STAFF
     {
       .baseItems          = StaffItems,
       .prefixRegionRanges = StaffBowPrefixRegionRanges,
@@ -83,7 +83,7 @@ const ItemTypeInfo ItemTypeInfos[15] = {
       .baseMetadata       = StaffItemFlags,
       .baseItemCount      = 4, },
 
-    // ITEM_TYPE_BOW
+    // [6] ITEM_TYPE_BOW
     {
       .baseItems          = BowItems,
       .prefixRegionRanges = StaffBowPrefixRegionRanges,
@@ -96,7 +96,7 @@ const ItemTypeInfo ItemTypeInfos[15] = {
       .baseMetadata       = BowItemFlags,
       .baseItemCount      = 13, },
 
-    // ITEM_TYPE_ARROW
+    // [7] ITEM_TYPE_ARROW
     {
       .baseItems          = ArrowItems,
       .prefixRegionRanges = NULL,
@@ -109,7 +109,7 @@ const ItemTypeInfo ItemTypeInfos[15] = {
       .baseMetadata       = ArrowItemFlags,
       .baseItemCount      = 10, },
 
-    // ITEM_TYPE_ARMOR
+    // [8] ITEM_TYPE_ARMOR
     {
       .baseItems          = ArmorItems,
       .prefixRegionRanges = ArmorPrefixRegionRanges,
@@ -122,7 +122,7 @@ const ItemTypeInfo ItemTypeInfos[15] = {
       .baseMetadata       = ArmorItemFlags,
       .baseItemCount      = 24, },
 
-    // ITEM_TYPE_SHIELD
+    // [9] ITEM_TYPE_SHIELD
     {
       .baseItems          = ShieldItems,
       .prefixRegionRanges = ArmorPrefixRegionRanges,
@@ -135,7 +135,7 @@ const ItemTypeInfo ItemTypeInfos[15] = {
       .baseMetadata       = ShieldItemFlags,
       .baseItemCount      = 8, },
 
-    // ITEM_TYPE_ACCESSORY
+    // [10] ITEM_TYPE_ACCESSORY
     {
       .baseItems          = AccessoryItems,
       .prefixRegionRanges = AccessoryPrefixRegionRanges,
@@ -148,7 +148,7 @@ const ItemTypeInfo ItemTypeInfos[15] = {
       .baseMetadata       = AccessoryItemFlags,
       .baseItemCount      = 12, },
 
-    // ITEM_TYPE_CLOAK
+    // [11] ITEM_TYPE_CLOAK
     {
       .baseItems          = CloakItems,
       .prefixRegionRanges = CloakPrefixRegionRanges,
@@ -161,7 +161,7 @@ const ItemTypeInfo ItemTypeInfos[15] = {
       .baseMetadata       = CloakItemFlags,
       .baseItemCount      = 9, },
 
-    // ITEM_TYPE_GLOVES
+    // [12] ITEM_TYPE_GLOVES
     {
       .baseItems          = GloveItems,
       .prefixRegionRanges = GloveShoePrefixRegionRanges,
@@ -174,7 +174,7 @@ const ItemTypeInfo ItemTypeInfos[15] = {
       .baseMetadata       = GloveItemFlags,
       .baseItemCount      = 8, },
 
-    // ITEM_TYPE_SHOES
+    // [13] ITEM_TYPE_SHOES
     {
       .baseItems          = ShoeItems,
       .prefixRegionRanges = GloveShoePrefixRegionRanges,
@@ -187,7 +187,7 @@ const ItemTypeInfo ItemTypeInfos[15] = {
       .baseMetadata       = ShoeItemFlags,
       .baseItemCount      = 7, },
 
-    // ITEM_TYPE_UNIQUE
+    // [14] ITEM_TYPE_UNIQUE
     {
       .baseItems          = UniqueItems,
       .prefixRegionRanges = NULL,

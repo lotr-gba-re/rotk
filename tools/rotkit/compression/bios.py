@@ -45,6 +45,35 @@ def rl_decode(data: bytes, start: int, size: int) -> bytearray:
     return out
 
 
+def rl_encode(data: bytes) -> bytes:
+    """Encode an RLUnCompWRAM stream without a BIOS or chunk header."""
+    output = bytearray()
+    index = 0
+    while index < len(data):
+        run = 1
+        while (
+            run < 130 and index + run < len(data) and data[index + run] == data[index]
+        ):
+            run += 1
+        if run >= 3:
+            output.extend((0x80 | (run - 3), data[index]))
+            index += run
+            continue
+
+        literal_start = index
+        index += run
+        while index < len(data) and index - literal_start < 128:
+            if (
+                index + 2 < len(data)
+                and data[index] == data[index + 1] == data[index + 2]
+            ):
+                break
+            index += 1
+        output.append(index - literal_start - 1)
+        output.extend(data[literal_start:index])
+    return bytes(output)
+
+
 def huffman_decode(data: bytes, start: int, size: int) -> bytearray:
     """SWI 0x13 HuffUnComp with 8-bit symbols and an MSB-first u32 bit stream.
 

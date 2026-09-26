@@ -39,6 +39,7 @@ from rotkit.carve import (
     data_symbol,
     doc_comment,
     entry_comment,
+    enum_entry_comment,
     flags_d_members,
     table_symbols,
     todo_lines,
@@ -871,13 +872,13 @@ def _type_info_field_init(
 
 def _render_type_info(
     row: ItemTypeInfo,
-    type_name: str,
+    header_comment: str,
     names_by_addr: dict[int, str],
     fields: list[tuple[str, str, str]],
     field_width: int,
 ) -> list[str]:
     """One row -> its C lines: header comment + aligned field initializers."""
-    lines = [f"    // {type_name}", "    {"]
+    lines = [f"    {header_comment}", "    {"]
     rendered = []
     for attr, c_field, kind in fields:
         init, comment = _type_info_field_init(
@@ -918,7 +919,7 @@ def emit_item_type_infos(ctx: CarveContext) -> str:
             lines.append("")
         lines += _render_type_info(
             row,
-            type_names.get(i, f"ITEM_TYPE_{i}"),
+            enum_entry_comment(i, type_names),
             ctx.names_by_addr,
             fields,
             field_width,
@@ -1131,6 +1132,4 @@ def run() -> None:
     print(f"  carved {src}  ({count} entries)")
 
     upsert_map(carved, owned_dirs=["item_tables", "affix_tables"])
-    print(
-        f"  carved {len(carved)} files; updated config/split.cfg. Now run: make verify"
-    )
+    print(f"  carved {len(carved)} files")

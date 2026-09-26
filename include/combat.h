@@ -90,7 +90,7 @@ bool combat_rollAccuracy(u16 attackerAccuracy, u16 victimDefense);
 bool combat_rollPercentage(u16 chance);
 bool combat_rollAvoidance(u16 statIndex, s32 playerIndex);
 bool combat_rollVictimEvade(Actor *victim);
-u16 combat_getEnemyTypeDamageBonus(s32 playerIndex, u8 enemyType);
+u16 combat_getEnemyFamilyDamageBonus(s32 playerIndex, u8 enemyType);
 u16 combat_getPlayerMaxDamage(s32 playerIndex);
 u16 combat_getPlayerMinDamage(s32 playerIndex);
 

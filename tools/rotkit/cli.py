@@ -21,6 +21,7 @@ from rotkit.build import (
     cc,
     clangd,
     debug,
+    enemy_asset_sources,
     format_stores,
     gfx,
     layout,
@@ -35,6 +36,7 @@ from rotkit.check import stores as check_stores
 from rotkit.carve import (
     actor_tables,
     all as carve_all,
+    enemy_graphics,
     enemy_types,
     bg_assets,
     item_gfx,
@@ -74,8 +76,10 @@ def group(
     name: str,
     help_: str,
     commands: Sequence[tuple[str, Callable, str]],
+    *,
+    result_callback: Callable | None = None,
 ) -> typer.Typer:
-    sub = typer.Typer(no_args_is_help=True, help=help_)
+    sub = typer.Typer(no_args_is_help=True, help=help_, result_callback=result_callback)
     app.add_typer(sub, name=name)
     for cmd, fn, h in commands:
         sub.command(cmd, help=h)(fn)
@@ -94,6 +98,12 @@ group(
         ),
     ],
 )
+
+
+def carve_completed(_result: object) -> None:
+    print("Carving complete. Now run: make verify")
+
+
 group(
     "carve",
     "carve ROM data into committed C",
@@ -127,6 +137,11 @@ group(
         ),
         ("item-tables", item_tables.run, "base items, affixes, runes"),
         ("enemy-types", enemy_types.run, "per-enemy-type stat, SFX and loot tables"),
+        (
+            "enemy-graphics",
+            enemy_graphics.run,
+            "enemy reference sprites and animation table",
+        ),
         ("actor-tables", actor_tables.run, "NpcSfxSets"),
         ("player-tables", player_tables.run, "player XP thresholds"),
         (
@@ -139,6 +154,7 @@ group(
         ("scene-handlers", scene_handlers.run, "SceneHandlers"),
         ("songs", songs.run, "the Songs table"),
     ],
+    result_callback=carve_completed,
 )
 group(
     "build",
@@ -157,6 +173,11 @@ group(
             "gfx",
             gfx.run,
             "carved-local/gfx PNGs -> build/gfx byte lists for the icon TUs",
+        ),
+        (
+            "enemy-asset-source",
+            enemy_asset_sources.run,
+            "local enemy animation metadata -> generated C translation unit",
         ),
         (
             "variables",
