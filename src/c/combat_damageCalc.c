@@ -42,7 +42,9 @@ s32 combat_getWeaponDamage(s32 playerIndex)
 s32 combat_getFlatDamageBonus(s32 playerIndex)
 {
     ItemType offHandType = PLAYER(playerIndex).inventory.slots.offhand.d.itemType;
+#ifndef BUGFIX
     ItemType mainHandType = PLAYER(playerIndex).inventory.slots.weapon.d.itemType;
+#endif
     u16 damage = 0;
 
     damage += PLAYER_STAT(playerIndex, STAT_DAMAGE_FLAT);
@@ -61,6 +63,36 @@ s32 combat_getFlatDamageBonus(s32 playerIndex)
         damage += PLAYER_STAT(playerIndex, STAT_DAMAGE_WITH_SHIELD);
     }
 
+#ifdef BUGFIX
+    {
+        u8 slot;
+
+        for (slot = INVENTORY_SLOT_WEAPON; slot <= INVENTORY_SLOT_OFFHAND; slot++)
+        {
+            Item item = PLAYER(playerIndex).inventory.array[slot];
+            if (item.d.itemType != ITEM_TYPE_EMPTY)
+            {
+                ItemFlags flags = ITEM_BASE_METADATA(item).flags;
+
+                // Knives, 1H swords, and 2H swords are in familySword
+                if (flags.d.familySword)
+                {
+                    damage += PLAYER_STAT(playerIndex, STAT_DAMAGE_WITH_BLADE);
+                }
+                else if (flags.d.familyAxe)
+                {
+                    damage += PLAYER_STAT(playerIndex, STAT_DAMAGE_WITH_AXE);
+                }
+                else if (flags.d.familyBow)
+                {
+                    damage += PLAYER_STAT(playerIndex, STAT_DAMAGE_WITH_BOW);
+                }
+            }
+        }
+    }
+#else
+    // BUG: Unique weapons have type UNIQUE, so both hands skip weapon-based bonuses for them.
+    //      This affects skills like Blademaster, Axemaster, and Rangemaster.
     switch (offHandType)
     {
     case ITEM_TYPE_KNIFE:
@@ -94,6 +126,8 @@ s32 combat_getFlatDamageBonus(s32 playerIndex)
     default:
         break;
     }
+
+#endif
 
     if (PLAYER_STAT(playerIndex, STAT_LOW_HP_DAMAGE) != 0)
     {
