@@ -107,8 +107,10 @@ A ROM keeping them separate means the shifted operand carries its own narrowing;
 - `cond ? 1 : 0` is just the comparison; `!x` in value context is `eor #1`.
   A comparison feeding an `if` never takes the value path.
 - fold rewrites `x < C` / `x >= C` (positive C) to `x <= C-1` / `x > C-1` at the tree level, so a literal bound always emits `cmp #(C-1); bls/bhi`.
-  A ROM `cmp #C; bcc/bcs` means the bound reached RTL unfolded: assign it to a local in the SAME basic block right before the test (cse substitutes the constant into the compare; combine leaves LTU/GEU alone).
-  A function-scope init behind a tablejump stays a register compare.
+  A ROM `cmp #C; bcc/bcs` means the bound reached RTL unfolded: assign it to a non-const local in the SAME basic block right before the test (cse substitutes the constant into the compare; combine leaves LTU/GEU alone).
+  A literal or `const` local exposes the bound during tree folding, before the comparison expands to RTL.
+  A non-const local delays that substitution until CSE, preserving the original comparison form.
+  A function-scope init behind a tablejump can stay a register compare.
 - Prefer `>=` / `<=` ranges or `==` tests to subtract-and-cast membership checks when they byte-match.
   A sub-word range `level > 0 && level < CAP` can match `(u8)(level - 1) < CAP - 1` because fold rewrites both to the same unsigned wrap compare.
   If a wide local's direct range loses the ROM's narrowing shift pair, a separate `u8 narrow = wide; if (narrow >= LO && narrow <= HI)` can preserve the subtract, shift pair and compare without spelling subtraction in the test.
@@ -146,6 +148,12 @@ A ROM keeping them separate means the shifted operand carries its own narrowing;
 - Count-only induction variables reverse into down-counters (`check_dbra_loop`): `for (i = 0; i < n; i++)` becomes decrement-n with a bottom `cmp #0; bne` plus one top guard.
   Keep the source loop; trace-loop names a failed precondition.
 - A count-up loop whose body update is spelled through a single-use `static inline` helper can stay unreversed where the direct statement (or a macro with the same body) is dbra-reversed: the argument boundary decides, the helper body's spelling does not (both body spellings match). Reach for it when a ROM count-up loop resists counter and structure variation.
+- A redundant zero-counter entry guard can survive with a non-const function-scope bound initialized before control-flow joins and passed to an inline helper.
+  CSE can lose the bound's value at the joins and retain the test.
+  `update_equiv_regs` marks the single-definition constant `REG_EQUIV`.
+  If allocation spills it, reload substitutes the immediate and deletes its initializer after CSE2, leaving the guard without a bound register or stack slot.
+  Source width and declaration order affect allocation, so try a byte-sized bound before adding a barrier.
+  `const` defeats this path because `decl_constant_value` substitutes its initializer before inlining.
 - Address induction variables get their own register, initialized before the loop, stepped by the element size (strength reduction); givs stepping together merge.
 - LICM hoists invariant pool loads; a global MEM load hoists only when the loop has no calls (or the load is RTX_UNCHANGING).
   Calls, multiple exits, tablejumps, or volatile refs disable invariants/strength reduction and change allocation.
@@ -185,13 +193,22 @@ Convert a whole ladder in one edit; partial conversions are not informative (the
 Gotos into a shared error/deny tail convert by duplicating the tail at each arm's END: invert the guard so the success path breaks out and the arm falls into its own tail copy; jump2 merges at the LAST arm's copy.
 A duplicate left mid-arm (inside the guard `if`) flips the arm's branch sense; the placement decides, not the site count, and sites convert independently.
 Merging two such arms with `||` plus an inner re-test does not work: thread_jumps never removes the redundant inner test.
+Switch arm order and the final fallthrough determine which guard or return anchors a shared tail.
+A final guarded arm can use `if (ok) break; goto deny;` with `return TRUE` after the switch, letting earlier checks merge forward into that guard.
+Changing the success `break` to a direct return can move the shared tail even when the behavior is identical.
+Merging repeated guards also changes the references counted before allocation (see "Duplicated tails can change allocation without changing bytes").
+For arms testing different values before one shared test, assign each value to a common local and test it after the switch.
 
 An if/else-if chain with the shared suffix duplicated per arm merges the same way (signature: an arm branches FORWARD into the middle of the next arm).
 Two `bl` sites to one callee where one is followed by a skip-branch: place that arm as the `else if` directly before the `else { shared call }`; its call lowers to `bl; b <past>` while the shared call falls through.
 
 A constant call arg is delayed by copy-prop into the arg setup after the r2/r3 loads; if the arm must jump into a shared tail before those loads, materialize it early with MATCH_FRESH (not needed when jumping to a source-level label).
 
-`goto L` and `return x;` are interchangeable per site while at least one jump to L survives; removing the LAST jump deletes the shared tail and can flip allocation far upstream.
+`goto L` and `return x;` can be interchangeable while at least one jump to L survives, but check which return tail jump2 keeps.
+Cross-jumping can replace an early FALSE tail with a later copy and retarget existing backward branches.
+A shared post-switch failure block can preserve the earlier tail, but changing a successful goto to a direct return can still reverse the guard's branch polarity.
+Compare the pre-jump2 and jump2 dumps before changing registers or conditions.
+Removing the last jump to L can delete the shared tail and change allocation far upstream.
 When the last site cannot be a return, set a flag the downstream code already tests.
 
 ## Switches
@@ -219,6 +236,8 @@ A different-mode read of the stored word (bitfield/byte view) does survive but c
 - Caller-side arg extension reveals the PROTOTYPE param type: `lsls/lsrs #16` u16, `lsls/asrs #16` s16, `lsls/lsrs #24` u8.
   A callee reading with the other signedness means a call-site cast.
   Use this to type unknown callees.
+- Callee matching alone cannot validate return width: a 0/1-returning body can match as u8 or u32, but a caller's equality test zero-extends the u8 result with `lsls/lsrs #24` while a word result compares r0 directly.
+  Check callers before declaring a predicate `bool` (u8).
 - No extension insn, but a sharing tell: two u8 params fed the same wider value CSE into ONE truncation pseudo (one `adds rN, rM, #0` plus per-call copies); a u8/non-u8 pair gives two independent r0-coalesced pseudos.
   Can expose a wrongly-guessed u8 param on an undecompiled callee.
 - Arg-copy POSITION reveals the caller LOCAL's width: a u8 local's arg-0 copy lands after all other args (its promote is free); a u32 local converts at precompute time and lands before them.
@@ -361,6 +380,8 @@ Read the inverse too: a ROM `lsls #16; asrs #16; add; lsls #16; lsrs #16` around
 - **lreg picks by `floor_log2(n_refs) * n_refs / live_length`** (ties by qty order): a set-once-used-once constant (2 refs over 1 insn) outranks a base literal with two uses and takes r0.
   A ROM with identical insns but base in r0 and the constant in r1 is not reachable by reordering statements (the constant's init is moved next to its single use anyway); a block-scoped `MATCH_PIN` of the base is the cheap fix.
   Do not reach for `MATCH_FRESH(x, CONST)` there: its asm-input constant is a traced reload and advances the spill rotation for every later scratch pick in the function.
+- **Duplicated tails can change allocation without changing bytes.** galloc counts uses before jump2 cross-jumps identical per-arm tails, so repeating a guard across arms can raise a long-lived value's `n_refs` enough to win an earlier callee-saved register.
+  A single shared source tail has fewer refs even when final control flow is identical.
 - **Keep a rolled value in ONE variable**: `x = f(); x -= y;` fuses into one long-lived pseudo that allocates early; splitting makes two short pseudos that allocate late and reshuffle the downstream chain.
   Across arms: one function-scope variable for several `x = f(); use(x);` sites fuses a high-n_refs allocno into a low callee-saved reg, where per-block locals each tie to r0 and the copies vanish.
   ROM signature: repeated `adds rN, r0, #0` right after calls.
@@ -480,11 +501,16 @@ When the ROM runs a widening/truncation shift pair in place in one register, pin
 
 ### Two Live Registers Holding the Same Constant
 
-Between two PSEUDOS this is unreachable from plain C, so stop early.
+Between two PSEUDOS in the same mode and extended basic block, this is unreachable from plain C.
 The collapse is on the USE side: `insert_regs`/`make_regs_eqv` fold the second dest into the first's quantity, `canon_reg` then rewrites every later use to the quantity's first (EARLIER) register unconditionally, and the orphaned `(set reg (const_int K))` dies.
 `cse_end_of_basic_block` breaks only at a CODE_LABEL, at NOTE_INSN_SETJMP, and (only while `after_loop == 0`) at NOTE_INSN_LOOP_END, so two same-constant pseudos in one extended block always merge; `do {} while (0)` blocks cse1 but not cse2.
-No local width, type, helper placement or statement order changes this.
-A ROM that materializes one small constant into two pseudos, each used once, needs a MATCH_FRESH.
+Changing source types or statement order does not prevent the merge while both pseudos remain in the same mode and extended block.
+A ROM that materializes one small constant into two same-mode pseudos in that block, each used once, needs a MATCH_FRESH.
+
+Different modes are an exception: a narrowed prefix increment (`s16 count = ++obj->u16Counter`) can make `store_bit_field` force a HImode zero mask and an SImode copy.
+CSE keeps these separate, and later literal-zero stores can reuse them by mode.
+The SImode zero can remain at the increment and feed word/halfword stores, while `update_equiv_regs` sinks the HImode zero to a later byte store.
+Before adding a zero local or `MATCH_FRESH`, try the natural sub-word counter local and inspect the RTL modes.
 
 Hard registers are exempt, which is why argument setups repeat a `movs` the pseudos would have shared.
 `canon_reg` never rewrites a hard reg, and the equivalence class is cost-ordered (`CHEAPER`), where thumb's CONST_COSTS scores a SET-source CONST_INT under 256 at 0 against 1 for a pseudo: the constant heads the class, so cse normalizes each arg-register set back to the literal even where the source named a local holding it.

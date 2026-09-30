@@ -222,6 +222,15 @@ typedef enum HeroId
     HERO_ID_SAM = 6,
     HERO_ID_SMEAGOL = 7,
 } __attribute__((packed)) HeroId;
+
+typedef union ActiveSkillSelection {
+    // Active skill index or ACTIVE_SKILL_NONE in cycle cast mode.
+    u8 cycleSkillIndex;
+
+    // Shortcut slot in quick cast mode. Initially aliases ACTIVE_SKILL_NONE.
+    QuickCastSlot quickSlot : 8;
+} __attribute__((packed)) ActiveSkillSelection;
+
 /** One player's character, including HP, spirit, and stats. */
 typedef struct Player
 {
@@ -233,7 +242,7 @@ typedef struct Player
     /** The One Ring effect actor while the ring is worn; corruption stops decaying while set */
     Actor *ringActor;
 
-    /** Legolas: aim FX actor of the held-B arrow volley (action state 0x60) */
+    // Legolas's aim FX actor during Overdraw.
     Actor *aimFxActor;
 
     /** affix glow emitters of the weapon (0) and offhand (1) hands, chosen by the item's affix
@@ -307,10 +316,7 @@ typedef struct Player
     s16 currentHp;
     s16 currentSpirit;
 
-    /**
-     * Legolas: frames the attack button has been held; at 15 with a bow equipped the actor
-     * enters the arrow-volley state 0x60. Not saved.
-     */
+    // Legolas's held-attack timer. Overdraw starts at 15 frames with a bow equipped.
     u16 bowHoldFrames;
 
     /** STAT_MEDITATIVE tick: 30-frame countdown while idle to the next +2 HP. Not saved. */
@@ -358,8 +364,8 @@ typedef struct Player
      */
     RuneFlags runes;
 
-    /** active skill row on the cast button (ACTIVE_SKILL_NONE = none); L cycles it. Not saved. */
-    u8 selectedActiveSkill;
+    // The quick cast option selects which view is active.
+    ActiveSkillSelection selectedActiveSkill;
 
     /** active skill rows cast by L+A / L+B / L+R with PLAYER_OPTION_FLAG_QUICK_SKILL_SELECT; saved
      */
@@ -659,6 +665,8 @@ void player_resetHuds(void);
  * dirty, then the always-on parts (bars, text, status icons).
  */
 void player_tickHud(s32 playerIndex);
+s32 player_tickOverdrawCharge(s32 playerIndex, Actor *actor);
+
 /** Set up a freshly created character: base items and hollow state. */
 void player_initItemsAndHollow(u32 playerIndex);
 
@@ -697,10 +705,7 @@ void player_setHandFx(u8 playerIndex, u8 hand, Item item);
 
 /** Free the hand's affix glow emitter and detach its sprite. */
 void player_clearHandFx(u8 playerIndex, u8 hand);
-/** Apply the persistent options (Auto Healing, Quick PassiveSkill Select) to a player's flags. */
 void player_applyOptionFlags(u32 playerIndex);
 /** Write the per-hero base stats for heroId into a player's stat block. */
 void player_initHeroStats(u32 heroId, u32 playerIndex);
-/** Second half of hero creation: starting gear/skills (copies field_0x158 into activeSkillLevels).
- */
 void player_initHeroLoadout(u32 heroId, u32 playerIndex);

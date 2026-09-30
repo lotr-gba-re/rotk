@@ -271,8 +271,7 @@ void skill_passive_applyLevelStats(u8 playerIndex, u8 slot, s8 sign)
 }
 
 /**
- * Route the level-button active skill input: with PLAYER_OPTION_FLAG_QUICK_SKILL_SELECT clear,
- * cycle/cast through selectedActiveSkill, else run the L+button quick select.
+ * Route active skill input to quick cast mode or cycle cast mode.
  *
  * @romaddress 0x08045458
  */
@@ -280,10 +279,10 @@ void skill_active_handleInput(u8 playerIndex)
 {
     if ((PLAYER(playerIndex).optionFlags.p & PLAYER_OPTION_FLAG_QUICK_SKILL_SELECT) != 0)
     {
-        skill_active_handleQuickSelectInput(playerIndex);
+        skill_active_handleQuickCastModeInput(playerIndex);
     }
     else
     {
-        skill_active_handleCycleInput(playerIndex, FALSE);
+        skill_active_handleCycleCastModeInput(playerIndex, FALSE);
     }
 }

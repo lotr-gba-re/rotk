@@ -192,6 +192,79 @@ typedef struct HeroSkillBlock
     u8 passiveSkillIds[HERO_PASSIVE_SKILL_COUNT];
 } HeroSkillBlock;
 
+// Indices into each hero's active skill rows. Herbal Healing uses the shared index below.
+enum FrodoActiveSkillIndex
+{
+    ACTIVE_SKILL_FRODO_KNIFE_TOSS = 0,
+    ACTIVE_SKILL_FRODO_SNARE = 1,
+    ACTIVE_SKILL_FRODO_GALADRIELS_CLOAK = 2,
+    ACTIVE_SKILL_FRODO_THE_ONE_RING = 3,
+    ACTIVE_SKILL_FRODO_RINGS_PERSUASION = 4,
+};
+
+enum SamActiveSkillIndex
+{
+    ACTIVE_SKILL_SAM_KNIFE_TOSS = 0,
+    ACTIVE_SKILL_SAM_SNARE = 1,
+    ACTIVE_SKILL_SAM_GALADRIELS_CLOAK = 2,
+    ACTIVE_SKILL_SAM_COOKPOT_SMASH = 3,
+    ACTIVE_SKILL_SAM_SAMWISE_THE_STRONG = 4,
+};
+
+enum SmeagolActiveSkillIndex
+{
+    ACTIVE_SKILL_SMEAGOL_BERSERK_ATTACK = 0,
+    ACTIVE_SKILL_SMEAGOL_ROCK_THROW = 1,
+    ACTIVE_SKILL_SMEAGOL_COWER = 2,
+    ACTIVE_SKILL_SMEAGOL_GOLLUM = 3,
+    ACTIVE_SKILL_SMEAGOL_PITIFUL_WAIL = 4,
+};
+
+enum LegolasActiveSkillIndex
+{
+    ACTIVE_SKILL_LEGOLAS_WHITE_KNIVES = 0,
+    ACTIVE_SKILL_LEGOLAS_SPREAD_FIRE = 1,
+    ACTIVE_SKILL_LEGOLAS_FRIEND_OF_MIRKWOOD = 2,
+    ACTIVE_SKILL_LEGOLAS_FORAGING = 3,
+    ACTIVE_SKILL_LEGOLAS_SILENT_STRIDE = 4,
+};
+
+enum AragornActiveSkillIndex
+{
+    ACTIVE_SKILL_ARAGORN_SWEEP = 0,
+    ACTIVE_SKILL_ARAGORN_KINGS_COMMAND = 1,
+    ACTIVE_SKILL_ARAGORN_SWORD_THROW = 2,
+    ACTIVE_SKILL_ARAGORN_NUMENOREAN_WILL = 3,
+    ACTIVE_SKILL_ARAGORN_CALL_OF_THE_DEAD = 4,
+};
+
+enum GandalfActiveSkillIndex
+{
+    ACTIVE_SKILL_GANDALF_SWORD_OF_POWER = 0,
+    ACTIVE_SKILL_GANDALF_LIGHTSTRIKE = 1,
+    ACTIVE_SKILL_GANDALF_SHIELD = 2,
+    ACTIVE_SKILL_GANDALF_BLINDING_AURA = 3,
+    ACTIVE_SKILL_GANDALF_SUMMON_GWAIHIR = 4,
+};
+
+enum EowynActiveSkillIndex
+{
+    ACTIVE_SKILL_EOWYN_DOUBLE_STRIKE = 0,
+    ACTIVE_SKILL_EOWYN_SHIELDMAIDEN_OF_ROHAN = 1,
+    ACTIVE_SKILL_EOWYN_ROHAN_SPRINT = 2,
+    ACTIVE_SKILL_EOWYN_SHIELD_BASH = 3,
+    ACTIVE_SKILL_EOWYN_FORTH_EORLINGAS = 4,
+};
+
+enum GimliActiveSkillIndex
+{
+    ACTIVE_SKILL_GIMLI_AXE_THROW = 0,
+    ACTIVE_SKILL_GIMLI_WHIRLING_ATTACK = 1,
+    ACTIVE_SKILL_GIMLI_DWARVEN_RAGE = 2,
+    ACTIVE_SKILL_GIMLI_STOICISM = 3,
+    ACTIVE_SKILL_GIMLI_EARTH_SHATTER = 4,
+};
+
 // Placeholder for active skill row 3.
 #define ACTIVE_SKILL_UNKNOWN_3 3
 
@@ -201,13 +274,20 @@ typedef struct HeroSkillBlock
 // Active skill selection sentinel: nothing on the cast button.
 #define ACTIVE_SKILL_NONE 6
 
+// Shortcut slots for L+A, L+B, and L+R.
+typedef enum QuickCastSlot
+{
+    QUICK_CAST_SLOT_A = 0,
+    QUICK_CAST_SLOT_B = 1,
+    QUICK_CAST_SLOT_R = 2,
+    QUICK_CAST_SLOT_NONE = 3,
+} QuickCastSlot;
+
 s16 skill_active_getLeveledValue(u8 playerIndex, u8 activeSkillIndex, u8 valueIndex, u8 levelCount);
 
-/**
- * Whether the player may cast an active skill now: learned, enough spirit, the actor not already in
- * a cast state, plus per-hero gear checks (bow for arrow active skills, herbs for Herbal Healing).
- */
-bool skill_active_canCast(u8 playerIndex, u8 activeSkillIndex);
+u32 skill_active_canCast(u8 playerIndex, u8 activeSkillIndex);
+
+u32 skill_active_hasLevels(u8 playerIndex, u8 activeSkillIndex);
 
 void skill_active_cast(u8 playerIndex, u8 activeSkillIndex);
 
@@ -219,9 +299,9 @@ void skill_active_addPurchasedLevels(u8 playerIndex, u8 activeSkillIndex, u8 cou
 
 void skill_active_handleInput(u8 playerIndex);
 
-void skill_active_handleCycleInput(u8 playerIndex, bool fromQuickSelect);
+void skill_active_handleCycleCastModeInput(u8 playerIndex, bool fromHudInit);
 
-void skill_active_handleQuickSelectInput(u8 playerIndex);
+void skill_active_handleQuickCastModeInput(u8 playerIndex);
 
 // One callback per distinct active skill. The function name identifies the hero whose row defines
 // the skill. Frodo's Knife Toss, Snare and Galadriel's Cloak callbacks are also used by Sam.

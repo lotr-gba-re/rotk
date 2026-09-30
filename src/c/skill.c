@@ -1,8 +1,16 @@
 #include "skill.h"
 #include "game.h"
+#include "input.h"
 #include "player.h"
 #include "stats.h"
 #include "variables.h"
+
+static inline void revealSkillPanel(u8 playerIndex)
+{
+    g_PlayerHuds[playerIndex].skillPanelTimer = 0;
+    g_PlayerHuds[playerIndex].skillPanelFrame = 0;
+    g_PlayerHuds[playerIndex].skillPanelState = PLAYERHUD_SKILL_PANEL_REVEALING;
+}
 
 // HACK: The inline boundary keeps count-up loops from becoming down-counters.
 static inline void addTemporaryActiveLevel(u8 playerIndex, s32 row)
@@ -325,4 +333,448 @@ void skill_active_cast(u8 playerIndex, u8 activeSkillIndex)
         PLAYER(playerIndex).castingActiveSkill = activeSkillIndex;
         PLAYER(playerIndex).activeSkillStateFlags |= ACTIVE_SKILL_STATE_CASTING;
     }
+}
+
+static inline u32 findEnabledSkill(u8 playerIndex, u32 selected, u32 maxAttempts)
+{
+    u32 attempts;
+    u32 lastSkill = ACTIVE_SKILL_HERBAL_HEALING;
+
+    for (attempts = 0; attempts < maxAttempts; attempts++)
+    {
+        if ((s8)PLAYER(playerIndex).activeSkillLevels[selected] != 0 &&
+            skill_active_hasLevels(playerIndex, selected) &&
+            PLAYER(playerIndex).activeSkillCycleEnabled[selected] != 0)
+        {
+            break;
+        }
+        if (selected >= lastSkill)
+        {
+            selected = 0;
+        }
+        else
+        {
+            selected++;
+        }
+    }
+    if (attempts == maxAttempts)
+    {
+        selected = ACTIVE_SKILL_NONE;
+    }
+    return selected;
+}
+
+/**
+ * Cycle the selected active skill with L and cast it with A.
+ *
+ * @param fromHudInit Suppress casting and permit selection changes while the panel animates.
+ *
+ * @romaddress 0x0804319c
+ */
+void skill_active_handleCycleCastModeInput(u8 playerIndex, bool fromHudInit)
+{
+    u8 skillCount = HERO_ACTIVE_SKILL_COUNT;
+    u32 selected = (s8)PLAYER(playerIndex).selectedActiveSkill.cycleSkillIndex;
+
+    if (!fromHudInit && (PLAYER_KEYS_PRESSED(playerIndex) & A_BUTTON) != 0 &&
+        (PLAYER(playerIndex).activeSkillStateFlags & ACTIVE_SKILL_STATE_CASTING) == 0)
+    {
+        if (selected != ACTIVE_SKILL_NONE && skill_active_canCast(playerIndex, selected) == TRUE)
+        {
+            skill_active_cast(playerIndex, selected);
+        }
+    }
+    else if (((PLAYER_KEYS_PRESSED(playerIndex) & L_BUTTON) != 0 ||
+              !skill_active_hasLevels(playerIndex, selected) ||
+#ifdef BUGFIX
+              selected == ACTIVE_SKILL_NONE ||
+#else
+    // BUG: A temporary level in slot 6 can leave an empty selection stuck until L
+    // is pressed because this reads past the cycle flags.
+#endif
+              PLAYER(playerIndex).activeSkillCycleEnabled[selected] == 0) &&
+             ((g_PlayerHuds[playerIndex].skillPanelState != PLAYERHUD_SKILL_PANEL_REVEALING &&
+               g_PlayerHuds[playerIndex].skillPanelState != PLAYERHUD_SKILL_PANEL_RETRACTING) ||
+              fromHudInit == TRUE))
+    {
+        u32 lastSkill = ACTIVE_SKILL_HERBAL_HEALING;
+
+        if (selected == ACTIVE_SKILL_NONE || selected >= lastSkill)
+        {
+            selected = 0;
+        }
+        else
+        {
+            selected++;
+        }
+
+        selected = findEnabledSkill(playerIndex, selected, skillCount);
+        PLAYER(playerIndex).selectedActiveSkill.cycleSkillIndex = selected;
+        if (selected != ACTIVE_SKILL_NONE)
+        {
+            u8 hudState = g_PlayerHuds[playerIndex].skillPanelState;
+
+            if (hudState == PLAYERHUD_SKILL_PANEL_IDLE)
+            {
+                revealSkillPanel(playerIndex);
+            }
+            else if (hudState == PLAYERHUD_SKILL_PANEL_SHOWING)
+            {
+                g_PlayerHuds[playerIndex].flags.p |= PLAYERHUD_FLAG_SKILL_PANEL_DIRTY;
+            }
+        }
+    }
+}
+
+/**
+ * Cast the active skill bound to L+A, L+B, or L+R and reveal its HUD panel.
+ *
+ * @romaddress 0x08043350
+ */
+void skill_active_handleQuickCastModeInput(u8 playerIndex)
+{
+    QuickCastSlot slot;
+    u8 activeSkillIndex;
+
+    if ((PLAYER_KEYS_CURRENT(playerIndex) & L_BUTTON) == 0 ||
+        (PLAYER(playerIndex).activeSkillStateFlags & ACTIVE_SKILL_STATE_CASTING) != 0)
+    {
+        return;
+    }
+
+    if ((PLAYER_KEYS_PRESSED(playerIndex) & A_BUTTON) != 0)
+    {
+        slot = QUICK_CAST_SLOT_A;
+    }
+    else if ((PLAYER_KEYS_PRESSED(playerIndex) & B_BUTTON) != 0)
+    {
+        slot = QUICK_CAST_SLOT_B;
+    }
+    else
+    {
+        slot = (PLAYER_KEYS_PRESSED(playerIndex) & R_BUTTON) != 0 ? QUICK_CAST_SLOT_R
+                                                                  : QUICK_CAST_SLOT_NONE;
+    }
+    if (slot == QUICK_CAST_SLOT_NONE)
+    {
+        return;
+    }
+
+    activeSkillIndex = PLAYER(playerIndex).quickSelectActiveSkills[slot];
+
+    if (skill_active_canCast(playerIndex, activeSkillIndex) == TRUE)
+    {
+        PLAYER(playerIndex).selectedActiveSkill.quickSlot = slot;
+        skill_active_cast(playerIndex, activeSkillIndex);
+    }
+    else
+    {
+        s8 activeSkillLevel = PLAYER(playerIndex).activeSkillLevels[activeSkillIndex];
+
+        if (activeSkillLevel == 0)
+        {
+            slot = QUICK_CAST_SLOT_NONE;
+        }
+    }
+
+    if (slot == QUICK_CAST_SLOT_NONE)
+    {
+        return;
+    }
+
+    // It's probably impossible for slot to be ACTIVE_SKILL_NONE here, but the ROM checks it
+    if (slot != ACTIVE_SKILL_NONE &&
+        g_PlayerHuds[playerIndex].skillPanelState == PLAYERHUD_SKILL_PANEL_IDLE)
+    {
+        revealSkillPanel(playerIndex);
+        return;
+    }
+    if (slot != QUICK_CAST_SLOT_NONE && slot != ACTIVE_SKILL_NONE &&
+        g_PlayerHuds[playerIndex].skillPanelState == PLAYERHUD_SKILL_PANEL_SHOWING)
+    {
+        g_PlayerHuds[playerIndex].flags.p |= PLAYERHUD_FLAG_SKILL_PANEL_DIRTY;
+    }
+}
+
+/**
+ * Check whether a player can cast an active skill now.
+ *
+ * @romaddress 0x08043484
+ */
+u32 skill_active_canCast(u8 playerIndex, u8 activeSkillIndex)
+{
+    Actor *actor = PLAYER(playerIndex).ownerActor;
+    u8 actionState = actor->actionState;
+    ItemType offhandType = PLAYER(playerIndex).inventory.slots.offhand.d.itemType;
+    ItemType weaponType = PLAYER(playerIndex).inventory.slots.weapon.d.itemType;
+    u16 actionFlag = 1u << activeSkillIndex;
+    s8 learnedLevel;
+
+    if (activeSkillIndex == ACTIVE_SKILL_HERBAL_HEALING &&
+        PLAYER(playerIndex).kingsfoilHerbs.fresh == 0 &&
+        PLAYER(playerIndex).kingsfoilHerbs.dried == 0)
+    {
+        return FALSE;
+    }
+    if (activeSkillIndex == ACTIVE_SKILL_HERBAL_HEALING)
+    {
+        return TRUE;
+    }
+
+    learnedLevel = PLAYER(playerIndex).activeSkillLevels[activeSkillIndex];
+    if (learnedLevel == 0)
+    {
+        return FALSE;
+    }
+    if (PLAYER(playerIndex).currentSpirit <
+            PLAYER_ACTIVE_SKILL(playerIndex, activeSkillIndex).spiritCost &&
+        !(g_GameFlags.p & GAME_FLAG_2))
+    {
+        return FALSE;
+    }
+    if (actionState == ACTOR_STATE_LEGOLAS_OVERDRAW)
+    {
+        return FALSE;
+    }
+
+    switch (actionState)
+    {
+    case 0x0a:
+    case 0x22:
+    case ACTOR_STATE_ACTIVE_SKILL_CAST:
+    case 0x30:
+    case ACTOR_STATE_KNOCKED_DOWN:
+    case 0x32:
+        return FALSE;
+    default:
+        if (actor->as.combat.actionStateFlags & actionFlag)
+        {
+            return FALSE;
+        }
+    }
+
+    switch (PLAYER(playerIndex).heroId)
+    {
+    case HERO_ID_FRODO:
+    case HERO_ID_SAM:
+        switch (activeSkillIndex)
+        {
+        case ACTIVE_SKILL_FRODO_KNIFE_TOSS:
+            if (weaponType != ITEM_TYPE_EMPTY)
+            {
+                break;
+            }
+            return FALSE;
+        case ACTIVE_SKILL_FRODO_SNARE: {
+            const Player *player = &PLAYER(playerIndex);
+            const u8 *skillLevel = &player->activeSkillLevels[ACTIVE_SKILL_FRODO_SNARE];
+            u8 snareCount = actor->as.combat.comboState[0];
+            s16 maxSnares =
+                skill_active_getLeveledValue(playerIndex, ACTIVE_SKILL_FRODO_SNARE, 1, *skillLevel);
+            if (snareCount < maxSnares)
+            {
+                break;
+            }
+            return FALSE;
+        }
+        case ACTIVE_SKILL_FRODO_THE_ONE_RING:
+            if (PLAYER(playerIndex).heroId != HERO_ID_FRODO ||
+                g_CurrentMissionId != MISSION_CRACK_OF_DOOM_EDGE_OF_VOLCANO ||
+                g_MissionVariant != 7)
+            {
+                break;
+            }
+            return FALSE;
+        case ACTIVE_SKILL_FRODO_RINGS_PERSUASION:
+            if (PLAYER(playerIndex).heroId != HERO_ID_FRODO ||
+                g_CurrentMissionId != MISSION_CRACK_OF_DOOM_EDGE_OF_VOLCANO ||
+                g_MissionVariant != 7)
+            {
+                break;
+            }
+            return FALSE;
+        default:
+            return TRUE;
+        }
+        break;
+    case HERO_ID_LEGOLAS:
+        switch (activeSkillIndex)
+        {
+        case ACTIVE_SKILL_LEGOLAS_FRIEND_OF_MIRKWOOD:
+            if (actor->as.combat.comboState[0] == 0)
+            {
+                break;
+            }
+            return FALSE;
+        case ACTIVE_SKILL_LEGOLAS_SPREAD_FIRE:
+            if (weaponType != ITEM_TYPE_EMPTY)
+            {
+                break;
+            }
+            return FALSE;
+        case ACTIVE_SKILL_LEGOLAS_WHITE_KNIVES:
+            if (PLAYER(playerIndex).inventory.slots.backpack_0.d.itemType == ITEM_TYPE_KNIFE)
+            {
+                break;
+            }
+            return FALSE;
+        default:
+            return TRUE;
+        }
+        break;
+    case HERO_ID_ARAGORN:
+        switch (activeSkillIndex)
+        {
+        case ACTIVE_SKILL_ARAGORN_SWEEP:
+        case ACTIVE_SKILL_ARAGORN_SWORD_THROW:
+            if (weaponType != ITEM_TYPE_EMPTY)
+            {
+                break;
+            }
+            return FALSE;
+        case ACTIVE_SKILL_ARAGORN_CALL_OF_THE_DEAD:
+            if (actor->as.combat.comboState[0] == 0)
+            {
+                break;
+            }
+            return FALSE;
+        default:
+            return TRUE;
+        }
+        break;
+    case HERO_ID_GANDALF:
+        if (activeSkillIndex != ACTIVE_SKILL_GANDALF_SWORD_OF_POWER)
+        {
+            if (activeSkillIndex == ACTIVE_SKILL_GANDALF_LIGHTSTRIKE)
+            {
+#ifdef BUGFIX
+                // Check the family instead of the item type for normal and unique weapons.
+                Item offhand = PLAYER(playerIndex).inventory.slots.offhand;
+                if (offhand.d.itemType != ITEM_TYPE_EMPTY &&
+                    ITEM_BASE_METADATA(offhand).flags.d.familyStaff)
+#else
+                // BUG: Unique staves have item type UNIQUE, so Gandalf cannot cast
+                // Lightstrike with them.
+                if (offhandType == ITEM_TYPE_STAFF)
+#endif
+                {
+                    break;
+                }
+            }
+            else
+            {
+                return TRUE;
+            }
+        }
+        else
+        {
+#ifdef BUGFIX
+            // Check the family instead of the item type for normal and unique weapons.
+            Item weapon = PLAYER(playerIndex).inventory.slots.weapon;
+            if (weapon.d.itemType != ITEM_TYPE_EMPTY &&
+                ITEM_BASE_METADATA(weapon).flags.d.familySword)
+#else
+            // BUG: Unique swords have item type UNIQUE, so Gandalf cannot cast Sword
+            // of Power with them.
+            if (weaponType <= ITEM_TYPE_SWORD_1H)
+#endif
+            {
+                break;
+            }
+        }
+        return FALSE;
+    case HERO_ID_EOWYN:
+        switch (activeSkillIndex)
+        {
+        case ACTIVE_SKILL_EOWYN_DOUBLE_STRIKE:
+            if (weaponType != ITEM_TYPE_EMPTY)
+            {
+                break;
+            }
+            return FALSE;
+        case ACTIVE_SKILL_EOWYN_SHIELD_BASH:
+            if (offhandType == ITEM_TYPE_SHIELD)
+            {
+                break;
+            }
+            return FALSE;
+        default:
+            return TRUE;
+        }
+        break;
+    case HERO_ID_SMEAGOL:
+    default:
+        return TRUE;
+    case HERO_ID_GIMLI:
+        switch (activeSkillIndex)
+        {
+        case ACTIVE_SKILL_GIMLI_AXE_THROW:
+            if (weaponType != ITEM_TYPE_EMPTY)
+            {
+                break;
+            }
+            return FALSE;
+        case ACTIVE_SKILL_GIMLI_WHIRLING_ATTACK:
+            if (weaponType != ITEM_TYPE_EMPTY)
+            {
+                break;
+            }
+            return FALSE;
+        default:
+            return TRUE;
+        }
+        break;
+    }
+    return TRUE;
+}
+
+/**
+ * An active skill's leveled value: base + the first `levelCount` per-level
+ * increments, plus one extra increment capped at ACTIVE_SKILL_MAX_LEVEL while
+ * STAT_ACTIVE_SKILL_LEVEL_BONUS is positive. Returns the summed s16 value.
+ *
+ * @param playerIndex player whose active skill is being queried
+ * @param activeSkillIndex active skill row to query
+ * @param valueIndex level curve within the active skill row
+ * @param levelCount number of purchased or temporary levels
+ *
+ * @romaddress 0x08043764
+ */
+s16 skill_active_getLeveledValue(u8 playerIndex, u8 activeSkillIndex, u8 valueIndex, u8 levelCount)
+{
+    u16 total = PLAYER_ACTIVE_SKILL(playerIndex, activeSkillIndex).values[valueIndex].base;
+    s32 level;
+
+#ifdef BUGFIX
+    if (levelCount > ACTIVE_SKILL_MAX_LEVEL)
+    {
+        levelCount = ACTIVE_SKILL_MAX_LEVEL;
+    }
+#else
+    // BUG: a temporary level above the cap reads beyond
+    // ActiveSkillValue.perLevel.
+#endif
+
+    for (level = 0; level < levelCount; level++)
+    {
+        total +=
+            PLAYER_ACTIVE_SKILL(playerIndex, activeSkillIndex).values[valueIndex].perLevel[level];
+    }
+
+    if (PLAYER(playerIndex).stats[STAT_ACTIVE_SKILL_LEVEL_BONUS] > 0)
+    {
+        if (level < ACTIVE_SKILL_MAX_LEVEL)
+        {
+            total += PLAYER_ACTIVE_SKILL(playerIndex, activeSkillIndex)
+                         .values[valueIndex]
+                         .perLevel[level];
+        }
+        else
+        {
+            total += PLAYER_ACTIVE_SKILL(playerIndex, activeSkillIndex)
+                         .values[valueIndex]
+                         .perLevel[ACTIVE_SKILL_MAX_LEVEL - 1];
+        }
+    }
+    return total;
 }
