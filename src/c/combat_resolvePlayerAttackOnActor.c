@@ -29,7 +29,7 @@ void combat_resolvePlayerAttackOnActor(Actor *attacker, Actor *victim)
         // Legolas: swap in the backpack knife's affixes as the weapon for the hit
         if (attackerHeroId == HERO_ID_LEGOLAS)
         {
-            attacker->actionState = ACTOR_STATE_ATK_UNKNOWN_35;
+            attacker->actionState = ACTOR_STATE_LEGOLAS_WHITE_KNIVES;
             if (ITEM_TYPE_VIA_SHIFT(attackerPlayer->inventory.slots.backpack_0) ==
                     ITEM_TYPE_KNIFE &&
                 !(attacker->field_0x100 & 0x20))
@@ -72,7 +72,7 @@ void combat_resolvePlayerAttackOnActor(Actor *attacker, Actor *victim)
         // Legolas: swap the weapon/offhand affixes back in, knife back out
         if (attackerHeroId == HERO_ID_LEGOLAS)
         {
-            attacker->actionState = ACTOR_STATE_ATK_UNKNOWN_35;
+            attacker->actionState = ACTOR_STATE_LEGOLAS_WHITE_KNIVES;
             if (legolasKnife.d.itemType == ITEM_TYPE_KNIFE && !(attacker->field_0x100 & 0x20))
             {
                 if (ITEM_TYPE_VIA_SHIFT(PLAYER(attackerPlayerIndex).inventory.slots.weapon) !=

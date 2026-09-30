@@ -539,12 +539,12 @@ u32 skill_active_canCast(u8 playerIndex, u8 activeSkillIndex)
 
     switch (actionState)
     {
-    case 0x0a:
-    case 0x22:
+    case ACTOR_STATE_ACTIVE_SKILL_CAST_RECOVERY:
+    case ACTOR_STATE_UNKNOWN_22:
     case ACTOR_STATE_ACTIVE_SKILL_CAST:
-    case 0x30:
+    case ACTOR_STATE_UNKNOWN_30:
     case ACTOR_STATE_KNOCKED_DOWN:
-    case 0x32:
+    case ACTOR_STATE_ACTIVE_SKILL_CAST_ANIMATION:
         return FALSE;
     default:
         if (actor->as.combat.actionStateFlags & actionFlag)

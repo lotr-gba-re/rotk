@@ -67,7 +67,8 @@ s32 combat_resolvePveAttack(Actor *attacker, Actor *victim)
     u8 victimType = unitType;
 
     if (victimType >= ENEMY_TYPE_ORC_HOPLITE && victimType <= ENEMY_TYPE_ORC_HOPLITE_ELITE &&
-        victim->actionState != 0x0e && victim->actionState != 0x8)
+        victim->actionState != ACTOR_STATE_UNKNOWN_0E &&
+        victim->actionState != ACTOR_STATE_UNKNOWN_08)
     {
         // ENEMY_TYPE_ORC_HOPLITE and ENEMY_TYPE_ORC_HOPLITE_ELITE can only be hit on backstab.
         hitPossible = combat_isBackstab(attacker, victim);
@@ -185,8 +186,8 @@ s32 combat_resolvePveAttack(Actor *attacker, Actor *victim)
 
                 if (noFlinchFlags == 0)
                 {
-                    if (attacker->actionState == 0x3b && victim->currentHp > 0 &&
-                        actor_isStunnable(victim))
+                    if (attacker->actionState == ACTOR_STATE_EOWYN_SHIELD_BASH &&
+                        victim->currentHp > 0 && actor_isStunnable(victim))
                     {
                         victim->actionState = ACTOR_STATE_STUNNED;
                         applyStun(attacker, victim, playerIndex, noFlinchFlags);
@@ -211,7 +212,8 @@ s32 combat_resolvePveAttack(Actor *attacker, Actor *victim)
                                                   0, 8);
                         }
                     }
-                    else if (attacker->actionState == 0x58 && actor_isStunnable(victim))
+                    else if (attacker->actionState == ACTOR_STATE_SAM_COOKPOT_SMASH &&
+                             actor_isStunnable(victim))
                     {
                         {
                             // separate address statement: the zeroing must land inside the

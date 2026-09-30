@@ -186,17 +186,17 @@ s32 combat_computePveDamage(Actor *attacker, Actor *victim, bool crit)
 
     switch (attacker->actionState)
     {
-    case ACTOR_STATE_ATK_UNKNOWN_33:
-    case ACTOR_STATE_ATK_UNKNOWN_34:
-    case ACTOR_STATE_ATK_UNKNOWN_35:
-    case ACTOR_STATE_ATK_UNKNOWN_3A:
-    case ACTOR_STATE_ATK_UNKNOWN_59:
+    case ACTOR_STATE_ARAGORN_SWEEP:
+    case ACTOR_STATE_GIMLI_WHIRLING_ATTACK:
+    case ACTOR_STATE_LEGOLAS_WHITE_KNIVES:
+    case ACTOR_STATE_EOWYN_DOUBLE_STRIKE:
+    case ACTOR_STATE_SMEAGOL_BERSERK_ATTACK:
         damage += attacker->as.combat.storedDamage;
         break;
-    case ACTOR_STATE_ATK_CHARGE_ONLY:
+    case ACTOR_STATE_EOWYN_SHIELD_BASH:
         damage = attacker->as.combat.storedDamage;
         break;
-    case ACTOR_STATE_ATK_ACTIVE_SKILL3: {
+    case ACTOR_STATE_SAM_COOKPOT_SMASH: {
         s32 activeSkillLevel = PLAYER(playerIndex).activeSkillLevels[ACTIVE_SKILL_UNKNOWN_3];
         damage =
             skill_active_getLeveledValue(playerIndex, ACTIVE_SKILL_UNKNOWN_3, 0, activeSkillLevel);
@@ -343,17 +343,17 @@ s32 combat_computePvpDamage(Actor *attacker, Actor *victim, bool crit)
 
     switch (attacker->actionState)
     {
-    case ACTOR_STATE_ATK_UNKNOWN_33:
-    case ACTOR_STATE_ATK_UNKNOWN_34:
-    case ACTOR_STATE_ATK_UNKNOWN_35:
-    case ACTOR_STATE_ATK_UNKNOWN_3A:
-    case ACTOR_STATE_ATK_UNKNOWN_59:
+    case ACTOR_STATE_ARAGORN_SWEEP:
+    case ACTOR_STATE_GIMLI_WHIRLING_ATTACK:
+    case ACTOR_STATE_LEGOLAS_WHITE_KNIVES:
+    case ACTOR_STATE_EOWYN_DOUBLE_STRIKE:
+    case ACTOR_STATE_SMEAGOL_BERSERK_ATTACK:
         damage += attacker->as.combat.storedDamage;
         break;
-    case ACTOR_STATE_ATK_CHARGE_ONLY:
+    case ACTOR_STATE_EOWYN_SHIELD_BASH:
         damage = attacker->as.combat.storedDamage;
         break;
-    case ACTOR_STATE_ATK_ACTIVE_SKILL3: {
+    case ACTOR_STATE_SAM_COOKPOT_SMASH: {
         s32 activeSkillLevel = PLAYER(playerIndex).activeSkillLevels[ACTIVE_SKILL_UNKNOWN_3];
         damage =
             skill_active_getLeveledValue(playerIndex, ACTIVE_SKILL_UNKNOWN_3, 0, activeSkillLevel);

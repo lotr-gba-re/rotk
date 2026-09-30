@@ -725,24 +725,29 @@ typedef Actor ActorPoolOverlay[ACTOR_POOL_OVERLAY_CAPACITY];
 /** Actor.actionState values with known consumers (most states unmapped). */
 enum ActorActionState
 {
-    ACTOR_STATE_HURT = 0x06,    // set by player_addHp flinch (from states 1/2/5)
+    ACTOR_STATE_HURT = 0x06, // set by player_addHp flinch (from states 1/2/5)
+    ACTOR_STATE_UNKNOWN_08 = 0x08,
+    ACTOR_STATE_ACTIVE_SKILL_CAST_RECOVERY = 0x0a,
+    ACTOR_STATE_UNKNOWN_0E = 0x0e,
     ACTOR_STATE_STUNNED = 0x1a, // victim takes double melee damage; set by Immobilize hits
-    // Start an active skill cast. A nonzero castTriggerFrame defers the callback to state 0x32.
+    ACTOR_STATE_UNKNOWN_22 = 0x22,
+    // Start an active skill cast. A nonzero castTriggerFrame defers the callback to
+    // ACTOR_STATE_ACTIVE_SKILL_CAST_ANIMATION.
     ACTOR_STATE_ACTIVE_SKILL_CAST = 0x23,
     ACTOR_STATE_KNOCKBACK =
         0x25, // victim pushed away at 2.0 px/frame velocity; set by actor_applyKnockback
     ACTOR_STATE_FX_ATTACHED = 0x2b,
     ACTOR_STATE_SHIELD_SPENT = 0x40, // shield bubble leaves FX_ATTACHED for this on a block
+    ACTOR_STATE_UNKNOWN_30 = 0x30,
     ACTOR_STATE_KNOCKED_DOWN = 0x31, // player knockdown from an enemy crit / heavy attack
-    // attacker states with special melee damage: 0x33/0x34/0x35/0x3a/0x59 add chargeDamage,
-    // 0x3b replaces the roll with chargeDamage, 0x58 replaces it with the active skill-3 value.
-    ACTOR_STATE_ATK_UNKNOWN_33 = 0x33,
-    ACTOR_STATE_ATK_UNKNOWN_34 = 0x34,
-    ACTOR_STATE_ATK_UNKNOWN_35 = 0x35,
-    ACTOR_STATE_ATK_UNKNOWN_3A = 0x3a,
-    ACTOR_STATE_ATK_CHARGE_ONLY = 0x3b,
-    ACTOR_STATE_ATK_ACTIVE_SKILL3 = 0x58,
-    ACTOR_STATE_ATK_UNKNOWN_59 = 0x59,
+    ACTOR_STATE_ACTIVE_SKILL_CAST_ANIMATION = 0x32,
+    ACTOR_STATE_ARAGORN_SWEEP = 0x33,
+    ACTOR_STATE_GIMLI_WHIRLING_ATTACK = 0x34,
+    ACTOR_STATE_LEGOLAS_WHITE_KNIVES = 0x35,
+    ACTOR_STATE_EOWYN_DOUBLE_STRIKE = 0x3a,
+    ACTOR_STATE_EOWYN_SHIELD_BASH = 0x3b,
+    ACTOR_STATE_SAM_COOKPOT_SMASH = 0x58,
+    ACTOR_STATE_SMEAGOL_BERSERK_ATTACK = 0x59,
     ACTOR_STATE_LEGOLAS_OVERDRAW = 0x60,
 };
 
