@@ -12,7 +12,7 @@
 // TODO: [75] "Turquoise" carries .val2=1 on an empty (STAT_NONE) slot - meaning unknown
 
 /** @romaddress 0x08067f28 */
-const ItemAffix GloveShoePrefixes[96] = {
+const ItemStatRecord GloveShoePrefixes[96] = {
     // [0] "Easterling": Backstab +1, Cheap +1
     { .nameId = TEXT_ID_PREFIX_EASTERLING,
       .tier = 1,

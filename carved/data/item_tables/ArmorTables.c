@@ -8,7 +8,7 @@
 
 
 /** @romaddress 0x08063ec4 */
-const ItemBase ArmorItems[24] = {
+const ItemStatRecord ArmorItems[24] = {
     // [0] "Cloth Shirt": Melee Armor +2, Missile Armor +2
     { .nameId = TEXT_ID_ITEM_CLOTH_SHIRT,
       .tier = 1,

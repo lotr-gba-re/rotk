@@ -102,7 +102,7 @@ Example, `patches/demo_table_patch/tables.c`:
 #include "combat.h"
 #include "tablepatch.h"
 
-TABLE_ENTRY(ItemAffix, AccessoryPrefixes, 77) = {
+TABLE_ENTRY(ItemStatRecord, AccessoryPrefixes, 77) = {
     .nameId = 0x0522, .tier = 1,
     .stat0 = STAT_HEALTH, .val0 = 69,
     .stat1 = STAT_GEMFINDER, .val1 = 1,

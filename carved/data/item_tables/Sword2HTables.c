@@ -8,7 +8,7 @@
 
 
 /** @romaddress 0x080633ec */
-const ItemBase Sword2HItems[9] = {
+const ItemStatRecord Sword2HItems[9] = {
     // [0] "T-Sword": Melee Damage +19, % Critical +5, Accuracy -2
     { .nameId = TEXT_ID_ITEM_T_SWORD,
       .tier = 1,
@@ -110,7 +110,7 @@ const ItemGfx Sword2HGfx[9] = {
 };
 
 /** most common row (5 of 9); deviations are spelled out per entry */
-#define FLAGS_SWORD2H { .familySword = 1, .twoHanded = 1, .slotWeapon = 1, .classAragorn = 1, .classEowyn = 1 }
+#define FLAGS_SWORD2H { .familySword = 1, .twoHanded = 1, .slotMainhand = 1, .classAragorn = 1, .classEowyn = 1 }
 
 /** @romaddress 0x08063554 */
 const ItemMetadata Sword2HItemFlags[9] = {
@@ -119,7 +119,7 @@ const ItemMetadata Sword2HItemFlags[9] = {
 
     // [1] "Uruk Sword"
     { .flags.d = { .familySword = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classAragorn = 1,
                    .classEowyn = 1 },
@@ -127,7 +127,7 @@ const ItemMetadata Sword2HItemFlags[9] = {
 
     // [2] "Dastard Sword"
     { .flags.d = { .familySword = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classAragorn = 1,
                    .classEowyn = 1 },
@@ -135,7 +135,7 @@ const ItemMetadata Sword2HItemFlags[9] = {
 
     // [3] "Soldier Sword"
     { .flags.d = { .familySword = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classAragorn = 1,
                    .classEowyn = 1 },
@@ -157,7 +157,7 @@ const ItemMetadata Sword2HItemFlags[9] = {
     { .flags.d = { .familySword = 1,
                    .ancient = 1,
                    .twoHanded = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .classAragorn = 1,
                    .classEowyn = 1 },
       .equipSfx = 0x27 },

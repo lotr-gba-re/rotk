@@ -235,19 +235,6 @@ void skill_addTemporaryLevels(u8 playerIndex, u8 count)
     }
 }
 
-// Recompute max HP and spirit while preserving bonuses independent of primary stats.
-#define PLAYER_RECOMPUTE_BASE_STATS(playerIndex, baseStats, hpBonus, spiritBonus)                  \
-    {                                                                                              \
-        baseStats.strength = PLAYER_STAT(playerIndex, STAT_STRENGTH);                              \
-        baseStats.health = PLAYER_STAT(playerIndex, STAT_HEALTH);                                  \
-        baseStats.courage = PLAYER_STAT(playerIndex, STAT_COURAGE);                                \
-        baseStats.maxHp = player_computeMaxHp(playerIndex, baseStats);                             \
-        PLAYER_STAT(playerIndex, STAT_MAX_HP) = baseStats.maxHp + hpBonus;                         \
-        PLAYER_STAT(playerIndex, STAT_MAX_SPIRIT) =                                                \
-            player_computeMaxSpirit(playerIndex, baseStats) + spiritBonus;                         \
-        player_clampCurrentHpSpirit(playerIndex);                                                  \
-    }
-
 /**
  * Add one PassiveSkill stat record value to stats[]: a primary stat or STAT_ALL_PRIMARY_STATS also
  * recomputes max HP / spirit, STAT_SPEED_PERCENT sets PLAYER_COMBAT_FLAG_MOVE_SPEED_DIRTY.
@@ -269,6 +256,7 @@ void skill_passive_addStat(u8 playerIndex, u8 statIndex, s16 delta)
         hpBonus = player_getMaxHpBonus(playerIndex);
         PLAYER_STAT(playerIndex, statIndex) += delta;
         PLAYER_RECOMPUTE_BASE_STATS(playerIndex, baseStats, hpBonus, spiritBonus);
+        player_clampCurrentHpSpirit(playerIndex);
         return;
 
     case STAT_ALL_PRIMARY_STATS:
@@ -280,6 +268,7 @@ void skill_passive_addStat(u8 playerIndex, u8 statIndex, s16 delta)
         PLAYER_STAT(playerIndex, STAT_DEFENSE) += delta;
         PLAYER_STAT(playerIndex, STAT_COURAGE) += delta;
         PLAYER_RECOMPUTE_BASE_STATS(playerIndex, baseStats, hpBonus, spiritBonus);
+        player_clampCurrentHpSpirit(playerIndex);
         return;
 
     default:
@@ -506,7 +495,7 @@ u32 skill_active_canCast(u8 playerIndex, u8 activeSkillIndex)
     Actor *actor = PLAYER(playerIndex).ownerActor;
     u8 actionState = actor->actionState;
     ItemType offhandType = PLAYER(playerIndex).inventory.slots.offhand.d.itemType;
-    ItemType weaponType = PLAYER(playerIndex).inventory.slots.weapon.d.itemType;
+    ItemType mainHandType = PLAYER(playerIndex).inventory.slots.mainhand.d.itemType;
     u16 actionFlag = 1u << activeSkillIndex;
     s8 learnedLevel;
 
@@ -560,7 +549,7 @@ u32 skill_active_canCast(u8 playerIndex, u8 activeSkillIndex)
         switch (activeSkillIndex)
         {
         case ACTIVE_SKILL_FRODO_KNIFE_TOSS:
-            if (weaponType != ITEM_TYPE_EMPTY)
+            if (mainHandType != ITEM_TYPE_EMPTY)
             {
                 break;
             }
@@ -607,7 +596,7 @@ u32 skill_active_canCast(u8 playerIndex, u8 activeSkillIndex)
             }
             return FALSE;
         case ACTIVE_SKILL_LEGOLAS_SPREAD_FIRE:
-            if (weaponType != ITEM_TYPE_EMPTY)
+            if (mainHandType != ITEM_TYPE_EMPTY)
             {
                 break;
             }
@@ -627,7 +616,7 @@ u32 skill_active_canCast(u8 playerIndex, u8 activeSkillIndex)
         {
         case ACTIVE_SKILL_ARAGORN_SWEEP:
         case ACTIVE_SKILL_ARAGORN_SWORD_THROW:
-            if (weaponType != ITEM_TYPE_EMPTY)
+            if (mainHandType != ITEM_TYPE_EMPTY)
             {
                 break;
             }
@@ -670,13 +659,13 @@ u32 skill_active_canCast(u8 playerIndex, u8 activeSkillIndex)
         {
 #ifdef BUGFIX
             // Check the family instead of the item type for normal and unique weapons.
-            Item weapon = PLAYER(playerIndex).inventory.slots.weapon;
-            if (weapon.d.itemType != ITEM_TYPE_EMPTY &&
-                ITEM_BASE_METADATA(weapon).flags.d.familySword)
+            Item mainHand = PLAYER(playerIndex).inventory.slots.mainhand;
+            if (mainHand.d.itemType != ITEM_TYPE_EMPTY &&
+                ITEM_BASE_METADATA(mainHand).flags.d.familySword)
 #else
             // BUG: Unique swords have item type UNIQUE, so Gandalf cannot cast Sword
             // of Power with them.
-            if (weaponType <= ITEM_TYPE_SWORD_1H)
+            if (mainHandType <= ITEM_TYPE_SWORD_1H)
 #endif
             {
                 break;
@@ -687,7 +676,7 @@ u32 skill_active_canCast(u8 playerIndex, u8 activeSkillIndex)
         switch (activeSkillIndex)
         {
         case ACTIVE_SKILL_EOWYN_DOUBLE_STRIKE:
-            if (weaponType != ITEM_TYPE_EMPTY)
+            if (mainHandType != ITEM_TYPE_EMPTY)
             {
                 break;
             }
@@ -709,13 +698,13 @@ u32 skill_active_canCast(u8 playerIndex, u8 activeSkillIndex)
         switch (activeSkillIndex)
         {
         case ACTIVE_SKILL_GIMLI_AXE_THROW:
-            if (weaponType != ITEM_TYPE_EMPTY)
+            if (mainHandType != ITEM_TYPE_EMPTY)
             {
                 break;
             }
             return FALSE;
         case ACTIVE_SKILL_GIMLI_WHIRLING_ATTACK:
-            if (weaponType != ITEM_TYPE_EMPTY)
+            if (mainHandType != ITEM_TYPE_EMPTY)
             {
                 break;
             }

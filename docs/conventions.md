@@ -73,7 +73,7 @@ mission_script_runStream      middle segment: a submodule (the script VM inside 
 ```
 
 - Segments are camelCase, underscores only between levels.
-- Use a submodule only for a genuine sub-namespace (`item_affix_formatName`), and give its files a directory (`src/c/item/affix_formatName.c`).
+- Use a submodule only for a genuine sub-namespace (`item_affix_formatName`).
   A submodule sharing a span stays in the parent's file.
 - Don't create too many modules: one module (such as `combat`) may aggregate related functionality.
 
@@ -193,8 +193,8 @@ Macros of note include:
 - **`ACTIVE_PLAYER`**: the active player (via `g_PlayerGlobals.activePlayerIndex`)
 - **Item access**: each takes an `Item`.
     - **`ITEM_TYPE_INFO`**: Get the corresponding `ItemTypeInfo` for its type
-    - **`ITEM_BASE`**: Get the item's `ItemBase`.
-    - **`ITEM_PREFIX`/`ITEM_SUFFIX`**: Get the item's prefix/suffix `ItemAffix`.
+    - **`ITEM_BASE`**: Get the item's base-item `ItemStatRecord`.
+    - **`ITEM_PREFIX`/`ITEM_SUFFIX`**: Get the item's prefix/suffix `ItemStatRecord`.
     - **`ITEM_BASE_METADATA`**: Get the item's `ItemMetadata`.
 
 ### Type Punning

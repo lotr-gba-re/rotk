@@ -13,7 +13,7 @@
  */
 s32 player_tickOverdrawCharge(s32 playerIndex, Actor *actor)
 {
-    Item weapon = PLAYER(playerIndex).inventory.slots.weapon;
+    Item mainHand = PLAYER(playerIndex).inventory.slots.mainhand;
     Player *player = &PLAYER(playerIndex);
 
     if (player->heroId == HERO_ID_LEGOLAS && (PLAYER_KEYS_CURRENT(playerIndex) & B_BUTTON))
@@ -23,12 +23,13 @@ s32 player_tickOverdrawCharge(s32 playerIndex, Actor *actor)
         // Check the family instead of the item type for normal and unique weapons.
         if (frames >= OVERDRAW_CHARGE_FRAMES &&
             actor->actionState != ACTOR_STATE_LEGOLAS_OVERDRAW &&
-            weapon.d.itemType != ITEM_TYPE_EMPTY && ITEM_BASE_METADATA(weapon).flags.d.familyBow)
+            mainHand.d.itemType != ITEM_TYPE_EMPTY &&
+            ITEM_BASE_METADATA(mainHand).flags.d.familyBow)
 #else
         // BUG: Unique bows have item type UNIQUE, so Legolas cannot start Overdraw with them.
         if (frames >= OVERDRAW_CHARGE_FRAMES &&
             actor->actionState != ACTOR_STATE_LEGOLAS_OVERDRAW &&
-            weapon.d.itemType == ITEM_TYPE_BOW)
+            mainHand.d.itemType == ITEM_TYPE_BOW)
 #endif
         {
             HeroId hero;

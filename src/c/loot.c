@@ -339,12 +339,12 @@ u32 loot_rollBaseItem(Item *item, u8 playerIndex)
             if (roll < UNIQUE_REROLL_ORC_HEAD_MAX)
             {
                 item->d.baseIndex = UNIQUE_ID_ORC_HEAD;
-                lootType = LOOT_TYPE_UNIQUE_WEAPON_MIN + UNIQUE_ID_ORC_HEAD;
+                lootType = LOOT_TYPE_UNIQUE_ORC_HEAD;
             }
             else if (roll < UNIQUE_REROLL_ORC_DRUM_MAX)
             {
                 item->d.baseIndex = UNIQUE_ID_ORC_DRUM;
-                lootType = LOOT_TYPE_UNIQUE_WEAPON_MIN + UNIQUE_ID_ORC_DRUM;
+                lootType = LOOT_TYPE_UNIQUE_ORC_DRUM;
             }
             else
             {

@@ -8,7 +8,7 @@
 
 
 /** @romaddress 0x08064704 */
-const ItemBase CloakItems[9] = {
+const ItemStatRecord CloakItems[9] = {
     // [0] "Cape": Melee Armor +1, Missile Armor +1
     { .nameId = TEXT_ID_ITEM_CAPE,
       .tier = 1,

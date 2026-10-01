@@ -8,7 +8,7 @@
 
 
 /** @romaddress 0x08063a4c */
-const ItemBase BowItems[13] = {
+const ItemStatRecord BowItems[13] = {
     // [0] "Shortbow": Impaling Damage +8, % Critical +5
     { .nameId = TEXT_ID_ITEM_SHORTBOW,
       .tier = 1,
@@ -150,7 +150,7 @@ const ItemGfx BowGfx[13] = {
 };
 
 /** most common row (12 of 13); deviations are spelled out per entry */
-#define FLAGS_BOW { .familyBow = 1, .slotWeapon = 1, .classLegolas = 1 }
+#define FLAGS_BOW { .familyBow = 1, .slotMainhand = 1, .classLegolas = 1 }
 
 /** @romaddress 0x08063c54 */
 const ItemMetadata BowItemFlags[13] = {
@@ -181,7 +181,7 @@ const ItemMetadata BowItemFlags[13] = {
     // [8] "Horn Bow"
     { .flags.d = { .familyBow = 1,
                    .ancient = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .classLegolas = 1 },
       .equipSfx = 0x2c },
 

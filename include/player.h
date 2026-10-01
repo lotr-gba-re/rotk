@@ -8,23 +8,27 @@
 #include "types.h"
 #include "vector2.h"
 
-/** Player.combatFlags bits with known consumers. */
+/** Player.combatFlags bit masks. */
 enum PlayerCombatFlag
 {
     PLAYER_COMBAT_FLAG_TWO_HANDED = 1 << 0,
-    PLAYER_COMBAT_FLAG_1 = 1 << 1,
-    PLAYER_COMBAT_FLAG_2 = 1 << 2,
+    PLAYER_COMBAT_FLAG_MAIN_HAND_WEAPON = 1 << 1,
+    PLAYER_COMBAT_FLAG_OFFHAND_WEAPON = 1 << 2,
+    PLAYER_COMBAT_FLAG_SHIELD_EQUIPPED = 1 << 3,
+    PLAYER_COMBAT_FLAG_MAIN_HAND_STAFF = 1 << 4,
+    PLAYER_COMBAT_FLAG_FIRE_ARROWS_EQUIPPED = 1 << 5,
 
     // recompute Actor.moveSpeed from STAT_SPEED_PERCENT on the next player tick; set at spawn
     // and by STAT_SPEED_PERCENT changes
     PLAYER_COMBAT_FLAG_MOVE_SPEED_DIRTY = 1 << 6,
     PLAYER_COMBAT_FLAG_DAMAGE_TYPE = 1 << 8, // 1 = slash, 0 = impale
 
-    // re-attach the hand item sprites and glow FX on the next player tick (equipment changed)
-    PLAYER_COMBAT_FLAG_HAND_SPRITES_DIRTY = 1 << 11,
-
     // forces every melee hit to critical (provisional; source/meaning unknown)
     PLAYER_COMBAT_FLAG_FORCE_CRIT_UNKNOWN = 1 << 9,
+    PLAYER_COMBAT_FLAG_ARROWS_EQUIPPED = 1 << 10,
+
+    // re-attach the hand item sprites and glow FX on the next player tick (equipment changed)
+    PLAYER_COMBAT_FLAG_HAND_SPRITES_DIRTY = 1 << 11,
 
     // Warrior's Pool well-buff: while set, combat_resolvePveAttack / combat_resolvePvpAttack
     // force every melee hit to critical. Set for 600 frames by the Warrior's Pool well.
@@ -50,17 +54,17 @@ typedef union PlayerCombatFlags {
 
     struct
     {
-        u16 twoHanded : 1;        // 1 << 0
-        u16 field_bit_1 : 1;      // 1 << 1
-        u16 field_bit_2 : 1;      // 1 << 2
-        u16 field_bit_3 : 1;      // 1 << 3
-        u16 field_bit_4 : 1;      // 1 << 4
-        u16 field_bit_5 : 1;      // 1 << 5
+        u16 twoHanded : 1;      // 1 << 0
+        u16 mainHandWeapon : 1; // Non-staff weapon in the main hand.
+        u16 offhandWeapon : 1;  // Weapon or staff in the offhand.
+        u16 shieldEquipped : 1;
+        u16 mainHandStaff : 1;
+        u16 fireArrowsEquipped : 1;
         u16 moveSpeedDirty : 1;   // 1 << 6: recompute Actor.moveSpeed
         u16 field_bit_7 : 1;      // 1 << 7
         u16 damageType : 1;       // 1 << 8: 1 = slash, 0 = impale
         u16 forceCritUnknown : 1; // 1 << 9: forces a melee hit to crit
-        u16 field_bit_10 : 1;     // 1 << 10
+        u16 arrowsEquipped : 1;
         u16 handSpritesDirty : 1; // 1 << 11: re-attach hand item sprites and glow FX
         u16 warriorsPool : 1;     // 1 << 12: Warrior's Pool well-buff active (forces melee crit)
         u16 xpDouble : 1;         // 1 << 13: next player_awardXp share is doubled
@@ -165,7 +169,7 @@ typedef struct HeroBaseStats
 enum InventorySlot
 {
     INVENTORY_SLOT_ARMOR = 0,
-    INVENTORY_SLOT_WEAPON = 1,
+    INVENTORY_SLOT_MAINHAND = 1,
     INVENTORY_SLOT_OFFHAND = 2,
     INVENTORY_SLOT_HELMET = 3,
     INVENTORY_SLOT_CLOAK = 4,
@@ -191,7 +195,7 @@ typedef union Inventory {
     struct
     {
         Item armor;
-        Item weapon;
+        Item mainhand;
         Item offhand;
         Item helmet;
         Item cloak;
@@ -245,8 +249,7 @@ typedef struct Player
     // Legolas's aim FX actor during Overdraw.
     Actor *aimFxActor;
 
-    /** affix glow emitters of the weapon (0) and offhand (1) hands, chosen by the item's affix
-     * flags */
+    // Affix glow emitters for the main hand (0) and offhand (1), chosen by item affix flags.
     FxEmitter *handFxEmitters[2];
 
     /** the hero's skill tree: HERO_PASSIVE_SKILL_COUNT PassiveSkillId entries
@@ -613,18 +616,8 @@ void player_addCorruption(u8 playerIndex, s8 delta);
  */
 void player_clampCurrentHpSpirit(u8 playerIndex);
 
-/**
- * Apply one affix/rune stat modifier (item_applyAffixStats' worker). An offhand item's
- * STAT_DAMAGE_SLASH/STAT_DAMAGE_IMPALE contribution is halved, STAT_ALL_PRIMARY_STATS fans out
- * to the five primaries, and touching a primary stat recomputes STAT_MAX_HP/STAT_MAX_SPIRIT and
- * re-clamps via player_clampCurrentHpSpirit.
- */
 void player_addStat(u8 inventorySlot, u8 statIndex, u8 playerIndex, s8 value);
 
-/**
- * Recompute the equipment-derived PlayerCombatFlags bits from the equipped weapon and
- * offhand item types.
- */
 void player_updateEquipFlags(u8 playerIndex);
 
 void player_awardXp(s16 initialXp);
@@ -690,6 +683,18 @@ s16 player_computeMaxSpirit(u8 playerIndex, HeroBaseStats baseStats);
 
 /** The STAT_MAX_SPIRIT counterpart of player_getMaxHpBonus. */
 s16 player_getMaxSpiritBonus(u8 playerIndex);
+
+// Recompute max HP and spirit while preserving bonuses independent of primary stats.
+#define PLAYER_RECOMPUTE_BASE_STATS(playerIndex, baseStats, hpBonus, spiritBonus)                  \
+    {                                                                                              \
+        baseStats.strength = PLAYER_STAT(playerIndex, STAT_STRENGTH);                              \
+        baseStats.health = PLAYER_STAT(playerIndex, STAT_HEALTH);                                  \
+        baseStats.courage = PLAYER_STAT(playerIndex, STAT_COURAGE);                                \
+        baseStats.maxHp = player_computeMaxHp(playerIndex, baseStats);                             \
+        PLAYER_STAT(playerIndex, STAT_MAX_HP) = baseStats.maxHp + hpBonus;                         \
+        PLAYER_STAT(playerIndex, STAT_MAX_SPIRIT) =                                                \
+            player_computeMaxSpirit(playerIndex, baseStats) + spiritBonus;                         \
+    }
 
 /** Copy baseStats into the five primary stats and recompute STAT_MAX_HP / STAT_MAX_SPIRIT. */
 void player_applyBaseStats(u8 playerIndex);

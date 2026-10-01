@@ -8,7 +8,7 @@
 
 
 /** @romaddress 0x080648b4 */
-const ItemBase GloveItems[8] = {
+const ItemStatRecord GloveItems[8] = {
     // [0] "Half Gloves": Accuracy +2
     { .nameId = TEXT_ID_ITEM_HALF_GLOVES,
       .tier = 1,

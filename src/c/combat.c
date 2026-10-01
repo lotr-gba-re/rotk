@@ -690,17 +690,18 @@ u16 combat_absorbDamageIntoShield(Actor *attacker, u16 initialDamage, s32 player
  * Pick which inventory slot the fragile proc breaks.
  * Declared as inline because it's inlined in the ROM, too.
  */
-static inline u8 fragileOnKillPickSlot(s32 playerIndex, Item weapon, Item offhand)
+static inline u8 fragileOnKillPickSlot(s32 playerIndex, Item mainHand, Item offhand)
 {
     u8 slot;
 
-    if ((PLAYER(playerIndex).combatFlags.p & PLAYER_COMBAT_FLAG_1) && ITEM_IS_FRAGILE(weapon))
+    if ((PLAYER(playerIndex).combatFlags.p & PLAYER_COMBAT_FLAG_MAIN_HAND_WEAPON) &&
+        ITEM_IS_FRAGILE(mainHand))
     {
-        slot = INVENTORY_SLOT_WEAPON;
+        slot = INVENTORY_SLOT_MAINHAND;
     }
     else
     {
-        s32 hasOffhand = PLAYER(playerIndex).combatFlags.p & PLAYER_COMBAT_FLAG_2;
+        s32 hasOffhand = PLAYER(playerIndex).combatFlags.p & PLAYER_COMBAT_FLAG_OFFHAND_WEAPON;
 
         slot = INVENTORY_SLOT_BACKPACK_0;
         if (hasOffhand && ITEM_IS_FRAGILE(offhand))
@@ -719,12 +720,13 @@ static inline u8 fragileOnKillPickSlot(s32 playerIndex, Item weapon, Item offhan
  */
 void combat_fragileOnKill(s32 playerIndex)
 {
-    Item weapon = PLAYER(playerIndex).inventory.slots.weapon;
+    Item mainHand = PLAYER(playerIndex).inventory.slots.mainhand;
     Item offhand = PLAYER(playerIndex).inventory.slots.offhand;
 
     if (rng_rollRange(1, 100) < FRAGILE_PROC_PERCENT)
     {
-        item_deleteFromInventory(fragileOnKillPickSlot(playerIndex, weapon, offhand), playerIndex);
+        item_deleteFromInventory(fragileOnKillPickSlot(playerIndex, mainHand, offhand),
+                                 playerIndex);
         sfx_play(SFX_COMBAT_ITEM_BREAK);
     }
 }

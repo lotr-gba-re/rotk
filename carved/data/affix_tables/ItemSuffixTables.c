@@ -6,7 +6,7 @@
 
 
 /** @romaddress 0x08068550 */
-const ItemAffix ItemSuffixes[160] = {
+const ItemStatRecord ItemSuffixes[160] = {
     // [0] "of the Fox": Courage +1, % Speed +5
     { .nameId = TEXT_ID_SUFFIX_OF_THE_FOX,
       .tier = 1,

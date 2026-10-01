@@ -391,6 +391,11 @@ Read the inverse too: a ROM `lsls #16; asrs #16; add; lsls #16; lsrs #16` around
 
 ## Pointer Locals and Aggregates
 
+`get_inner_reference` (expr.c) peels nested aggregate references from the accessed element toward the enclosing object, accumulating variable offsets in that order.
+Direct `rows[i].cells[j]` can therefore expand `j * sizeof(cell)` before `i * sizeof(row)`.
+A pointer-base temporary breaks that chain at an indirect reference and can reverse the address-expansion order, changing allocation even when cse later merges the addresses.
+Try the complete typed aggregate expression before changing layouts or pinning registers.
+
 A pointer-to-member intermediate (`u16 *p = &obj->f; *p |= x;`) SUPPRESSES the in-place address chain: dropping it lets the whole `base + idx*stride + off` chain accumulate in the destination's register, which is usually the ROM shape.
 This is the inverse of the entry below; a pin compensating for such an intermediate goes away with it, and the two are mutually exclusive rather than additive.
 A plain `T *b = a;` copy is usually folded away: cse's `make_regs_eqv` keeps a quantity's FIRST register canonical unless the new register's last mention is both past the cse block end and at/after the old one's.

@@ -6,7 +6,7 @@
 
 
 /** @romaddress 0x080660e8 */
-const ItemAffix StaffBowPrefixes[108] = {
+const ItemStatRecord StaffBowPrefixes[108] = {
     // [0] "Servant's": Hit Points +5
     { .nameId = TEXT_ID_PREFIX_SERVANTS,
       .tier = 1,

@@ -9,7 +9,7 @@
 // TODO: [1] "Flint Knife" carries .val3=1 on an empty (STAT_NONE) slot - meaning unknown
 
 /** @romaddress 0x08062e7c */
-const ItemBase KnifeItems[18] = {
+const ItemStatRecord KnifeItems[18] = {
     // [0] "Spoon": Impaling Damage +3, % Critical +30
     { .nameId = TEXT_ID_ITEM_SPOON,
       .tier = 1,
@@ -201,7 +201,7 @@ const ItemGfx KnifeGfx[18] = {
 };
 
 /** most common row (16 of 18); deviations are spelled out per entry */
-#define FLAGS_KNIFE { .familySword = 1, .slotWeapon = 1, .slotOffhand = 1, .classFrodo = 1, .classAragorn = 1, .classGandalf = 1, .classEowyn = 1 }
+#define FLAGS_KNIFE { .familySword = 1, .slotMainhand = 1, .slotOffhand = 1, .classFrodo = 1, .classAragorn = 1, .classGandalf = 1, .classEowyn = 1 }
 
 /** @romaddress 0x0806314c */
 const ItemMetadata KnifeItemFlags[18] = {
@@ -241,7 +241,7 @@ const ItemMetadata KnifeItemFlags[18] = {
     // [11] "5-finger Knife"
     { .flags.d = { .familySword = 1,
                    .ancient = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classFrodo = 1,
                    .classAragorn = 1,
@@ -255,7 +255,7 @@ const ItemMetadata KnifeItemFlags[18] = {
     // [13] "Cultellus"
     { .flags.d = { .familySword = 1,
                    .ancient = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classFrodo = 1,
                    .classAragorn = 1,

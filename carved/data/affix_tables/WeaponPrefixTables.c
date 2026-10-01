@@ -7,7 +7,7 @@
 // TODO: [29] "Elven" carries .val1=5 on an empty (STAT_NONE) slot - meaning unknown
 
 /** @romaddress 0x080656b8 */
-const ItemAffix WeaponPrefixes[156] = {
+const ItemStatRecord WeaponPrefixes[156] = {
     // [0] "Bronze": Damage -1, Cheap +1
     { .nameId = TEXT_ID_PREFIX_BRONZE,
       .tier = 1,

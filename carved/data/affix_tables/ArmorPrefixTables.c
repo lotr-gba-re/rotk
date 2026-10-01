@@ -6,7 +6,7 @@
 
 
 /** @romaddress 0x08066818 */
-const ItemAffix ArmorPrefixes[156] = {
+const ItemStatRecord ArmorPrefixes[156] = {
     // [0] "Shoddy": Defense -1, Cheap +1
     { .nameId = TEXT_ID_PREFIX_SHODDY,
       .tier = 1,

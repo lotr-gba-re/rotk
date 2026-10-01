@@ -8,7 +8,7 @@
 
 
 /** @romaddress 0x0806398c */
-const ItemBase StaffItems[4] = {
+const ItemStatRecord StaffItems[4] = {
     // [0] "Short Staff": Melee Damage +6, % Critical +5
     { .nameId = TEXT_ID_ITEM_SHORT_STAFF,
       .tier = 1,

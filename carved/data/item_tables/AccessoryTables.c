@@ -8,7 +8,7 @@
 
 
 /** @romaddress 0x080644c4 */
-const ItemBase AccessoryItems[12] = {
+const ItemStatRecord AccessoryItems[12] = {
     // [0] "Collar": Defense +1
     { .nameId = TEXT_ID_ITEM_COLLAR,
       .tier = 1,

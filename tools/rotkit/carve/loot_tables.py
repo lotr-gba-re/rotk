@@ -226,7 +226,7 @@ def emit_progression_pointer_table(
 def emit_affix_index_ranges(
     table: TableSymbol, rom: bytes, sibling: TableSymbol
 ) -> str:
-    """Carve one AffixIndexRange table (sibling = the ItemAffix table it indexes),
+    """Carve one AffixIndexRange table (sibling = the affix table it indexes),
     lo/hi as the sibling's affix_ids.h enum members."""
     f_lo, f_hi, f_pad = extract_struct_fields("include/item.h", "AffixIndexRange")
     members = invert_enum(
@@ -358,17 +358,17 @@ def run() -> None:
     # Affix index-range tables (deduped: the weapon types share WeaponPrefixRegionRanges,
     # every suffixed type shares SuffixTierRanges); the sibling affix table follows from
     # the range table's name.
-    affix_syms = {t.name: t for t in table_symbols("ItemAffix[")}
+    record_symbols = {t.name: t for t in table_symbols("ItemStatRecord[")}
     for table in table_symbols("AffixIndexRange["):
         sib_name = (
             "ItemSuffixes"
             if "Suffix" in table.name
             else table.name.replace("RegionRanges", "es")
         )
-        sibling = affix_syms.get(sib_name)
+        sibling = record_symbols.get(sib_name)
         if sibling is None:
             raise SystemExit(
-                f"{table.name}: no ItemAffix[N] symbol {sib_name} in config/data.cfg"
+                f"{table.name}: no ItemStatRecord[N] symbol {sib_name} in config/data.cfg"
             )
         carved.append((table.addr, emit_affix_index_ranges(table, rom, sibling)))
         print(f"  carved carved/data/loot_tables/{table.name}.c  ({table.count} rows)")

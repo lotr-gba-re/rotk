@@ -10,7 +10,7 @@
 //       see combat_fragileOnKill (reads only the prefix's stat1)
 
 /** @romaddress 0x08064b84 */
-const ItemBase UniqueItems[53] = {
+const ItemStatRecord UniqueItems[53] = {
     // [0] "Sting": Impaling Damage +14, Armor Piercing +1, dmg to Orcs +6, Courage +4
     { .nameId = TEXT_ID_UNIQUE_STING,
       .tier = 9,
@@ -444,57 +444,57 @@ const ItemBase UniqueItems[53] = {
  */
 const ItemGfx UniqueGfx[53] = {
     // [0] "Sting"
-    ITEM_GFX(UniqueSting, 0x3d),
+    ITEM_GFX(UniqueSting, LOOT_TYPE_UNIQUE_STING),
     // [1] "Symbolblade"
-    ITEM_GFX(UniqueSymbolblade, 0x3e),
+    ITEM_GFX(UniqueSymbolblade, LOOT_TYPE_UNIQUE_SYMBOLBLADE),
     // [2] "Glamdring"
-    ITEM_GFX(UniqueGlamdring, 0x3f),
+    ITEM_GFX(UniqueGlamdring, LOOT_TYPE_UNIQUE_GLAMDRING),
     // [3] "Orcrist"
-    ITEM_GFX(UniqueOrcrist, 0x40),
+    ITEM_GFX(UniqueOrcrist, LOOT_TYPE_UNIQUE_ORCRIST),
     // [4] "Narsil"
-    ITEM_GFX(UniqueNarsil, 0x41),
+    ITEM_GFX(UniqueNarsil, LOOT_TYPE_UNIQUE_NARSIL),
     // [5] "Hadhafang"
-    ITEM_GFX(UniqueHadhafang, 0x42),
+    ITEM_GFX(UniqueHadhafang, LOOT_TYPE_UNIQUE_HADHAFANG),
     // [6] "Silveraxe"
-    ITEM_GFX(UniqueSilveraxe, 0x43),
+    ITEM_GFX(UniqueSilveraxe, LOOT_TYPE_UNIQUE_SILVERAXE),
     // [7] "Staff of Five Mages"
-    ITEM_GFX(UniqueStaffOfFiveMages, 0x44),
+    ITEM_GFX(UniqueStaffOfFiveMages, LOOT_TYPE_UNIQUE_STAFF_OF_FIVE_MAGES),
     // [8] "Starfall Bow"
-    ITEM_GFX(UniqueStarfallBow, 0x45),
+    ITEM_GFX(UniqueStarfallBow, LOOT_TYPE_UNIQUE_STARFALL_BOW),
     // [9] "Nightfell Bow"
-    ITEM_GFX(UniqueNightfellBow, 0x46),
+    ITEM_GFX(UniqueNightfellBow, LOOT_TYPE_UNIQUE_NIGHTFELL_BOW),
     // [10] "Celeborn's Phial"
-    ITEM_GFX_CARRIED(UniqueCelebornSPhial, 0x47),
+    ITEM_GFX_CARRIED(UniqueCelebornSPhial, LOOT_TYPE_UNIQUE_CELEBORNS_PHIAL),
     // [11] "Boromir's Horn"
-    ITEM_GFX_CARRIED(UniqueBoromirSHorn, 0x48),
+    ITEM_GFX_CARRIED(UniqueBoromirSHorn, LOOT_TYPE_UNIQUE_BOROMIRS_HORN),
     // [12] "Cyclopedia of Herbs"
-    ITEM_GFX_CARRIED(UniqueCyclopediaOfHerbs, 0x49),
+    ITEM_GFX_CARRIED(UniqueCyclopediaOfHerbs, LOOT_TYPE_UNIQUE_CYCLOPEDIA_OF_HERBS),
     // [13] "Sam's Cookpot"
-    ITEM_GFX_CARRIED(UniqueSamSCookpot, 0x4a),
+    ITEM_GFX_CARRIED(UniqueSamSCookpot, LOOT_TYPE_UNIQUE_SAMS_COOKPOT),
     // [14] "Fletching Kit"
-    ITEM_GFX_CARRIED(UniqueFletchingKit, 0x4b),
+    ITEM_GFX_CARRIED(UniqueFletchingKit, LOOT_TYPE_UNIQUE_FLETCHING_KIT),
     // [15] "Scrolls of Minas Tirith"
-    ITEM_GFX_CARRIED(UniqueScrollsOfMinasTirith, 0x4c),
+    ITEM_GFX_CARRIED(UniqueScrollsOfMinasTirith, LOOT_TYPE_UNIQUE_SCROLLS_OF_MINAS_TIRITH),
     // [16] "Evenstar of Arwen"
-    ITEM_GFX_CARRIED(UniqueEvenstarOfArwen, 0x4d),
+    ITEM_GFX_CARRIED(UniqueEvenstarOfArwen, LOOT_TYPE_UNIQUE_EVENSTAR_OF_ARWEN),
     // [17] "Galadriel's Phial"
-    ITEM_GFX_CARRIED(UniqueGaladrielSPhial, 0x4e),
+    ITEM_GFX_CARRIED(UniqueGaladrielSPhial, LOOT_TYPE_UNIQUE_GALADRIELS_PHIAL),
     // [18] "Forgotten Palantir"
-    ITEM_GFX_CARRIED(UniqueForgottenPalantir, 0x4f),
+    ITEM_GFX_CARRIED(UniqueForgottenPalantir, LOOT_TYPE_UNIQUE_FORGOTTEN_PALANTIR),
     // [19] "Cracked Palantir"
-    ITEM_GFX_CARRIED(UniqueCrackedPalantir, 0x50),
+    ITEM_GFX_CARRIED(UniqueCrackedPalantir, LOOT_TYPE_UNIQUE_CRACKED_PALANTIR),
     // [20] "Orc Drum"
-    ITEM_GFX_CARRIED(UniqueOrcDrum, 0x51),
+    ITEM_GFX_CARRIED(UniqueOrcDrum, LOOT_TYPE_UNIQUE_ORC_DRUM),
     // [21] "Woven Goblin Doll"
-    ITEM_GFX_CARRIED(UniqueWovenGoblinDoll, 0x52),
+    ITEM_GFX_CARRIED(UniqueWovenGoblinDoll, LOOT_TYPE_UNIQUE_WOVEN_GOBLIN_DOLL),
     // [22] "Oliphaunt Ivory Statuette"
-    ITEM_GFX_CARRIED(UniqueOliphauntIvoryStatuette, 0x53),
+    ITEM_GFX_CARRIED(UniqueOliphauntIvoryStatuette, LOOT_TYPE_UNIQUE_OLIPHAUNT_IVORY_STATUETTE),
     // [23] "Orc Head"
-    ITEM_GFX_CARRIED(UniqueOrcHead, 0x54),
+    ITEM_GFX_CARRIED(UniqueOrcHead, LOOT_TYPE_UNIQUE_ORC_HEAD),
     // [24] "Swollen Spider Glands"
-    ITEM_GFX_CARRIED(UniqueSwollenSpiderGlands, 0x55),
+    ITEM_GFX_CARRIED(UniqueSwollenSpiderGlands, LOOT_TYPE_UNIQUE_SWOLLEN_SPIDER_GLANDS),
     // [25] "Featherwood Flute"
-    ITEM_GFX_CARRIED(UniqueFeatherwoodFlute, 0x56),
+    ITEM_GFX_CARRIED(UniqueFeatherwoodFlute, LOOT_TYPE_UNIQUE_FEATHERWOOD_FLUTE),
     // [26] "King Aldazar's Longsword"
     ITEM_GFX(UniqueKingAldazarSLongsword, LOOT_TYPE_UNIQUE_SWORD),
     // [27] "Hawly's Sword of Leaves"
@@ -561,7 +561,7 @@ const ItemMetadata UniqueItemFlags[53] = {
                    .noPrefix = 1,
                    .noSuffix = 1,
                    .uniqueWeapon = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classFrodo = 1 },
       .equipSfx = 0x27 },
@@ -571,7 +571,7 @@ const ItemMetadata UniqueItemFlags[53] = {
                    .noPrefix = 1,
                    .noSuffix = 1,
                    .uniqueWeapon = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classFrodo = 1 },
       .equipSfx = 0x27 },
@@ -581,7 +581,7 @@ const ItemMetadata UniqueItemFlags[53] = {
                    .noPrefix = 1,
                    .noSuffix = 1,
                    .uniqueWeapon = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classGandalf = 1 },
       .equipSfx = 0x27 },
@@ -591,7 +591,7 @@ const ItemMetadata UniqueItemFlags[53] = {
                    .noPrefix = 1,
                    .noSuffix = 1,
                    .uniqueWeapon = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classAragorn = 1,
                    .classGandalf = 1,
@@ -603,7 +603,7 @@ const ItemMetadata UniqueItemFlags[53] = {
                    .noPrefix = 1,
                    .noSuffix = 1,
                    .uniqueWeapon = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classAragorn = 1 },
       .equipSfx = 0x27 },
@@ -613,7 +613,7 @@ const ItemMetadata UniqueItemFlags[53] = {
                    .noPrefix = 1,
                    .noSuffix = 1,
                    .uniqueWeapon = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classAragorn = 1,
                    .classGandalf = 1,
@@ -625,7 +625,7 @@ const ItemMetadata UniqueItemFlags[53] = {
                    .noPrefix = 1,
                    .noSuffix = 1,
                    .uniqueWeapon = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classGimli = 1 },
       .equipSfx = 0x27 },
@@ -644,7 +644,7 @@ const ItemMetadata UniqueItemFlags[53] = {
                    .noPrefix = 1,
                    .noSuffix = 1,
                    .uniqueWeapon = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .classLegolas = 1 },
       .equipSfx = 0x2c },
 
@@ -653,7 +653,7 @@ const ItemMetadata UniqueItemFlags[53] = {
                    .noPrefix = 1,
                    .noSuffix = 1,
                    .uniqueWeapon = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .classLegolas = 1 },
       .equipSfx = 0x2c },
 
@@ -730,7 +730,7 @@ const ItemMetadata UniqueItemFlags[53] = {
     { .flags.d = { .familySword = 1,
                    .noPrefix = 1,
                    .noSuffix = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classAragorn = 1,
                    .classGandalf = 1,
@@ -743,7 +743,7 @@ const ItemMetadata UniqueItemFlags[53] = {
                    .minLevelPlus5A = 1,
                    .noPrefix = 1,
                    .noSuffix = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classAragorn = 1,
                    .classGandalf = 1,
@@ -755,7 +755,7 @@ const ItemMetadata UniqueItemFlags[53] = {
                    .noPrefix = 1,
                    .noSuffix = 1,
                    .twoHanded = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .classAragorn = 1,
                    .classEowyn = 1 },
       .equipSfx = 0x27 },
@@ -765,7 +765,7 @@ const ItemMetadata UniqueItemFlags[53] = {
                    .noPrefix = 1,
                    .noSuffix = 1,
                    .twoHanded = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .classGimli = 1 },
       .equipSfx = 0x27 },
 
@@ -773,7 +773,7 @@ const ItemMetadata UniqueItemFlags[53] = {
     { .flags.d = { .familyAxe = 1,
                    .noPrefix = 1,
                    .noSuffix = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classFrodo = 1,
                    .classAragorn = 1,
@@ -786,7 +786,7 @@ const ItemMetadata UniqueItemFlags[53] = {
                    .minLevelPlus5A = 1,
                    .noPrefix = 1,
                    .noSuffix = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classFrodo = 1,
                    .classAragorn = 1,
@@ -822,7 +822,7 @@ const ItemMetadata UniqueItemFlags[53] = {
     { .flags.d = { .familyBow = 1,
                    .noPrefix = 1,
                    .noSuffix = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .classLegolas = 1 },
       .equipSfx = 0x2c },
 
@@ -830,7 +830,7 @@ const ItemMetadata UniqueItemFlags[53] = {
     { .flags.d = { .familyBow = 1,
                    .noPrefix = 1,
                    .noSuffix = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .classLegolas = 1 },
       .equipSfx = 0x2c },
 
@@ -838,7 +838,7 @@ const ItemMetadata UniqueItemFlags[53] = {
     { .flags.d = { .familyBow = 1,
                    .noPrefix = 1,
                    .noSuffix = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .classLegolas = 1 },
       .equipSfx = 0x2c },
 

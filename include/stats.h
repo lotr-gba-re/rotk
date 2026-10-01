@@ -101,7 +101,8 @@ enum StatIndex
     // skill_active_getLeveledValue uses one extra level while > 0 (Servant of the Secret Fire)
     STAT_ACTIVE_SKILL_LEVEL_BONUS = 84,
     STAT_UNKNOWN_85 = 85,
-    STAT_UNKNOWN_86 = 86,
+    // Flat damage bonus while Aragorn wields two weapons. Seems to be unused.
+    STAT_ARAGORN_DUAL_WIELD_DAMAGE = 86,
     STAT_UNKNOWN_87 = 87,
     STAT_UNKNOWN_88 = 88,
     STAT_SPIRIT_REGEN_PERCENT = 89, // spirit regen tick bonus, +1 at 100 (Spirit of Middle-earth)

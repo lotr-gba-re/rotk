@@ -1,4 +1,4 @@
-// Written by rotkit carve item-tables: one index enum per ItemAffix table
+// Written by rotkit carve item-tables: one index enum per affix table
 // (carved/data/affix_tables/), members named from the affixes' TEXT_ID_PREFIX_*
 // / TEXT_ID_SUFFIX_* names; the AffixIndexRange tables (carved/data/loot_tables/)
 // index with them.

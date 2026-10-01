@@ -4,7 +4,7 @@
 // and splices them at <Table> + index*sizeof(entry) in the ROM (rotkit hack tablepatch). Only the
 // entries you write are emitted - every other entry stays as base ROM.
 //
-//     TABLE_ENTRY(ItemAffix, CloakPrefixes, 0) = { .nameId = 0x04f4, ... };
+//     TABLE_ENTRY(ItemStatRecord, CloakPrefixes, 0) = { .nameId = 0x04f4, ... };
 //
 // `type` is the array element type (from its include/ header), `table` names a config/data.cfg
 // data symbol, `index` is the array index.

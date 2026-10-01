@@ -147,25 +147,30 @@ def _names(rom: bytes, count: int) -> dict[int, tuple[str, str]]:
     base_name = re.search(r"#define TEXT_ID_LOOT_NAME_BASE (\w+)", text_h).group(1)
     text_base = extract_enum("carved/include/text_ids.h", "TextId")[base_name]
     enum_names = loot_type_names()
-    item_min = min(v for v, k in enum_names.items() if k == "LOOT_TYPE_BOW_TIER_1")
+    loot_types = extract_enum("include/loot.h", "LootType")
+    item_min = loot_types["LOOT_TYPE_ITEM_MIN"]
+    unique_min = loot_types["LOOT_TYPE_UNIQUE_WEAPON_MIN"]
+    item_max = loot_types["LOOT_TYPE_ITEM_MAX"]
     item_names: dict[int, str] = {}
     for row in parse_item_type_infos(rom, data_symbol("ItemTypeInfo[")):
         for i in range(row.base_item_count & 0xFF):
             gfx = parse_item_gfx(rom, row.base_gfx - ROMBASE + i * _ITEM_GFX_SIZE)
-            if gfx.loot_type in enum_names:
+            if gfx.loot_type in enum_names and not (
+                unique_min <= gfx.loot_type <= item_max
+            ):
                 continue
             mod = parse_item_mod(rom, row.base_items - ROMBASE + i * ITEM_MOD.size)
             item_names.setdefault(gfx.loot_type, item_label(mod.name_id, strings))
     names = {}
     for loot_type in range(count):
-        if loot_type in enum_names:
+        if loot_type in item_names:
+            label = item_names[loot_type]
+            symbol = pascal(label)
+        elif loot_type in enum_names:
             symbol = pascal(enum_names[loot_type].removeprefix("LOOT_TYPE_"))
             label = enum_names[loot_type]
             if loot_type < item_min:
                 label = strings[text_base + loot_type]
-        elif loot_type in item_names:
-            label = item_names[loot_type]
-            symbol = pascal(label)
         else:
             label = strings[text_base + loot_type]
             symbol = pascal(label)

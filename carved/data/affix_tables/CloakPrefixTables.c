@@ -6,7 +6,7 @@
 
 
 /** @romaddress 0x08067c78 */
-const ItemAffix CloakPrefixes[36] = {
+const ItemStatRecord CloakPrefixes[36] = {
     // [0] "Tattered": Missile Armor -1, Cheap +1
     { .nameId = TEXT_ID_PREFIX_TATTERED,
       .tier = 1,

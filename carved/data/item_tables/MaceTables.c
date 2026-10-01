@@ -8,7 +8,7 @@
 
 
 /** @romaddress 0x080637ac */
-const ItemBase MaceItems[10] = {
+const ItemStatRecord MaceItems[10] = {
     // [0] "Club": Melee Damage +6, % Critical +5
     { .nameId = TEXT_ID_ITEM_CLUB,
       .tier = 1,
@@ -120,7 +120,7 @@ const ItemGfx MaceGfx[10] = {
 };
 
 /** most common row (3 of 10); deviations are spelled out per entry */
-#define FLAGS_MACE { .familyMace = 1, .slotWeapon = 1, .slotOffhand = 1, .classFrodo = 1, .classAragorn = 1, .classEowyn = 1, .classGimli = 1 }
+#define FLAGS_MACE { .familyMace = 1, .slotMainhand = 1, .slotOffhand = 1, .classFrodo = 1, .classAragorn = 1, .classEowyn = 1, .classGimli = 1 }
 
 /** @romaddress 0x0806393c */
 const ItemMetadata MaceItemFlags[10] = {
@@ -136,7 +136,7 @@ const ItemMetadata MaceItemFlags[10] = {
     // [3] "Long Mace"
     { .flags.d = { .familyMace = 1,
                    .ancient = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classFrodo = 1,
                    .classAragorn = 1,
@@ -146,7 +146,7 @@ const ItemMetadata MaceItemFlags[10] = {
 
     // [4] "Flanged Mace"
     { .flags.d = { .familyMace = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classAragorn = 1,
                    .classEowyn = 1,
@@ -155,7 +155,7 @@ const ItemMetadata MaceItemFlags[10] = {
 
     // [5] "Spiked Mace"
     { .flags.d = { .familyMace = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classAragorn = 1,
                    .classEowyn = 1,
@@ -164,7 +164,7 @@ const ItemMetadata MaceItemFlags[10] = {
 
     // [6] "Pick"
     { .flags.d = { .familyMace = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classGimli = 1 },
       .equipSfx = 0x23 },
@@ -172,14 +172,14 @@ const ItemMetadata MaceItemFlags[10] = {
     // [7] "Mattock"
     { .flags.d = { .familyMace = 1,
                    .twoHanded = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .classGimli = 1 },
       .equipSfx = 0x23 },
 
     // [8] "Warhammer"
     { .flags.d = { .familyMace = 1,
                    .twoHanded = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .classAragorn = 1,
                    .classEowyn = 1,
                    .classGimli = 1 },
@@ -188,7 +188,7 @@ const ItemMetadata MaceItemFlags[10] = {
     // [9] "Maul"
     { .flags.d = { .familyMace = 1,
                    .twoHanded = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .classAragorn = 1,
                    .classEowyn = 1,
                    .classGimli = 1 },

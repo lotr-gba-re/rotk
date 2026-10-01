@@ -8,7 +8,7 @@
 
 
 /** @romaddress 0x08063cbc */
-const ItemBase ArrowItems[10] = {
+const ItemStatRecord ArrowItems[10] = {
     // [0] "Orcish Arrows": Damage +2, Accuracy -2, Cheap +1
     { .nameId = TEXT_ID_ITEM_ORCISH_ARROWS,
       .tier = 1,

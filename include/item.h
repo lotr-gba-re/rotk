@@ -25,6 +25,8 @@ typedef enum ItemType
     ITEM_TYPE_UNIQUE = 0xe,
     ITEM_TYPE_EMPTY = 0xf, // empty slot (all handle bytes 0xff)
 } ItemType;
+
+#define ARROW_INDEX_FIRE 6
 /**
  * Runes tracked in Player.runes: RuneId 0..RUNE_COUNT-1 (the 15 collectible
  * runes, RUNE_DWARF_1_DWARFMETAL..RUNE_MORGUL_3_BLACKNESS; RUNE_NONE = uncarved). The
@@ -179,14 +181,11 @@ typedef struct RuneStats
     u8 stat1; // STAT_NONE when the rune has a single stat
     s8 val1;
 } RuneStats;
-/**
- * One prefix/suffix affix: nameId + up to 4 (stat index, value) modifier pairs. Affix tables are
- * arrays of these (carved/data/affix_tables/).
- */
-typedef struct ItemAffix
+/** Base-item or affix record with a name, tier, and up to four stat modifiers. */
+typedef struct ItemStatRecord
 {
     u16 nameId;
-    // item_getMinLevel adds a prefix's tier halved (>> 1), a suffix's tier whole
+    // Gem-value tier. Minimum level uses half for prefixes and whole for suffixes.
     u8 tier;
 
     u8 stat0;
@@ -200,30 +199,7 @@ typedef struct ItemAffix
 
     u8 stat3;
     s8 val3;
-} ItemAffix;
-/**
- * One base item (the weapon/armor/etc. itself, before affixes): nameId + gold-value tier +
- * up to 4 (stat index, value) modifier pairs. Same binary layout as ItemAffix. The per-type
- * base-item tables (carved/data/item_tables/) hang off ItemTypeInfos[].baseItems, indexed by an
- * equipped item's baseIndex.
- */
-typedef struct ItemBase
-{
-    u16 nameId;
-    u8 tier;
-
-    u8 stat0;
-    s8 val0;
-
-    u8 stat1;
-    s8 val1;
-
-    u8 stat2;
-    s8 val2;
-
-    u8 stat3;
-    s8 val3;
-} ItemBase;
+} ItemStatRecord;
 /** Per-affix flag bits (ItemTypeInfo.prefixFlags / suffixFlags); one u32 per affix. */
 enum AffixFlag
 {
@@ -324,11 +300,11 @@ enum ItemFlag
     // weapon fills both hands; equipping it clears the offhand first
     ITEM_FLAG_TWO_HANDED = 1 << 17,
 
-    // allowed equip slots, bit (18 + InventorySlot). ITEM_FLAG_SLOT_WEAPON | ITEM_FLAG_SLOT_OFFHAND
-    // marks a one-hand weapon eligible for dual-wielding; item_getEquipSlot resolves the actual
-    // slot.
+    // allowed equip slots, bit (18 + InventorySlot). ITEM_FLAG_SLOT_MAINHAND |
+    // ITEM_FLAG_SLOT_OFFHAND marks a one-hand weapon eligible for dual-wielding; item_getEquipSlot
+    // resolves the actual slot.
     ITEM_FLAG_SLOT_ARMOR = 1 << 18,
-    ITEM_FLAG_SLOT_WEAPON = 1 << 19,
+    ITEM_FLAG_SLOT_MAINHAND = 1 << 19,
     ITEM_FLAG_SLOT_OFFHAND = 1 << 20,
     ITEM_FLAG_SLOT_HELMET = 1 << 21,
     ITEM_FLAG_SLOT_CLOAK = 1 << 22,
@@ -337,7 +313,7 @@ enum ItemFlag
     ITEM_FLAG_SLOT_JEWELRY = 1 << 25,
 
     // a one-hand weapon eligible for dual-wielding allows both hand slots
-    ITEM_FLAG_DUAL_WIELD_MASK = ITEM_FLAG_SLOT_WEAPON | ITEM_FLAG_SLOT_OFFHAND,
+    ITEM_FLAG_DUAL_WIELD_MASK = ITEM_FLAG_SLOT_MAINHAND | ITEM_FLAG_SLOT_OFFHAND,
 };
 
 /**
@@ -376,7 +352,7 @@ typedef union ItemFlags {
         u32 carriedPassive : 1; // 1 << 16
         u32 twoHanded : 1;      // 1 << 17
         u32 slotArmor : 1;      // 1 << 18
-        u32 slotWeapon : 1;     // 1 << 19
+        u32 slotMainhand : 1;   // 1 << 19
         u32 slotOffhand : 1;    // 1 << 20
         u32 slotHelmet : 1;     // 1 << 21
         u32 slotCloak : 1;      // 1 << 22
@@ -491,7 +467,7 @@ typedef struct ItemTypeInfo
      * this item type's base-item table (one of the *Items arrays), indexed by an
      * equipped item's baseIndex
      */
-    const ItemBase *baseItems;
+    const ItemStatRecord *baseItems;
 
     /**
      * this item type's prefix region ranges (28 rows, one per region),
@@ -503,7 +479,7 @@ typedef struct ItemTypeInfo
      * this item type's prefix affix table (one of the *Prefixes arrays), indexed by an
      * equipped item's prefixIndex
      */
-    const ItemAffix *prefixes;
+    const ItemStatRecord *prefixes;
 
     /** per-prefix-flag table, indexed by prefixIndex; bit 0/1 = +5 min equip level */
     const AffixFlags *prefixFlags;
@@ -515,7 +491,7 @@ typedef struct ItemTypeInfo
     const AffixIndexRange *suffixTierRanges;
 
     /** this item type's suffix affix table, indexed by an equipped item's suffixIndex */
-    const ItemAffix *suffixes;
+    const ItemStatRecord *suffixes;
 
     /** per-suffix-flag table, indexed by suffixIndex; bit 0/1 = +5 min equip level */
     const AffixFlags *suffixFlags;
@@ -560,12 +536,10 @@ u32 item_getMinLevel(u32 itemHandle);
  */
 char *item_drawInfo(char *buffer, u8 playerIndex, u32 itemHandle, u16 *x, u16 *y, u16 *pen);
 
-/**
- * Apply (remove == 0) or remove (remove != 0) an item's base/rune/prefix/suffix stat modifiers
- * for the given inventory slot. Carried-passive items (ITEM_FLAG_CARRIED_PASSIVE) apply only
- * their base stats, and only when the player meets the class/level requirements.
- */
-void item_applyAffixStats(Item item, u8 inventorySlot, u8 playerIndex, s8 remove);
+void item_applyAffixStats(Item item, u8 inventorySlot, u8 playerIndex, bool remove);
+
+void item_affix_applyToPlayer(const ItemStatRecord *table, u8 inventorySlot, u8 playerIndex,
+                              u8 index, s8 sign);
 
 /**
  * Apply (sign > 0) or un-apply (sign < 0) one carved rune's stats (Runes[runeIndex]) for the
@@ -587,24 +561,10 @@ void item_carveRune(u8 slot, u8 runeIndex, u8 playerIndex);
  */
 u32 item_getEquipSlot(u32 itemHandle, u8 playerIndex);
 
-/**
- * Equip the item in a backpack slot into its item_getEquipSlot slot, swapping out and
- * un-applying whatever was there. Handles two-handed weapons clearing the offhand (and
- * vice versa) and plays the item's equip sfx.
- *
- * @return nonzero on success, 0 when the swap is impossible (e.g. backpack full)
- */
 u32 item_equipFromBackpack(u8 backpackSlot, u8 playerIndex);
 
-/**
- * Move the item in an equipment slot to the first free backpack slot. A one-hand weapon in
- * the offhand is promoted into the weapon slot when the weapon slot is unequipped.
- *
- * @return 0 when the backpack is full
- */
 u32 item_unequipToBackpack(u8 slot, u8 playerIndex);
 
-/** Swap the contents of two inventory slots (equipment or backpack). */
 u32 item_swapSlots(u8 slotA, u8 slotB, u8 playerIndex);
 
 char *item_affix_formatName(char *dst, Item item, u16 maxWidth);

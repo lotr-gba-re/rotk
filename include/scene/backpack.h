@@ -16,5 +16,11 @@ void scene_backpack_exit(void);
  */
 void scene_backpack_setCursorAnimation(u8 cell);
 
+/** Refresh equipment-slot rune overlays before exchanging two inventory slots. */
+void scene_backpack_updateRuneSprites(u8 slotA, u8 slotB, u8 playerIndex);
+
+/** Swap item icon sprites and redraw their destination cells. */
+void scene_backpack_swapSlotSprites(u8 slotA, u8 slotB);
+
 /** Clear the BG2/BG3 tile rect behind an equipment cell's icon. */
 void scene_backpack_clearSlotRect(u8 cell);

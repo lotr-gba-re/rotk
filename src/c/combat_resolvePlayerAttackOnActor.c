@@ -34,10 +34,11 @@ void combat_resolvePlayerAttackOnActor(Actor *attacker, Actor *victim)
                     ITEM_TYPE_KNIFE &&
                 !(attacker->field_0x100 & 0x20))
             {
-                if (ITEM_TYPE_VIA_SHIFT(attackerPlayer->inventory.slots.weapon) != ITEM_TYPE_EMPTY)
+                if (ITEM_TYPE_VIA_SHIFT(attackerPlayer->inventory.slots.mainhand) !=
+                    ITEM_TYPE_EMPTY)
                 {
-                    item_applyAffixStats(PLAYER(attackerPlayerIndex).inventory.slots.weapon,
-                                         INVENTORY_SLOT_WEAPON, attackerPlayerIndex, TRUE);
+                    item_applyAffixStats(PLAYER(attackerPlayerIndex).inventory.slots.mainhand,
+                                         INVENTORY_SLOT_MAINHAND, attackerPlayerIndex, TRUE);
                 }
                 if (ITEM_TYPE_VIA_SHIFT(attackerPlayer->inventory.slots.offhand) != ITEM_TYPE_EMPTY)
                 {
@@ -45,7 +46,7 @@ void combat_resolvePlayerAttackOnActor(Actor *attacker, Actor *victim)
                                          INVENTORY_SLOT_OFFHAND, attackerPlayerIndex, TRUE);
                 }
                 legolasKnife = PLAYER(attackerPlayerIndex).inventory.slots.backpack_0;
-                item_applyAffixStats(legolasKnife, INVENTORY_SLOT_WEAPON, attackerPlayerIndex,
+                item_applyAffixStats(legolasKnife, INVENTORY_SLOT_MAINHAND, attackerPlayerIndex,
                                      FALSE);
             }
         }
@@ -75,11 +76,11 @@ void combat_resolvePlayerAttackOnActor(Actor *attacker, Actor *victim)
             attacker->actionState = ACTOR_STATE_LEGOLAS_WHITE_KNIVES;
             if (legolasKnife.d.itemType == ITEM_TYPE_KNIFE && !(attacker->field_0x100 & 0x20))
             {
-                if (ITEM_TYPE_VIA_SHIFT(PLAYER(attackerPlayerIndex).inventory.slots.weapon) !=
+                if (ITEM_TYPE_VIA_SHIFT(PLAYER(attackerPlayerIndex).inventory.slots.mainhand) !=
                     ITEM_TYPE_EMPTY)
                 {
-                    item_applyAffixStats(PLAYER(attackerPlayerIndex).inventory.slots.weapon,
-                                         INVENTORY_SLOT_WEAPON, attackerPlayerIndex, FALSE);
+                    item_applyAffixStats(PLAYER(attackerPlayerIndex).inventory.slots.mainhand,
+                                         INVENTORY_SLOT_MAINHAND, attackerPlayerIndex, FALSE);
                 }
                 if (ITEM_TYPE_VIA_SHIFT(PLAYER(attackerPlayerIndex).inventory.slots.offhand) !=
                     ITEM_TYPE_EMPTY)
@@ -91,7 +92,7 @@ void combat_resolvePlayerAttackOnActor(Actor *attacker, Actor *victim)
                     ITEM_TYPE_EMPTY)
                 {
                     item_applyAffixStats(PLAYER(attackerPlayerIndex).inventory.slots.backpack_0,
-                                         INVENTORY_SLOT_WEAPON, attackerPlayerIndex, TRUE);
+                                         INVENTORY_SLOT_MAINHAND, attackerPlayerIndex, TRUE);
                 }
             }
         }

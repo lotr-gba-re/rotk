@@ -325,9 +325,9 @@ void actor_lootPile_tick(Actor *drop)
                         1 << (drop->variant - LOOT_TYPE_UNIQUE_WEAPON_MIN);
                 }
                 else if ((ITEM_BASE_METADATA(item).flags.p & ITEM_FLAG_CARRIED_PASSIVE) != 0 &&
-                         item.d.baseIndex != 0x14 && item.d.baseIndex != 0x17)
+                         item.d.baseIndex != UNIQUE_ID_ORC_DRUM &&
+                         item.d.baseIndex != UNIQUE_ID_ORC_HEAD)
                 {
-                    // 0x14/0x17: carried passives without a collected bit
                     Player *players = g_PlayerGlobals.players;
                     Player *player = &players[drop->lastHitByPlayerIndex];
                     player->uniquePassivesCollected |=

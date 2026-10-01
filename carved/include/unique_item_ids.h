@@ -1,12 +1,5 @@
-// Written by rotkit carve item-tables: enum UniqueItemId, one member per
-// UniqueItems row (carved/data/item_tables/UniqueTables.c) named from its
-// TEXT_ID_UNIQUE_* name, plus:
-// - the loot_rollBaseItem band boundaries, derived from the UniqueItemFlags
-//   ITEM_FLAG_UNIQUE_WEAPON / ITEM_FLAG_CARRIED_PASSIVE runs (weapons, then
-//   carried passives, then repeatables);
-// - the bands' UniqueGfx.lootType bases (lootType == base + index across
-//   both bands, asserted at carve time); each base doubles as the
-//   Player.uniqueWeaponsCollected / uniquePassivesCollected bit base.
+// Written by rotkit carve item-tables.
+// Unique-item table indices and exclusive band boundaries.
 #pragma once
 
 enum UniqueItemId
@@ -69,6 +62,3 @@ enum UniqueItemId
 #define UNIQUE_WEAPON_BAND_END UNIQUE_ID_CELEBORNS_PHIAL
 #define UNIQUE_CARRIED_PASSIVE_BAND_END UNIQUE_ID_KING_ALDAZARS_LONGSWORD
 #define UNIQUE_ITEM_COUNT (UNIQUE_ID_NICKOHARES_FOOT + 1)
-
-#define LOOT_TYPE_UNIQUE_WEAPON_MIN 0x3d
-#define LOOT_TYPE_UNIQUE_PASSIVE_MIN 0x47

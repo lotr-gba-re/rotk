@@ -8,7 +8,7 @@
 
 
 /** @romaddress 0x08064344 */
-const ItemBase ShieldItems[8] = {
+const ItemStatRecord ShieldItems[8] = {
     // [0] "Buckler": % Shield Block +10
     { .nameId = TEXT_ID_ITEM_BUCKLER,
       .tier = 1,

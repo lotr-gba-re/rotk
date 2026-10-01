@@ -8,7 +8,7 @@
 
 
 /** @romaddress 0x08064a34 */
-const ItemBase ShoeItems[7] = {
+const ItemStatRecord ShoeItems[7] = {
     // [0] "Wrappings": % Speed +10
     { .nameId = TEXT_ID_ITEM_WRAPPINGS,
       .tier = 1,

@@ -73,7 +73,7 @@ EMPTY_STAT = 0x5A  # 'Z' - empty modifier slot
 STAT_NAME_BASE = 330  # stat name string id = statIdx + 330
 
 # One affix entry: nameId u16, goldValue u8, four (statIdx u8, value s8) pairs. Byte 11 is
-# struct padding (ItemAffix leads with a u16, so it aligns to 2) and reads 0 in every entry.
+# struct padding (ItemStatRecord leads with a u16, so it aligns to 2) and reads 0 in every entry.
 _AFFIX = struct.Struct("<H B Bb Bb Bb Bb x")
 
 ITEM_TYPES = [

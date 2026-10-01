@@ -3,7 +3,7 @@
 #include "tablepatch.h" // TABLE_ENTRY macro (from -Ihacks)
 
 // [77] "Waterstone": was Health +1, Gemfinder +1
-TABLE_ENTRY(ItemAffix, AccessoryPrefixes, 77) = { //
+TABLE_ENTRY(ItemStatRecord, AccessoryPrefixes, 77) = { //
     .nameId = 0x0522,
     .tier = 1,
     .stat0 = STAT_HEALTH,

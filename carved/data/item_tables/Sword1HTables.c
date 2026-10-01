@@ -8,7 +8,7 @@
 
 
 /** @romaddress 0x080631dc */
-const ItemBase Sword1HItems[11] = {
+const ItemStatRecord Sword1HItems[11] = {
     // [0] "Longsword": Melee Damage +11, % Critical +10
     { .nameId = TEXT_ID_ITEM_LONGSWORD,
       .tier = 1,
@@ -130,7 +130,7 @@ const ItemGfx Sword1HGfx[11] = {
 };
 
 /** most common row (10 of 11); deviations are spelled out per entry */
-#define FLAGS_SWORD1H { .familySword = 1, .slotWeapon = 1, .slotOffhand = 1, .classAragorn = 1, .classGandalf = 1, .classEowyn = 1 }
+#define FLAGS_SWORD1H { .familySword = 1, .slotMainhand = 1, .slotOffhand = 1, .classAragorn = 1, .classGandalf = 1, .classEowyn = 1 }
 
 /** @romaddress 0x08063394 */
 const ItemMetadata Sword1HItemFlags[11] = {
@@ -161,7 +161,7 @@ const ItemMetadata Sword1HItemFlags[11] = {
     // [8] "Prestige Sword"
     { .flags.d = { .familySword = 1,
                    .ancient = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classAragorn = 1,
                    .classGandalf = 1,

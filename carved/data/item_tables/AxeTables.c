@@ -8,7 +8,7 @@
 
 
 /** @romaddress 0x0806359c */
-const ItemBase AxeItems[11] = {
+const ItemStatRecord AxeItems[11] = {
     // [0] "Hatchet": Melee Damage +9, % Critical +5, Accuracy -2
     { .nameId = TEXT_ID_ITEM_HATCHET,
       .tier = 1,
@@ -130,13 +130,13 @@ const ItemGfx AxeGfx[11] = {
 };
 
 /** most common row (4 of 11); deviations are spelled out per entry */
-#define FLAGS_AXE { .familyAxe = 1, .slotWeapon = 1, .slotOffhand = 1, .classAragorn = 1, .classEowyn = 1, .classGimli = 1 }
+#define FLAGS_AXE { .familyAxe = 1, .slotMainhand = 1, .slotOffhand = 1, .classAragorn = 1, .classEowyn = 1, .classGimli = 1 }
 
 /** @romaddress 0x08063754 */
 const ItemMetadata AxeItemFlags[11] = {
     // [0] "Hatchet"
     { .flags.d = { .familyAxe = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classFrodo = 1,
                    .classAragorn = 1,
@@ -146,7 +146,7 @@ const ItemMetadata AxeItemFlags[11] = {
 
     // [1] "Axe"
     { .flags.d = { .familyAxe = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classFrodo = 1,
                    .classAragorn = 1,
@@ -156,7 +156,7 @@ const ItemMetadata AxeItemFlags[11] = {
 
     // [2] "Flat Axe"
     { .flags.d = { .familyAxe = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classFrodo = 1,
                    .classAragorn = 1,
@@ -178,7 +178,7 @@ const ItemMetadata AxeItemFlags[11] = {
 
     // [7] "Dwarf Axe"
     { .flags.d = { .familyAxe = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .slotOffhand = 1,
                    .classGimli = 1 },
       .equipSfx = 0x27 },
@@ -187,21 +187,21 @@ const ItemMetadata AxeItemFlags[11] = {
     { .flags.d = { .familyAxe = 1,
                    .ancient = 1,
                    .twoHanded = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .classGimli = 1 },
       .equipSfx = 0x27 },
 
     // [9] "Pole Axe"
     { .flags.d = { .familyAxe = 1,
                    .twoHanded = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .classGimli = 1 },
       .equipSfx = 0x27 },
 
     // [10] "Great Axe"
     { .flags.d = { .familyAxe = 1,
                    .twoHanded = 1,
-                   .slotWeapon = 1,
+                   .slotMainhand = 1,
                    .classGimli = 1 },
       .equipSfx = 0x27 },
 };

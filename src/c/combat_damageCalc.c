@@ -43,18 +43,18 @@ s32 combat_getFlatDamageBonus(s32 playerIndex)
 {
     ItemType offHandType = PLAYER(playerIndex).inventory.slots.offhand.d.itemType;
 #ifndef BUGFIX
-    ItemType mainHandType = PLAYER(playerIndex).inventory.slots.weapon.d.itemType;
+    ItemType mainHandType = PLAYER(playerIndex).inventory.slots.mainhand.d.itemType;
 #endif
     u16 damage = 0;
 
     damage += PLAYER_STAT(playerIndex, STAT_DAMAGE_FLAT);
 
-    // TODO: Find out what hero-specific case this is
+    // Aragorn's flat damage bonus while wielding two weapons. Seems to be unused.
     if (PLAYER(playerIndex).heroId == HERO_ID_ARAGORN &&
-        (PLAYER(playerIndex).combatFlags.p & PLAYER_COMBAT_FLAG_1) &&
-        (PLAYER(playerIndex).combatFlags.p & PLAYER_COMBAT_FLAG_2))
+        (PLAYER(playerIndex).combatFlags.p & PLAYER_COMBAT_FLAG_MAIN_HAND_WEAPON) &&
+        (PLAYER(playerIndex).combatFlags.p & PLAYER_COMBAT_FLAG_OFFHAND_WEAPON))
     {
-        damage += PLAYER_STAT(playerIndex, STAT_UNKNOWN_86);
+        damage += PLAYER_STAT(playerIndex, STAT_ARAGORN_DUAL_WIELD_DAMAGE);
     }
 
     // Weapon type bonuses for each hand, e.g. +x damage with a shield/blades/axes/bows
@@ -67,7 +67,7 @@ s32 combat_getFlatDamageBonus(s32 playerIndex)
     {
         u8 slot;
 
-        for (slot = INVENTORY_SLOT_WEAPON; slot <= INVENTORY_SLOT_OFFHAND; slot++)
+        for (slot = INVENTORY_SLOT_MAINHAND; slot <= INVENTORY_SLOT_OFFHAND; slot++)
         {
             Item item = PLAYER(playerIndex).inventory.array[slot];
             if (item.d.itemType != ITEM_TYPE_EMPTY)

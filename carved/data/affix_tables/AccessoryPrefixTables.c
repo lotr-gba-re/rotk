@@ -6,7 +6,7 @@
 
 
 /** @romaddress 0x08067248 */
-const ItemAffix AccessoryPrefixes[156] = {
+const ItemStatRecord AccessoryPrefixes[156] = {
     // [0] "Cheap": Spirit Points -5, Cheap +1
     { .nameId = TEXT_ID_PREFIX_CHEAP,
       .tier = 1,

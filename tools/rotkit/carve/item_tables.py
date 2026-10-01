@@ -5,9 +5,9 @@ Per-type base items, gfx/loot rows and item flags; the prefix/suffix affix table
 their per-affix flag tables; the master table itself; Runes (@0x080691a8, indexed by an
 item's runeIndex nibble) and ArrowAffixFlags (@0x08063e9c, the arrows' intrinsic elemental
 FX flags). Also emits carved/include/unique_item_ids.h (enum UniqueItemId plus the
-loot_rollBaseItem band boundaries and loot-kind bases) from the UniqueItems nameIds,
-UniqueItemFlags runs and UniqueGfx categories, and carved/include/affix_ids.h (one index
-enum per affix table; the AffixIndexRange tables in the loot-tables family use them).
+loot_rollBaseItem band boundaries) from the UniqueItems nameIds and UniqueItemFlags
+runs. Also emits carved/include/affix_ids.h (one enum per affix table, used by the
+loot-tables family's AffixIndexRange tables).
 
 Base-item counts come from the master row, affix counts from config/data.cfg.
 ROM-adjacent tables share one file per group (GroupWriter) with a *Tables suffix: a
@@ -62,7 +62,7 @@ STAT_NAME_BASE = 330  # decoded stat name string id = statIdx + 330
 
 @dataclass(frozen=True)
 class ItemMod:
-    """One parsed ItemBase/ItemAffix, before name resolution."""
+    """One parsed ItemStatRecord, before name resolution."""
 
     name_id: int
     tier: int
@@ -113,13 +113,20 @@ def mod_column_widths(
 
 
 def loot_type_names() -> dict[int, str]:
-    """LootType value -> member name, minus the ITEM_MIN/ITEM_MAX band markers (the
-    named-unique band 0x3d..0x56 is not enumerable and emits as hex)."""
-    return {
-        v: k
-        for k, v in extract_enum("include/loot.h", "LootType").items()
-        if k not in ("LOOT_TYPE_ITEM_MIN", "LOOT_TYPE_ITEM_MAX")
+    """LootType value -> member name, excluding range aliases."""
+    aliases = {
+        "LOOT_TYPE_ITEM_MIN",
+        "LOOT_TYPE_ITEM_MAX",
+        "LOOT_TYPE_UNIQUE_WEAPON_MIN",
+        "LOOT_TYPE_UNIQUE_PASSIVE_MIN",
     }
+    return invert_enum(
+        {
+            name: value
+            for name, value in extract_enum("include/loot.h", "LootType").items()
+            if name not in aliases
+        }
+    )
 
 
 def stat_index_names() -> dict[int, str]:
@@ -252,7 +259,6 @@ def _mod_todos(
 def _emit_mod_table(
     table: TableSymbol,
     ctx: CarveContext,
-    c_type: str,
     todos_fn: Callable[[list[ItemMod], list[str]], list[str]],
     render_entry: Callable[
         [ItemMod, int, CarveContext, Callable[[int], str], tuple[int, int], list[str]],
@@ -260,10 +266,10 @@ def _emit_mod_table(
     ],
 ) -> tuple[Section, dict[int, str]]:
     """Parse + emit one 12-byte mod table -> (its group-file section, {index: name})."""
-    mod_fields = extract_struct_fields("include/item.h", c_type)
+    mod_fields = extract_struct_fields("include/item.h", "ItemStatRecord")
     if len(mod_fields) != 2 + 2 * NUM_MOD_SLOTS:
         raise SystemExit(
-            f"{c_type} has {len(mod_fields)} fields, expected {2 + 2 * NUM_MOD_SLOTS}"
+            f"ItemStatRecord has {len(mod_fields)} fields, expected {2 + 2 * NUM_MOD_SLOTS}"
         )
     entries = [
         parse_item_mod(ctx.rom, table.addr - ROMBASE + i * ITEM_MOD.size)
@@ -282,7 +288,7 @@ def _emit_mod_table(
     lines += [
         "",
         *doc_comment(table.addr),
-        f"const {c_type} {table.name}[{table.count}] = {{",
+        f"const ItemStatRecord {table.name}[{table.count}] = {{",
     ]
     for i, entry in enumerate(entries):
         lines += render_entry(entry, i, ctx, name_for_stat, widths, mod_fields)
@@ -292,7 +298,7 @@ def _emit_mod_table(
     return section, names
 
 
-# --- Base item tables (ItemBase) ------------------------------------------------
+# --- Base item tables ---------------------------------------------------------
 
 
 def _render_base_item(
@@ -330,7 +336,6 @@ def emit_base_items(
     return _emit_mod_table(
         table,
         ctx,
-        "ItemBase",
         todos_fn=lambda entries, mf: _mod_todos(entries, ctx.strings, mf, fragile_stat),
         render_entry=_render_base_item,
     )
@@ -357,12 +362,7 @@ def _flag_run_end(flags: list[int], bit: int, start: int, what: str) -> int:
 def emit_unique_item_ids(
     table: TableSymbol, ctx: CarveContext, flags_addr: int, gfx_addr: int
 ) -> None:
-    """UniqueItems -> carved/include/unique_item_ids.h: enum UniqueItemId, the
-    loot_rollBaseItem band boundaries (derived from the UniqueItemFlags runs: the
-    ITEM_FLAG_UNIQUE_WEAPON run ends the weapon band, ITEM_FLAG_CARRIED_PASSIVE the
-    carried-passive band), and the bands' lootType bases (UniqueGfx rows; the
-    lootType == base + index contiguity the uniqueWeaponsCollected /
-    uniquePassivesCollected bit math relies on is asserted here)."""
+    """Emit unique-item ids and band boundaries, validating their loot-type runs."""
     members = []
     for i in range(table.count):
         entry = parse_item_mod(ctx.rom, table.addr - ROMBASE + i * ITEM_MOD.size)
@@ -395,25 +395,24 @@ def emit_unique_item_ids(
         _ITEM_GFX.unpack_from(ctx.rom, gfx_addr - ROMBASE + i * _ITEM_GFX.size)[6]
         for i in range(table.count)
     ]
-    weapon_base = categories[0]
-    for i in range(passive_end):
-        if categories[i] != weapon_base + i:
-            raise SystemExit(
-                f"UniqueGfx[{i}].lootType=0x{categories[i]:02x} breaks the weapon/"
-                f"carried-passive band's base + index run (base 0x{weapon_base:02x})"
-            )
+    loot_types = extract_enum("include/loot.h", "LootType")
+    for start, end, base_name in (
+        (0, weapon_end, "LOOT_TYPE_UNIQUE_WEAPON_MIN"),
+        (weapon_end, passive_end, "LOOT_TYPE_UNIQUE_PASSIVE_MIN"),
+    ):
+        for i in range(start, end):
+            loot_name = members[i].replace("UNIQUE_ID_", "LOOT_TYPE_UNIQUE_", 1)
+            expected = loot_types[base_name] + i - start
+            if categories[i] != expected or loot_types.get(loot_name) != expected:
+                raise SystemExit(
+                    f"UniqueGfx[{i}].lootType and {loot_name} must equal "
+                    f"{base_name} + {i - start} (0x{expected:02x})"
+                )
 
     with open(_UNIQUE_ITEM_IDS_OUT, "w") as fh:
         fh.write(
-            "// Written by rotkit carve item-tables: enum UniqueItemId, one member per\n"
-            "// UniqueItems row (carved/data/item_tables/UniqueTables.c) named from its\n"
-            "// TEXT_ID_UNIQUE_* name, plus:\n"
-            "// - the loot_rollBaseItem band boundaries, derived from the UniqueItemFlags\n"
-            "//   ITEM_FLAG_UNIQUE_WEAPON / ITEM_FLAG_CARRIED_PASSIVE runs (weapons, then\n"
-            "//   carried passives, then repeatables);\n"
-            "// - the bands' UniqueGfx.lootType bases (lootType == base + index across\n"
-            "//   both bands, asserted at carve time); each base doubles as the\n"
-            "//   Player.uniqueWeaponsCollected / uniquePassivesCollected bit base.\n"
+            "// Written by rotkit carve item-tables.\n"
+            "// Unique-item table indices and exclusive band boundaries.\n"
         )
         fh.write("#pragma once\n\n")
         fh.write("enum UniqueItemId\n{\n")
@@ -421,16 +420,12 @@ def emit_unique_item_ids(
         fh.write("\n};\n\n")
         fh.write(f"#define UNIQUE_WEAPON_BAND_END {members[weapon_end]}\n")
         fh.write(f"#define UNIQUE_CARRIED_PASSIVE_BAND_END {members[passive_end]}\n")
-        fh.write(f"#define UNIQUE_ITEM_COUNT ({members[-1]} + 1)\n\n")
-        fh.write(f"#define LOOT_TYPE_UNIQUE_WEAPON_MIN 0x{weapon_base:02x}\n")
-        fh.write(
-            f"#define LOOT_TYPE_UNIQUE_PASSIVE_MIN 0x{categories[weapon_end]:02x}\n"
-        )
+        fh.write(f"#define UNIQUE_ITEM_COUNT ({members[-1]} + 1)\n")
 
     print(f"  wrote {os.path.relpath(_UNIQUE_ITEM_IDS_OUT, ROOT)}: {len(members)} ids")
 
 
-# --- Affix tables (ItemAffix) ---------------------------------------------------
+# --- Affix tables -------------------------------------------------------------
 
 # fragileOnKillPickSlot in combat.c reads only the prefix's stat1, so FRAGILE fires only
 # at (prefix, stat1).
@@ -491,7 +486,6 @@ def emit_affix_table(
     return _emit_mod_table(
         table,
         ctx,
-        "ItemAffix",
         todos_fn=lambda entries, mf: _mod_todos(entries, ctx.strings, mf),
         render_entry=lambda entry, i, c, n, w, mf: _render_affix(
             entry, i, is_prefix, c, n, w, mf
@@ -508,7 +502,7 @@ _CLASS_ALL = "ITEM_FLAG_CLASS_ALL"
 # ITEM_FLAG_* names in emission order within an entry (class bits come first).
 _SLOT_BIT_NAMES = [
     "ITEM_FLAG_SLOT_ARMOR",
-    "ITEM_FLAG_SLOT_WEAPON",
+    "ITEM_FLAG_SLOT_MAINHAND",
     "ITEM_FLAG_SLOT_OFFHAND",
     "ITEM_FLAG_SLOT_HELMET",
     "ITEM_FLAG_SLOT_CLOAK",
@@ -738,7 +732,11 @@ def _gfx_row(
         if got != expected:
             raise SystemExit(f"{where}: expected {expected}, found {got}")
 
-    loot_type = loot_type_names.get(row.loot_type, f"0x{row.loot_type:02x}")
+    if row.loot_type not in loot_type_names:
+        raise SystemExit(
+            f"{where}: lootType 0x{row.loot_type:02x} has no enum LootType member"
+        )
+    loot_type = loot_type_names[row.loot_type]
     equip = _icon_symbol(ctx, row.equip_icon, where) if row.equip_icon else "NULL"
     hollow = _icon_symbol(ctx, row.hollow_icon, where)
     if hollow == f"{name}HollowIcon":
@@ -797,7 +795,7 @@ def _snake_upper(name: str) -> str:
 
 
 def emit_affix_ids(affix_tables: list[TableSymbol], ctx: CarveContext) -> None:
-    """Affix tables -> carved/include/affix_ids.h: one index enum per ItemAffix table
+    """Affix tables -> carved/include/affix_ids.h: one index enum per affix table
     (WeaponPrefixId, ..., ItemSuffixId), members named from the affixes'
     TEXT_ID_PREFIX_* / TEXT_ID_SUFFIX_* names."""
     blocks = []
@@ -821,7 +819,7 @@ def emit_affix_ids(affix_tables: list[TableSymbol], ctx: CarveContext) -> None:
         blocks.append(f"enum {base}Id\n{{\n{body}\n}};\n")
     with open(_AFFIX_IDS_OUT, "w") as fh:
         fh.write(
-            "// Written by rotkit carve item-tables: one index enum per ItemAffix table\n"
+            "// Written by rotkit carve item-tables: one index enum per affix table\n"
             "// (carved/data/affix_tables/), members named from the affixes' TEXT_ID_PREFIX_*\n"
             "// / TEXT_ID_SUFFIX_* names; the AffixIndexRange tables (carved/data/loot_tables/)\n"
             "// index with them.\n"
@@ -1002,7 +1000,7 @@ def run() -> None:
         class_mask=flag_values[_CLASS_ALL],
         names_by_addr={s.addr: s.name for s in data_symbols()},
     )
-    affix_counts = {t.addr: t.count for t in table_symbols("ItemAffix[")}
+    stat_record_counts = {t.addr: t.count for t in table_symbols("ItemStatRecord[")}
 
     # Every statIdx used by the base-item and affix tables must have an enum StatIndex
     # member before anything is emitted.
@@ -1024,12 +1022,14 @@ def run() -> None:
             if not table_addr:
                 continue
             affix_tables[table_addr] = TableSymbol(
-                ctx.names_by_addr[table_addr], table_addr, affix_counts[table_addr]
+                ctx.names_by_addr[table_addr],
+                table_addr,
+                stat_record_counts[table_addr],
             )
             affix_flags[flags_addr] = AffixFlagsTable(
                 name=ctx.names_by_addr[flags_addr],
                 addr=flags_addr,
-                count=affix_counts[table_addr],
+                count=stat_record_counts[table_addr],
                 sibling_addr=table_addr,
             )
     check_stat_indices(
