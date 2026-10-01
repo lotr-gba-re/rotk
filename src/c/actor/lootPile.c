@@ -14,6 +14,7 @@
 #include "rng.h"
 #include "save.h"
 #include "sfx.h"
+#include "skill.h"
 #include "sprite.h"
 #include "text.h"
 #include "variables.h"
@@ -500,6 +501,31 @@ void actor_lootPile_trigger(Actor *drop, Actor *playerActor)
     case LOOT_TYPE_LEMBAS_BREAD:
         actor_lootPile_eatFood(playerIndex, 75);
         break;
+#ifdef BUGFIX
+    case LOOT_TYPE_LEGOLAS_HERB_LVL_1:
+    case LOOT_TYPE_LEGOLAS_HERB_LVL_2:
+    case LOOT_TYPE_LEGOLAS_HERB_LVL_3:
+    case LOOT_TYPE_LEGOLAS_HERB_LVL_4:
+    case LOOT_TYPE_LEGOLAS_HERB_LVL_5: {
+        // TODO: Update Foraging's HP curve to 25 per level to preserve vanilla healing.
+        const ActiveSkill *skill = &ActiveSkillsLegolas[ACTIVE_SKILL_LEGOLAS_FORAGING];
+        u8 herbLevel = drop->variant - LOOT_TYPE_LEGOLAS_HERB_LVL_1 + 1;
+        s16 hp = skill->values[0].base;
+        s16 spirit = skill->values[1].base;
+        u8 level;
+
+        for (level = 0; level < herbLevel; level++)
+        {
+            hp += skill->values[0].perLevel[level];
+            spirit += skill->values[1].perLevel[level];
+        }
+        player_addHp(playerIndex, hp, FALSE);
+        player_addSpirit(playerIndex, spirit);
+        sfx_play(SFX_EAT_FOOD);
+        break;
+    }
+#else
+    // BUG: Herb pickups use fixed amounts instead of Foraging's HP and spirit curves.
     case LOOT_TYPE_LEGOLAS_HERB_LVL_1:
         player_addHp(playerIndex, 25, FALSE);
         player_addSpirit(playerIndex, 10);
@@ -525,6 +551,7 @@ void actor_lootPile_trigger(Actor *drop, Actor *playerActor)
         player_addSpirit(playerIndex, 50);
         sfx_play(SFX_EAT_FOOD);
         break;
+#endif
     case LOOT_TYPE_ENT_WATER:
         if ((PLAYER(playerIndex).statusFlags.p & PLAYER_STATUS_FLAG_ENT_WATER) == 0)
         {
