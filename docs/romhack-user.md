@@ -17,6 +17,17 @@ Using an otherwise patched ROM as the base is also unsupported.
 
 If you run into save game issues, read the [save game information](#save-game-information) in this document.
 
+> [!warning]
+> **Make sure to save in-game and then delete all your emulator save states (which are different from your in-game save) before you install or update this mod.**
+> Also make sure your emulator does a fresh game startup instead of resuming an automatic save state after you install or update this mod.
+>
+> Emulator save states include volatile RAM state.
+> RAM data layout is not stable between vanilla, other mods, or even different versions of this mod.
+> If you use save states with different ROMs, you _will_ run into issues.
+>
+> After you have successfully installed/updated this mod, you can use emulator save states as much as you want until you update again.
+> However, in general I recommend treating emulator save states as temporary saves and primarily using in-game saves instead.
+
 ## Features
 
 The overall goal of my patches and changes is to provide a "Vanilla+"-style experience of the original game paired with modern quality of life features.
